@@ -1,8 +1,65 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model DoAn_Web.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Trang Chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+    @if (!string.IsNullOrEmpty(ViewBag.UserName))
+    {
+                <h3 class="text-center text-dark">Chào mừng @ViewBag.UserName!</h3>
+    }
+    else
+    {
+                <h3 class="text-center text-dark">Chào mừng đến với trang tuyển dụng!</h3>
+    }
+
+    <!-- Việc làm mới nhất -->
+    <h4 class="mt-4">Việc làm mới nhất</h4>
+    <div class="row">
+        @foreach (var job in Model.Jobs)
+        {
+                <div class="col-md-4">
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@job.Title</h5>
+                            <p class="card-text"><strong>@job.Company.Name</strong> - @job.SalaryRange</p>
+                            <p class="card-text"><small class="text-muted">Hạn nộp: @job.ApplicationDeadline.ToString("dd/MM/yyyy")</small></p>
+                            <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.JobId" class="btn btn-primary">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+        }
+    </div>
+
+    <!-- Công ty nổi bật -->
+    <h4 class="mt-4">Công ty nổi bật</h4>
+    <div class="row">
+        @foreach (var company in Model.Companies)
+        {
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <img src="@company.LogoUrl" class="card-img-top" alt="Company Logo">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@company.Name</h5>
+                            <p class="card-text">@company.Address</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Xem công ty</a>
+                        </div>
+                    </div>
+                </div>
+        }
+    </div>
+
+    <!-- Ngành nghề tuyển dụng -->
+    <h4 class="mt-4">Ngành nghề tuyển dụng</h4>
+    <div class="row">
+        @foreach (var industry in Model.Industries)
+        {
+                <div class="col-md-4">
+                    <div class="alert alert-info text-center">
+                        <h5>@industry.Name</h5>
+                        <p>@industry.Description</p>
+                    </div>
+                </div>
+        }
+    </div>
 </div>

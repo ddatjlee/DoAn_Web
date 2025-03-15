@@ -13,6 +13,8 @@ public partial class JobPosting
 
     public int LevelId { get; set; }
 
+    public int? LocationId { get; set; }
+
     public string Title { get; set; } = null!;
 
     public string Description { get; set; } = null!;
@@ -40,4 +42,8 @@ public partial class JobPosting
     public virtual JobType JobType { get; set; } = null!;
 
     public virtual ExperienceLevel Level { get; set; } = null!;
+
+    public virtual Location? Location { get; set; }
+
+    public virtual ICollection<Skill> Skills { get; set; } = new List<Skill>();
 }

@@ -13,10 +13,8 @@ namespace DoAn_Web.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Nếu muốn cấu hình thêm, có thể thêm tại đây (ví dụ: unique email)
-            modelBuilder.Entity<Student>()
-                .HasIndex(s => s.Email)
-                .IsUnique();
+            // Nếu muốn cấu hình thêm, có thể thêm tại đây (ví dụ: unique email
+
         }
     }
 }

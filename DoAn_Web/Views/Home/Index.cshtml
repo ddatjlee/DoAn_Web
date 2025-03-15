@@ -1,34 +1,64 @@
 ﻿@model DoAn_Web.Models.HomeViewModel
+
 @{
-    ViewData["Title"] = "Trang Chủ";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="container mt-4">
-    @if (!string.IsNullOrEmpty(ViewBag.UserName))
-    {
-                <h3 class="text-center text-dark">Chào mừng @ViewBag.UserName!</h3>
-    }
-    else
-    {
-                <h3 class="text-center text-dark">Chào mừng đến với trang tuyển dụng!</h3>
-    }
+@section Header {
+        <section class="header-section">
+            <div class="header-content">
+                <h3 class="text-center">Chào mừng đến với trang tuyển dụng!</h3>
+                <!-- Khung tìm kiếm công ty -->
+                <div class="search-bar mt-4">
+                    <form class="d-flex" asp-controller="Home" asp-action="SearchCompany" method="get">
+                        <input type="text" name="companyName" class="form-control" placeholder="Tìm công ty...">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+}
+
+<!-- Nội dung chính -->
+<div class="row">
     <!-- Việc làm mới nhất -->
     <h4 class="mt-4">Việc làm mới nhất</h4>
     <div class="row">
         @foreach (var job in Model.Jobs)
         {
-                <div class="col-md-4">
-                    <div class="card shadow-sm mb-3">
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
                         <div class="card-body">
+                            <!-- Hiển thị tên công việc -->
                             <h5 class="card-title">@job.Title</h5>
+                            <!-- Hiển thị tên công ty và lương -->
                             <p class="card-text"><strong>@job.Company.Name</strong> - @job.SalaryRange</p>
+                            <!-- Hiển thị địa điểm -->
+                            <p class="card-text"><strong>Địa điểm:</strong> @(job.Location != null ? $"{job.Location.City}, {job.Location.Country}" : "Không xác định")</p>
+                            <!-- Hiển thị yêu cầu công việc -->
+                            <p class="card-text"><strong>Mô tả:</strong> @job.Description</p>
+                            <!-- Hiển thị kỹ năng yêu cầu -->
+                            <p class="card-text">
+                                <strong>Kỹ năng:</strong>
+                            @foreach (var skill in job.Skills)
+                            {
+                                        <span>@skill.Name</span>
+                                if (skill != job.Skills.Last())
+                                {
+                                    <span>, </span>
+                                }
+                            }
+                            </p>
+                            <!-- Hiển thị hạn nộp -->
                             <p class="card-text"><small class="text-muted">Hạn nộp: @job.ApplicationDeadline.ToString("dd/MM/yyyy")</small></p>
-                            <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.JobId" class="btn btn-primary">Xem chi tiết</a>
+                            <!-- Liên kết đến chi tiết công việc -->
+                            <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-primary">Xem chi tiết</a>
                         </div>
                     </div>
                 </div>
         }
     </div>
+
     <!-- Công ty nổi bật -->
     <h4 class="mt-4">Công ty nổi bật</h4>
     <div class="row">
@@ -36,25 +66,12 @@
         {
                 <div class="col-md-3">
                     <div class="card shadow-sm">
-                        <img src="@company.LogoUrl" class="card-img-top" alt="Company Logo">
+                            <img src="/images/@company.LogoUrl" class="card-img-top" alt="@company.Name Logo">
                         <div class="card-body text-center">
                             <h5 class="card-title">@company.Name</h5>
                             <p class="card-text">@company.Address</p>
                             <a href="#" class="btn btn-outline-primary btn-sm">Xem công ty</a>
                         </div>
-                    </div>
-                </div>
-        }
-    </div>
-    <!-- Ngành nghề tuyển dụng -->
-    <h4 class="mt-4">Ngành nghề tuyển dụng</h4>
-    <div class="row">
-        @foreach (var industry in Model.Industries)
-        {
-                <div class="col-md-4">
-                    <div class="alert alert-info text-center">
-                        <h5>@industry.Name</h5>
-                        <p>@industry.Description</p>
                     </div>
                 </div>
         }

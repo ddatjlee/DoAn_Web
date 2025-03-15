@@ -10,4 +10,6 @@ public partial class Location
     public string City { get; set; } = null!;
 
     public string Country { get; set; } = null!;
+
+    public virtual ICollection<JobPosting> JobPostings { get; set; } = new List<JobPosting>();
 }

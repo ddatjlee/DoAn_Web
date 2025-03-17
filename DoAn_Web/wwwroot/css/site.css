@@ -109,3 +109,77 @@ footer {
             color: white;
             transform: translateY(-2px); /* Tạo hiệu ứng di chuyển lên khi hover */
         }
+
+/* Tùy chỉnh thẻ công việc */
+.job-card {
+    transition: transform 0.2s;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.job-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.job-card .card-text {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.job-card .text-success {
+    font-weight: 500;
+}
+
+/* Tùy chỉnh nút */
+.job-btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn-custom {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+}
+
+    .btn-custom:hover {
+        background-color: #333333;
+        color: #ffffff;
+    }
+
+/* Khoảng cách giữa các nút */
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+/* Tùy chỉnh thẻ công ty */
+.company-card {
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+    .company-card img {
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .company-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .company-card .card-text {
+        font-size: 0.9rem;
+        color: #666;
+    }

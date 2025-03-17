@@ -1,20 +1,30 @@
 ﻿<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-5">
-            <div class="card shadow-lg p-4"> <!-- Thêm khung card -->
+            <div class="card shadow-lg p-4">
                 <h3 class="text-center">Đăng nhập</h3>
 
                 @if (ViewBag.ErrorMessage != null)
                 {
                         <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
                 }
-                <form method="post">
-                    <!-- Email Input -->
+
+                <form method="post" asp-action="Login" asp-controller="Home">
+                    <!-- Chọn vai trò -->
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
+                        <label class="form-label">Vai trò</label>
+                        <select name="role" class="form-control" required>
+                            <option value="student">Sinh viên</option>
+                            <option value="company">Công ty</option>
+                        </select>
+                    </div>
+
+                    <!-- Trường đăng nhập thay đổi theo vai trò -->
+                    <div class="mb-3">
+                        <label class="form-label" id="loginLabel">Mã sinh viên</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            <input type="email" name="email" class="form-control" placeholder="Nhập email của bạn" required>
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" name="username" class="form-control" placeholder="Nhập mã sinh viên hoặc email" required>
                         </div>
                     </div>
 
@@ -36,7 +46,37 @@
                 <p class="text-center mt-3">
                     <a asp-controller="Home" asp-action="Register">Tạo tài khoản mới</a>
                 </p>
-            </div> <!-- Kết thúc card -->
+            </div>
         </div>
     </div>
+
+    @section Scripts {
+            <script>
+                function togglePassword() {
+                    var password = document.getElementById("password");
+                    var icon = document.getElementById("togglePasswordIcon");
+                    if (password.type === "password") {
+                        password.type = "text";
+                        icon.classList.remove("fa-eye");
+                        icon.classList.add("fa-eye-slash");
+                    } else {
+                        password.type = "password";
+                        icon.classList.remove("fa-eye-slash");
+                        icon.classList.add("fa-eye");
+                    }
+                }
+                // Thay đổi placeholder và label dựa trên vai trò
+                document.querySelector('select[name="role"]').addEventListener('change', function() {
+                    var label = document.getElementById('loginLabel');
+                    var input = document.querySelector('input[name="username"]');
+                    if (this.value === 'student') {
+                        label.textContent = 'Mã sinh viên';
+                        input.placeholder = 'Nhập mã sinh viên';
+                    } else if (this.value === 'company') {
+                        label.textContent = 'Email';
+                        input.placeholder = 'Nhập email công ty';
+                    }
+                });
+            </script>
+    }
 </div>

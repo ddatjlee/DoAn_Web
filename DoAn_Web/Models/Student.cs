@@ -32,4 +32,6 @@ public partial class Student
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual ICollection<Skill> Skills { get; set; } = new List<Skill>();
+
+    public virtual ICollection<StudentSkill> StudentSkills { get; set; } = new List<StudentSkill>(); // Thêm property này
 }

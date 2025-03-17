@@ -68,12 +68,6 @@
             background-color: #007bff;
             border: none;
         }
-
-        /* Phần nội dung chính (không có background) */
-        .content-section {
-            padding: 30px 0;
-            background-color: #f8f9fa; /* Nền trắng nhạt */
-        }
     </style>
 </head>
 <body>
@@ -98,22 +92,38 @@
                     </li>
                 </ul>
 
-                <!-- Hiển thị menu đăng nhập/đăng xuất -->
+                <!-- Hiển thị menu đăng nhập/đăng xuất và thông báo -->
                 <ul class="navbar-nav fw-bold">
-                    @if (Context.Session.GetString("UserEmail") != null)
+                    @if (Context.Session.GetInt32("StudentId") != null)
                     {
-                            <li class="nav-item fw-bold">
-                                <span class="navbar-text text-dark me-3">Chào @Context.Session.GetString("UserName")</span>
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" asp-controller="Notifications" asp-action="Index">
+                                    <i class="fas fa-bell"></i> Thông báo
+                                @if (ViewBag.UnreadNotifications > 0)
+                                {
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        @ViewBag.UnreadNotifications
+                                                <span class="visually-hidden">Thông báo chưa đọc</span>
+                                            </span>
+                                }
+                                </a>
                             </li>
-                            <li class="nav-item fw-bold">
-                                <a class="btn btn-outline-light btn-sm" asp-controller="Home" asp-action="Logout">Đăng xuất</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="studentDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Chào @Context.Session.GetString("StudentName")
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="studentDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Profile">Thông tin cá nhân</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
+                                </ul>
                             </li>
                     }
                     else
                     {
                             <li class="nav-item fw-bold">
-                                <a class="btn btn-outline-light btn-sm" asp-controller="Home" asp-action="Login">Đăng nhập</a>
-                                <a class="btn btn-outline-light btn-sm" asp-controller="Home" asp-action="Register">Đăng kí</a>
+                                <a class="btn btn-outline-dark btn-sm me-2" asp-controller="Home" asp-action="Login">Đăng nhập</a>
+                                <a class="btn btn-outline-dark btn-sm" asp-controller="Home" asp-action="Register">Đăng ký</a>
                             </li>
                     }
                 </ul>

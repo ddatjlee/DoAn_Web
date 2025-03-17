@@ -1,4 +1,5 @@
-﻿@model DoAn_Web.Models.JobPosting
+﻿
+@model DoAn_Web.Models.JobPosting
 
 @{
     ViewData["Title"] = "Chi tiết công việc";
@@ -29,7 +30,7 @@
         </p>
         <p class="card-text"><strong>Hạn nộp:</strong> @Model.ApplicationDeadline.ToString("dd/MM/yyyy")</p>
         <p class="card-text"><strong>Số lượng tuyển:</strong> @Model.Vacancies</p>
-        <a asp-controller="Jobs" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Quay lại</a>
         @if (Context.Session.GetString("StudentCode") != null)
         {
                 <a asp-controller="Applications" asp-action="Create" asp-route-jobId="@Model.JobId" class="btn btn-primary">Ứng tuyển ngay</a>

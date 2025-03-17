@@ -27,32 +27,26 @@
         @foreach (var job in Model.Jobs)
         {
                 <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm job-card">
                         <div class="card-body">
                             <!-- Hiển thị tên công việc -->
                             <h5 class="card-title">@job.Title</h5>
                             <!-- Hiển thị tên công ty và lương -->
-                            <p class="card-text"><strong>@job.Company.Name</strong> - @job.SalaryRange</p>
+                            <p class="card-text"><strong>@job.Company.Name</strong> - <span class="text-success">@job.SalaryRange</span></p>
                             <!-- Hiển thị địa điểm -->
                             <p class="card-text"><strong>Địa điểm:</strong> @(job.Location != null ? $"{job.Location.City}, {job.Location.Country}" : "Không xác định")</p>
                             <!-- Hiển thị yêu cầu công việc -->
                             <p class="card-text"><strong>Mô tả:</strong> @job.Description</p>
-                            <!-- Hiển thị kỹ năng yêu cầu -->
-                            <p class="card-text">
-                                <strong>Kỹ năng:</strong>
-                            @foreach (var skill in job.Skills)
-                            {
-                                        <span>@skill.Name</span>
-                                if (skill != job.Skills.Last())
-                                {
-                                    <span>, </span>
-                                }
-                            }
-                            </p>
                             <!-- Hiển thị hạn nộp -->
                             <p class="card-text"><small class="text-muted">Hạn nộp: @job.ApplicationDeadline.ToString("dd/MM/yyyy")</small></p>
-                            <!-- Liên kết đến chi tiết công việc -->
-                            <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-primary">Xem chi tiết</a>
+                            <!-- Nút Xem chi tiết và Ứng tuyển -->
+                            <div class="d-flex justify-content-end mt-3">
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-custom job-btn me-2">Xem chi tiết</a>
+                            @if (Context.Session.GetInt32("StudentId") != null)
+                            {
+                                        <a asp-controller="Applications" asp-action="ApplyJob" asp-route-jobId="@job.JobId" class="btn btn-custom job-btn">Ứng tuyển</a>
+                            }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -65,8 +59,8 @@
         @foreach (var company in Model.Companies)
         {
                 <div class="col-md-3">
-                    <div class="card shadow-sm">
-                            <img src="/images/@company.LogoUrl" class="card-img-top" alt="@company.Name Logo">
+                    <div class="card shadow-sm company-card">
+                        <img src="/images/@company.LogoUrl" class="card-img-top" alt="@company.Name Logo">
                         <div class="card-body text-center">
                             <h5 class="card-title">@company.Name</h5>
                             <p class="card-text">@company.Address</p>

@@ -1,0 +1,100 @@
+﻿@model DoAn_Web.Models.JobPosting
+
+@{
+    ViewData["Title"] = "Đăng tin tuyển dụng";
+}
+
+<h2>Đăng tin tuyển dụng</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="CreateJob" method="post" class="mt-4">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="JobTypeId" class="form-label">Loại công việc</label>
+        <select asp-for="JobTypeId" class="form-control" asp-items="@(new SelectList(ViewBag.JobTypes, "JobTypeId", "Name"))" required>
+            <option value="">Chọn loại công việc</option>
+        </select>
+        <span asp-validation-for="JobTypeId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LevelId" class="form-label">Mức độ kinh nghiệm</label>
+        <select asp-for="LevelId" class="form-control" asp-items="@(new SelectList(ViewBag.ExperienceLevels, "LevelId", "Name"))" required>
+            <option value="">Chọn mức độ kinh nghiệm</option>
+        </select>
+        <span asp-validation-for="LevelId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LocationId" class="form-label">Địa điểm</label>
+        <select asp-for="LocationId" class="form-control" asp-items="@(new SelectList(ViewBag.Locations, "LocationId", "City"))">
+            <option value="">Chọn địa điểm</option>
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Tiêu đề</label>
+        <input asp-for="Title" class="form-control" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Mô tả</label>
+        <textarea asp-for="Description" class="form-control" required></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Requirements" class="form-label">Yêu cầu</label>
+        <textarea asp-for="Requirements" class="form-control" required></textarea>
+        <span asp-validation-for="Requirements" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Benefits" class="form-label">Quyền lợi</label>
+        <textarea asp-for="Benefits" class="form-control"></textarea>
+        <span asp-validation-for="Benefits" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SalaryRange" class="form-label">Mức lương</label>
+        <input asp-for="SalaryRange" class="form-control" required />
+        <span asp-validation-for="SalaryRange" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ApplicationDeadline" class="form-label">Hạn nộp đơn</label>
+        <input asp-for="ApplicationDeadline" type="date" class="form-control" required />
+        <span asp-validation-for="ApplicationDeadline" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Vacancies" class="form-label">Số lượng tuyển</label>
+        <input asp-for="Vacancies" type="number" class="form-control" value="1" required />
+        <span asp-validation-for="Vacancies" class="text-danger"></span>
+    </div>
+
+    @* <div class="mb-3"> *@
+    @*     <label class="form-label">Kỹ năng yêu cầu</label> *@
+    @*     <select multiple name="SelectedSkills" class="form-control"> *@
+    @*         @foreach (var skill in (IEnumerable<Skill>)ViewBag.Skills ?? Enumerable.Empty<Skill>()) *@
+    @*         { *@
+    @*                 <option value="@skill.SkillId">@skill.Name</option> *@
+    @*         } *@
+    @*     </select> *@
+    @* </div> *@
+
+    <button type="submit" class="btn btn-primary">Đăng tin</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Quay lại</a>
+</form>

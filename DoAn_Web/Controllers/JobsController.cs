@@ -1,87 +1,88 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using DoAn_Web.Models;
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Linq;
 
-namespace YourNamespace.Controllers
+namespace DoAn_Web.Controllers
 {
     public class JobsController : Controller
     {
         private readonly RecruitmentSystemContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public JobsController(RecruitmentSystemContext context)
+        public JobsController(RecruitmentSystemContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
+        }
+        [HttpGet]
+        public IActionResult CreateJob()
+        {
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.JobTypes = _context.JobTypes.ToList();
+            ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
+            ViewBag.Locations = _context.Locations.ToList();
+            ViewBag.Skills = _context.Skills.ToList(); // Thêm danh sách kỹ năng
+            return View();
         }
 
-        // Hiển thị danh sách việc làm với lọc và phân trang
-        public async Task<IActionResult> Index(string searchString, int? locationId, int pageNumber = 1)
+        [HttpPost]
+        public async Task<IActionResult> CreateJob(JobPosting jobPosting, int[] selectedSkills)
         {
-            int pageSize = 6;
-
-            // Lấy danh sách địa điểm để hiển thị trong dropdown lọc
-            ViewBag.Locations = await _context.Locations.ToListAsync();
-
-            var jobsQuery = _context.JobPostings
-                .Include(j => j.Company)
-                .Include(j => j.JobType)
-                .Include(j => j.Level)
-                .Include(j => j.Location) // Include Location thay vì Locations
-                .Include(j => j.Skills)   // Include Skills
-                .Where(j => j.IsActive == true); // Chỉ lấy các công việc đang hoạt động
-
-            // Lọc theo từ khóa tìm kiếm
-            if (!string.IsNullOrEmpty(searchString))
+            if (!ModelState.IsValid)
             {
-                jobsQuery = jobsQuery.Where(j => j.Title.Contains(searchString) || j.Company.Name.Contains(searchString));
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);  // In lỗi ra console để kiểm tra
+                }
             }
 
-            // Lọc theo địa điểm
-            if (locationId.HasValue)
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
             {
-                jobsQuery = jobsQuery.Where(j => j.LocationId == locationId);
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
+                return RedirectToAction("Index", "Home");
             }
 
-            // Đếm tổng số công việc để phân trang
-            var totalJobs = await jobsQuery.CountAsync();
+            jobPosting.CompanyId = companyId.Value;
+            jobPosting.CreatedAt = DateTime.Now;
+            jobPosting.UpdatedAt = DateTime.Now;
+            jobPosting.IsActive = true;
+            jobPosting.IsApproved = false;  // Đặt IsApproved là false khi tạo tin
 
-            // Phân trang
-            var jobs = await jobsQuery
-                .OrderByDescending(j => j.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            // In giá trị của jobPosting để kiểm tra trước khi lưu
+            Console.WriteLine($"Job Title: {jobPosting.Title}");
+            Console.WriteLine($"Salary Range: {jobPosting.SalaryRange}");
 
-            // Tạo model để truyền vào view
-            var model = new
+            // Lưu công việc vào cơ sở dữ liệu
+            _context.JobPostings.Add(jobPosting);
+            await _context.SaveChangesAsync();
+
+            var notification = new Notification
             {
-                Jobs = jobs,
-                TotalPages = (int)Math.Ceiling(totalJobs / (double)pageSize),
-                CurrentPage = pageNumber,
-                SearchString = searchString,
-                LocationId = locationId
+                UserId = companyId.Value,  // Gửi thông báo cho công ty này
+                UserType = "company",
+                Message = $"Bài đăng '{jobPosting.Title}' của bạn đang đợi admin duyệt.",
+                IsRead = false,
+                CreatedAt = DateTime.Now
             };
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
 
-            return View(model);
+            TempData["SuccessMessage"] = "Đăng tin tuyển dụng thành công! Đợi admin duyệt.";
+            return RedirectToAction("Index","Home");
         }
 
-        // Hiển thị chi tiết công việc
-        public async Task<IActionResult> Details(int id)
-        {
-            var job = await _context.JobPostings
-                .Include(j => j.Company)
-                .Include(j => j.JobType)
-                .Include(j => j.Level)
-                .Include(j => j.Location) // Include Location thay vì Locations
-                .Include(j => j.Skills)   // Include Skills
-                .FirstOrDefaultAsync(m => m.JobId == id);
-
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            return View(job);
-        }
     }
 }

@@ -13,6 +13,8 @@ public partial class Company
 
     public string Email { get; set; } = null!;
 
+    public string PasswordHash { get; set; } = null!;
+
     public string Phone { get; set; } = null!;
 
     public string? Website { get; set; }

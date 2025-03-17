@@ -31,6 +31,8 @@ public partial class JobPosting
 
     public bool? IsActive { get; set; }
 
+    public bool IsApproved { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }

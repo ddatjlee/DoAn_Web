@@ -12,33 +12,83 @@
 
     <form method="post" asp-controller="Home" asp-action="Register" onsubmit="return validatePassword()">
         <div class="mb-3">
+            <label class="form-label">Vai trò</label>
+            <select name="role" class="form-control" required onchange="showFields()">
+                <option value="student">Sinh viên</option>
+                <option value="company">Công ty</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <!-- Sinh viên -->
+        <div id="studentFields">
+            <div class="mb-3">
+                <label class="form-label">Mã sinh viên</label>
+                <input type="text" name="studentCode" class="form-control" placeholder="Nhập mã sinh viên" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" name="phone" class="form-control" placeholder="Nhập số điện thoại" required />
+            </div>
+        </div>
+
+        <!-- Công ty -->
+        <div id="companyFields" style="display: none;">
+            <div class="mb-3">
+                <label class="form-label">Tên công ty</label>
+                <input type="text" name="companyName" class="form-control" placeholder="Nhập tên công ty" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email công ty</label>
+                <input type="email" name="companyEmail" class="form-control" placeholder="Nhập email công ty" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại công ty</label>
+                <input type="text" name="companyPhone" class="form-control" placeholder="Nhập số điện thoại công ty" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Website công ty</label>
+                <input type="url" name="companyWebsite" class="form-control" placeholder="Nhập website công ty" required />
+            </div>
+        </div>
+
+        <!-- Admin -->
+        <div id="adminFields" style="display: none;">
+            <div class="mb-3">
+                <label class="form-label">Tên Admin</label>
+                <input type="text" name="adminFullName" class="form-control" placeholder="Nhập tên admin" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email Admin</label>
+                <input type="email" name="adminEmail" class="form-control" placeholder="Nhập email admin" required />
+            </div>
+        </div>
+
+        <!-- Các trường chung -->
+        <div class="mb-3">
             <label class="form-label">Họ và Tên</label>
             <input type="text" name="fullName" class="form-control" placeholder="Nhập Họ Tên" required />
         </div>
+
         <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" placeholder="Nhập Email" required />
+            <label class="form-label">Mật khẩu</label>
+            <div class="input-group">
+                <input type="password" id="password" name="password" class="form-control" placeholder="Nhập Mật Khẩu" required />
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', 'togglePasswordIcon')">
+                    <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                </button>
+            </div>
         </div>
 
         <div class="mb-3">
-    <label class="form-label">Mật khẩu</label>
-    <div class="input-group">
-        <input type="password" id="password" name="password" class="form-control" placeholder="Nhập Mật Khẩu" required />
-        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', 'togglePasswordIcon')">
-            <i id="togglePasswordIcon" class="fas fa-eye"></i>
-        </button>
-    </div>
-</div>
-
-<div class="mb-3">
-    <label class="form-label">Nhập lại mật khẩu</label>
-    <div class="input-group">
-        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Nhập lại Mật Khẩu" required />
-        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword', 'toggleConfirmPasswordIcon')">
-            <i id="toggleConfirmPasswordIcon" class="fas fa-eye"></i>
-        </button>
-    </div>
-</div>
+            <label class="form-label">Nhập lại mật khẩu</label>
+            <div class="input-group">
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Nhập lại Mật Khẩu" required />
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword', 'toggleConfirmPasswordIcon')">
+                    <i id="toggleConfirmPasswordIcon" class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
 
         <div id="error-message" class="text-danger"></div>
         <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
@@ -48,34 +98,3 @@
         Đã có tài khoản? <a asp-controller="Home" asp-action="Login">Đăng nhập</a>
     </p>
 </div>
-
-<script>
-    function validatePassword() {
-        var password = document.getElementById("password").value;
-        var confirmPassword = document.getElementById("confirmPassword").value;
-        var errorMessage = document.getElementById("error-message");
-
-        if (password !== confirmPassword) {
-            errorMessage.innerText = "Mật khẩu nhập lại không khớp!";
-            return false;
-        }
-        return true;
-    }
-</script>
-
-<script>
-    function togglePassword(inputId, iconId) {
-        var input = document.getElementById(inputId);
-        var icon = document.getElementById(iconId);
-
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            input.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
-    }
-</script>

@@ -45,9 +45,9 @@ public partial class RecruitmentSystemContext : DbContext
     {
         modelBuilder.Entity<Admin>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__Admins__719FE4E83F0ADBD6");
+            entity.HasKey(e => e.AdminId).HasName("PK__Admins__719FE4E85095AB1B");
 
-            entity.HasIndex(e => e.Email, "UQ__Admins__A9D10534275F7E2B").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Admins__A9D1053400F486A2").IsUnique();
 
             entity.Property(e => e.AdminId).HasColumnName("AdminID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -58,7 +58,7 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Application>(entity =>
         {
-            entity.HasKey(e => e.ApplicationId).HasName("PK__Applicat__C93A4F79C22B7651");
+            entity.HasKey(e => e.ApplicationId).HasName("PK__Applicat__C93A4F7913F8B7FF");
 
             entity.HasIndex(e => new { e.JobId, e.StudentId }, "UC_JobStudent").IsUnique();
 
@@ -84,11 +84,11 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Company>(entity =>
         {
-            entity.HasKey(e => e.CompanyId).HasName("PK__Companie__2D971C4CF5C3DFB9");
+            entity.HasKey(e => e.CompanyId).HasName("PK__Companie__2D971C4CAA3C5901");
 
-            entity.HasIndex(e => e.TaxCode, "UQ__Companie__12945A28EA2B5918").IsUnique();
+            entity.HasIndex(e => e.TaxCode, "UQ__Companie__12945A28F1C72148").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Companie__A9D10534AA270B37").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Companie__A9D105341070757D").IsUnique();
 
             entity.HasIndex(e => e.Name, "idx_CompanyName");
 
@@ -97,6 +97,7 @@ public partial class RecruitmentSystemContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.LogoUrl).HasMaxLength(512);
             entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.TaxCode).HasMaxLength(20);
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(getdate())");
@@ -106,9 +107,9 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<ExperienceLevel>(entity =>
         {
-            entity.HasKey(e => e.LevelId).HasName("PK__Experien__09F03C06F90F0825");
+            entity.HasKey(e => e.LevelId).HasName("PK__Experien__09F03C06B75D802C");
 
-            entity.HasIndex(e => e.Name, "UQ__Experien__737584F6C37D1958").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__Experien__737584F69D146EA7").IsUnique();
 
             entity.Property(e => e.LevelId).HasColumnName("LevelID");
             entity.Property(e => e.Name).HasMaxLength(50);
@@ -116,7 +117,7 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Interview>(entity =>
         {
-            entity.HasKey(e => e.InterviewId).HasName("PK__Intervie__C97C5832B2936BBB");
+            entity.HasKey(e => e.InterviewId).HasName("PK__Intervie__C97C5832B9354D02");
 
             entity.Property(e => e.InterviewId).HasColumnName("InterviewID");
             entity.Property(e => e.ApplicationId).HasColumnName("ApplicationID");
@@ -133,7 +134,7 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<JobPosting>(entity =>
         {
-            entity.HasKey(e => e.JobId).HasName("PK__JobPosti__056690E2A4CF24D8");
+            entity.HasKey(e => e.JobId).HasName("PK__JobPosti__056690E2335C22CF");
 
             entity.HasIndex(e => e.Title, "idx_JobTitle");
 
@@ -179,7 +180,7 @@ public partial class RecruitmentSystemContext : DbContext
                         .HasConstraintName("FK__JobSkills__JobID__5BE2A6F2"),
                     j =>
                     {
-                        j.HasKey("JobId", "SkillId").HasName("PK__JobSkill__689C99FC29187D06");
+                        j.HasKey("JobId", "SkillId").HasName("PK__JobSkill__689C99FC8E1DCDF3");
                         j.ToTable("JobSkills");
                         j.IndexerProperty<int>("JobId").HasColumnName("JobID");
                         j.IndexerProperty<int>("SkillId").HasColumnName("SkillID");
@@ -188,9 +189,9 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<JobType>(entity =>
         {
-            entity.HasKey(e => e.JobTypeId).HasName("PK__JobTypes__E1F4624DEF01B53A");
+            entity.HasKey(e => e.JobTypeId).HasName("PK__JobTypes__E1F4624D6814BF47");
 
-            entity.HasIndex(e => e.Name, "UQ__JobTypes__737584F6DA67F25C").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__JobTypes__737584F62860435D").IsUnique();
 
             entity.Property(e => e.JobTypeId).HasColumnName("JobTypeID");
             entity.Property(e => e.Name).HasMaxLength(50);
@@ -198,7 +199,7 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.LocationId).HasName("PK__Location__E7FEA477784C5274");
+            entity.HasKey(e => e.LocationId).HasName("PK__Location__E7FEA4775C7DA5D7");
 
             entity.HasIndex(e => new { e.City, e.Country }, "UC_CityCountry").IsUnique();
 
@@ -209,7 +210,7 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E32DED69B73");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E32B7D83E7F");
 
             entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -220,9 +221,9 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Skill>(entity =>
         {
-            entity.HasKey(e => e.SkillId).HasName("PK__Skills__DFA091E77D367F23");
+            entity.HasKey(e => e.SkillId).HasName("PK__Skills__DFA091E7F4A7D538");
 
-            entity.HasIndex(e => e.Name, "UQ__Skills__737584F65BE6A9E3").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__Skills__737584F6EF42AF77").IsUnique();
 
             entity.Property(e => e.SkillId).HasColumnName("SkillID");
             entity.Property(e => e.Name).HasMaxLength(100);
@@ -230,9 +231,9 @@ public partial class RecruitmentSystemContext : DbContext
 
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.HasKey(e => e.StudentId).HasName("PK__Students__32C52A798449AFDC");
+            entity.HasKey(e => e.StudentId).HasName("PK__Students__32C52A796631424E");
 
-            entity.HasIndex(e => e.StudentCode, "UQ__Students__1FC88604551BEB52").IsUnique();
+            entity.HasIndex(e => e.StudentCode, "UQ__Students__1FC88604308920C0").IsUnique();
 
             entity.HasIndex(e => e.StudentCode, "idx_StudentCode");
 
@@ -261,7 +262,7 @@ public partial class RecruitmentSystemContext : DbContext
                         .HasConstraintName("FK__StudentSk__Stude__4E88ABD4"),
                     j =>
                     {
-                        j.HasKey("StudentId", "SkillId").HasName("PK__StudentS__5F3F236714841512");
+                        j.HasKey("StudentId", "SkillId").HasName("PK__StudentS__5F3F2367CC559E16");
                         j.ToTable("StudentSkills");
                         j.IndexerProperty<int>("StudentId").HasColumnName("StudentID");
                         j.IndexerProperty<int>("SkillId").HasColumnName("SkillID");

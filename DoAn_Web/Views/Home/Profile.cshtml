@@ -67,7 +67,7 @@
         {
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" name="SelectedSkillIds" value="@skill.SkillId"
-                @(Model.StudentSkills?.Any(ss => ss.SkillID == skill.SkillId) == true ? "checked" : "") />
+                @(Model.Skills?.Any(ss => ss.SkillId == skill.SkillId) == true ? "checked" : "") />
                     <label class="form-check-label">@skill.Name</label>
                 </div>
         }

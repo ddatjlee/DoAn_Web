@@ -1,5 +1,4 @@
-﻿
-@model DoAn_Web.Models.JobPosting
+﻿@model DoAn_Web.Models.JobPosting
 
 @{
     ViewData["Title"] = "Chi tiết công việc";
@@ -12,25 +11,29 @@
         <h5 class="card-title">@Model.Company.Name</h5>
         <p class="card-text"><strong>Mức lương:</strong> @Model.SalaryRange</p>
         <p class="card-text"><strong>Địa điểm:</strong> @(Model.Location != null ? $"{Model.Location.City}, {Model.Location.Country}" : "Không xác định")</p>
-        <p class="card-text"><strong>Loại hình:</strong> @Model.JobType.Name</p>
-        <p class="card-text"><strong>Mức kinh nghiệm:</strong> @Model.Level.Name</p>
+        <p class="card-text"><strong>Loại công việc:</strong> @Model.JobType.Name</p>
+        <p class="card-text"><strong>Mức độ kinh nghiệm:</strong> @Model.Level.Name</p>
         <p class="card-text"><strong>Mô tả:</strong> @Model.Description</p>
         <p class="card-text"><strong>Yêu cầu:</strong> @Model.Requirements</p>
         <p class="card-text"><strong>Lợi ích:</strong> @Model.Benefits</p>
-        <p class="card-text">
-            <strong>Kỹ năng yêu cầu:</strong>
-            @foreach (var skill in Model.Skills)
-            {
-                    <span>@skill.Name</span>
-                if (skill != Model.Skills.Last())
-                {
-                    <span>, </span>
-                }
-            }
-        </p>
+
+        @* <p class="card-text"> *@
+        @*     <strong>Kỹ năng yêu cầu:</strong> *@
+        @*     @foreach (var skill in Model.Skills) *@
+        @*     { *@
+        @*             <span>@skill.Name</span> *@
+        @*         @if (skill != Model.Skills.Last()) *@
+        @*         { *@
+        @*                     <span>, </span> *@
+        @*         } *@
+        @*     } *@
+        @* </p> *@
+
         <p class="card-text"><strong>Hạn nộp:</strong> @Model.ApplicationDeadline.ToString("dd/MM/yyyy")</p>
         <p class="card-text"><strong>Số lượng tuyển:</strong> @Model.Vacancies</p>
+
         <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+
         @if (Context.Session.GetString("StudentCode") != null)
         {
                 <a asp-controller="Applications" asp-action="Create" asp-route-jobId="@Model.JobId" class="btn btn-primary">Ứng tuyển ngay</a>

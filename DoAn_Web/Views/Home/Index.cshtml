@@ -41,7 +41,7 @@
                             <p class="card-text"><small class="text-muted">Hạn nộp: @job.ApplicationDeadline.ToString("dd/MM/yyyy")</small></p>
                             <!-- Nút Xem chi tiết và Ứng tuyển -->
                             <div class="d-flex justify-content-end mt-3">
-                                <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-custom job-btn me-2">Xem chi tiết</a>
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-custom job-btn me-2">Xem chi tiết</a>
                             @if (Context.Session.GetInt32("StudentId") != null)
                             {
                                         <a asp-controller="Applications" asp-action="ApplyJob" asp-route-jobId="@job.JobId" class="btn btn-custom job-btn">Ứng tuyển</a>

@@ -71,65 +71,116 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">DoAn_Web</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+   <!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">DoAn_Web</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <div class="collapse navbar-collapse fw-bold" id="navbarNav">
-                <ul class="navbar-nav me-auto fw-bold">
-                    <li class="nav-item fw-bold">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Jobs" asp-action="Index">Việc làm</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Companies" asp-action="Index">Công ty</a>
-                    </li>
-                </ul>
+        <div class="collapse navbar-collapse fw-bold" id="navbarNav">
+            <ul class="navbar-nav me-auto fw-bold">
+                <li class="nav-item fw-bold">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Jobs" asp-action="Index">Việc làm</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Companies" asp-action="Index">Công ty</a>
+                </li>
+            </ul>
 
-                <!-- Hiển thị menu đăng nhập/đăng xuất và thông báo -->
-                <ul class="navbar-nav fw-bold">
+            <!-- Hiển thị menu đăng nhập/đăng xuất và thông báo -->
+            <ul class="navbar-nav fw-bold">
                     @if (Context.Session.GetInt32("StudentId") != null)
                     {
-                            <li class="nav-item">
-                                <a class="nav-link position-relative" asp-controller="Notifications" asp-action="Index">
-                                    <i class="fas fa-bell"></i> Thông báo
+            <li class="nav-item">
+                <a class="nav-link position-relative" asp-controller="Notifications" asp-action="Index">
+                    <i class="fas fa-bell"></i> Thông báo
                                 @if (ViewBag.UnreadNotifications > 0)
                                 {
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                         @ViewBag.UnreadNotifications
-                                                <span class="visually-hidden">Thông báo chưa đọc</span>
-                                            </span>
+                                    <span class="visually-hidden">Thông báo chưa đọc</span>
+                                </span>
                                 }
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="studentDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Chào @Context.Session.GetString("StudentName")
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="studentDropdown">
-                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Profile">Thông tin cá nhân</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
-                                </ul>
-                            </li>
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="studentDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Chào @Context.Session.GetString("StudentName")
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="studentDropdown">
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Profile">Thông tin cá nhân</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
+                </ul>
+            </li>
+                    }
+                    else if (Context.Session.GetInt32("CompanyId") != null)
+                    {
+            <li class="nav-item">
+                <a class="nav-link position-relative" asp-controller="Notifications" asp-action="Index">
+                    <i class="fas fa-bell"></i> Thông báo
+                                @if (ViewBag.UnreadNotifications > 0)
+                                {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        @ViewBag.UnreadNotifications
+                                    <span class="visually-hidden">Thông báo chưa đọc</span>
+                                </span>
+                                }
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="companyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Chào @Context.Session.GetString("CompanyName")
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="companyDropdown">
+                    <li><a class="dropdown-item" asp-controller="Jobs" asp-action="CreateJob">Đăng tin tuyển dụng</a></li>
+                    <li><a class="dropdown-item" asp-controller="Jobs" asp-action="Index">Quản lý tin tuyển dụng</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
+                </ul>
+            </li>
+                    }
+                    else if (Context.Session.GetInt32("AdminId") != null)
+                    {
+            <li class="nav-item">
+                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Chào Admin @Context.Session.GetString("AdminName")
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Quản lý bài đăng tuyển dụng</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
+                </ul>
+            </li>
                     }
                     else
                     {
-                            <li class="nav-item fw-bold">
-                                <a class="btn btn-outline-dark btn-sm me-2" asp-controller="Home" asp-action="Login">Đăng nhập</a>
-                                <a class="btn btn-outline-dark btn-sm" asp-controller="Home" asp-action="Register">Đăng ký</a>
-                            </li>
-                    }
+            <!-- Dropdown cho đăng nhập -->
+            <li class="nav-item dropdown">
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Đăng nhập
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" href="@Url.Action("LoginStudent", "Home")">Đăng nhập bằng Sinh viên</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("LoginCompany", "Home")">Đăng nhập bằng Công ty</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("LoginAdmin", "Home")">Đăng nhập bằng Admin</a></li>
                 </ul>
-            </div>
+            </li>
+            <li class="nav-item fw-bold">
+                <a class="btn btn-outline-dark btn-sm me-2" asp-controller="Home" asp-action="Register">Đăng ký</a>
+            </li>
+                    }
+</ul>
+
         </div>
-    </nav>
+    </div>
+</nav>
+
 
     <!-- Header với Background (render từ view) -->
     @RenderSection("Header", required: false)

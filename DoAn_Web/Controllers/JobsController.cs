@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DoAn_Web.Models;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using System.Linq;
 
-namespace YourNamespace.Controllers
+namespace DoAn_Web.Controllers
 {
     public class JobsController : Controller
     {
@@ -18,110 +20,69 @@ namespace YourNamespace.Controllers
             _context = context;
             _hostingEnvironment = hostingEnvironment;
         }
-
-        public async Task<IActionResult> Index(string searchString, int? locationId, int pageNumber = 1)
-        {
-            int pageSize = 6;
-
-            ViewBag.Locations = await _context.Locations.ToListAsync();
-
-            var jobsQuery = _context.JobPostings
-                .Include(j => j.Company)
-                .Include(j => j.JobType)
-                .Include(j => j.Level)
-                .Include(j => j.Location)
-                .Where(j => j.IsActive == true);
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                jobsQuery = jobsQuery.Where(j => j.Title.Contains(searchString) || j.Company.Name.Contains(searchString));
-            }
-
-            if (locationId.HasValue)
-            {
-                jobsQuery = jobsQuery.Where(j => j.LocationId == locationId);
-            }
-
-            var totalJobs = await jobsQuery.CountAsync();
-
-            var jobs = await jobsQuery
-                .OrderByDescending(j => j.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var model = new
-            {
-                Jobs = jobs,
-                TotalPages = (int)Math.Ceiling(totalJobs / (double)pageSize),
-                CurrentPage = pageNumber,
-                SearchString = searchString,
-                LocationId = locationId
-            };
-
-            return View(model);
-        }
-
-        public async Task<IActionResult> Details(int id)
-        {
-            var job = await _context.JobPostings
-                .Include(j => j.Company)
-                .Include(j => j.JobType)
-                .Include(j => j.Level)
-                .Include(j => j.Location)
-                .FirstOrDefaultAsync(m => m.JobId == id);
-
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            return View(job);
-        }
-
         [HttpGet]
         public IActionResult CreateJob()
         {
             var companyId = HttpContext.Session.GetInt32("CompanyId");
-            if (companyId == null)
+            if (!companyId.HasValue)
             {
                 TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
-                return RedirectToAction("Login", "Home");
+                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.JobTypes = _context.JobTypes.ToList();
             ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
             ViewBag.Locations = _context.Locations.ToList();
+            ViewBag.Skills = _context.Skills.ToList(); // Thêm danh sách kỹ năng
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateJob(JobPosting jobPosting)
+        public async Task<IActionResult> CreateJob(JobPosting jobPosting, int[] selectedSkills)
         {
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);  // In lỗi ra console để kiểm tra
+                }
+            }
+
             var companyId = HttpContext.Session.GetInt32("CompanyId");
-            if (companyId == null)
+            if (!companyId.HasValue)
             {
                 TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
-                return RedirectToAction("Login", "Home");
+                return RedirectToAction("Index", "Home");
             }
 
-            if (ModelState.IsValid)
+            jobPosting.CompanyId = companyId.Value;
+            jobPosting.CreatedAt = DateTime.Now;
+            jobPosting.UpdatedAt = DateTime.Now;
+            jobPosting.IsActive = true;
+            jobPosting.IsApproved = false;  // Đặt IsApproved là false khi tạo tin
+
+            // In giá trị của jobPosting để kiểm tra trước khi lưu
+            Console.WriteLine($"Job Title: {jobPosting.Title}");
+            Console.WriteLine($"Salary Range: {jobPosting.SalaryRange}");
+
+            // Lưu công việc vào cơ sở dữ liệu
+            _context.JobPostings.Add(jobPosting);
+            await _context.SaveChangesAsync();
+
+            var notification = new Notification
             {
-                jobPosting.CompanyId = companyId.Value;
-                jobPosting.CreatedAt = DateTime.Now;
-                jobPosting.UpdatedAt = DateTime.Now;
+                UserId = companyId.Value,  // Gửi thông báo cho công ty này
+                UserType = "company",
+                Message = $"Bài đăng '{jobPosting.Title}' của bạn đang đợi admin duyệt.",
+                IsRead = false,
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
 
-                _context.JobPostings.Add(jobPosting);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Đăng tin tuyển dụng thành công!";
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.JobTypes = _context.JobTypes.ToList();
-            ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
-            ViewBag.Locations = _context.Locations.ToList();
-            return View(jobPosting);
+            TempData["SuccessMessage"] = "Đăng tin tuyển dụng thành công! Đợi admin duyệt.";
+            return RedirectToAction("Index","Home");
         }
+
     }
 }

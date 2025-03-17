@@ -25,24 +25,26 @@ namespace DoAn_Web.Controllers
             var jobs = await _context.JobPostings
                 .Include(j => j.Company)
                 .Include(j => j.Location)
-                .Where(j => j.IsActive == true)
+                .Where(j => j.IsActive == true && j.IsApproved == true) // Thêm điều kiện IsApproved
                 .OrderByDescending(j => j.CreatedAt)
-                .Take(3)
+                .Take(3) // Hiển thị 3 bài đăng gần nhất
                 .ToListAsync();
 
+            // Lấy các công ty đã được xác minh (Verified = true)
             var companies = await _context.Companies
                 .Where(c => c.Verified == true)
                 .OrderByDescending(c => c.CreatedAt)
-                .Take(4)
+                .Take(4) // Hiển thị 4 công ty
                 .ToListAsync();
 
+            // Tạo model cho View
             var model = new HomeViewModel
             {
                 Jobs = jobs,
                 Companies = companies
             };
 
-            // Tính số thông báo chưa đọc
+            // Tính số thông báo chưa đọc cho sinh viên
             var studentId = HttpContext.Session.GetInt32("StudentId");
             if (studentId.HasValue)
             {
@@ -55,9 +57,13 @@ namespace DoAn_Web.Controllers
                 ViewBag.UnreadNotifications = 0;
             }
 
+            // Kiểm tra xem người dùng đã đăng nhập chưa
             ViewBag.IsLoggedIn = HttpContext.Session.GetInt32("StudentId") != null || HttpContext.Session.GetInt32("CompanyId") != null;
+
+            // Trả về View với model
             return View(model);
         }
+
 
         public async Task<IActionResult> SearchCompany(string companyName)
         {
@@ -83,56 +89,110 @@ namespace DoAn_Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult LoginStudent()
         {
             return View();
         }
-
         [HttpPost]
-        public async Task<IActionResult> Login(string role, string username, string password)
+        public async Task<IActionResult> LoginStudent(string studentCode, string password)
         {
-            if (string.IsNullOrEmpty(role) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(studentCode) || string.IsNullOrEmpty(password))
             {
                 ViewBag.ErrorMessage = "Vui lòng điền đầy đủ thông tin.";
                 return View();
             }
 
-            if (role == "student")
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
+
+            if (student == null)
             {
-                var student = await _context.Students
-                    .FirstOrDefaultAsync(s => s.StudentCode == username && s.PasswordHash == password);
-                if (student != null)
-                {
-                    HttpContext.Session.SetInt32("StudentId", student.StudentId);
-                    HttpContext.Session.SetString("StudentName", student.FullName);
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    ViewBag.ErrorMessage = "Mã sinh viên hoặc mật khẩu không đúng.";
-                    return View();
-                }
-            }
-            else if (role == "company")
-            {
-                var company = await _context.Companies
-                    .FirstOrDefaultAsync(c => c.Email == username && c.PasswordHash == password);
-                if (company != null)
-                {
-                    HttpContext.Session.SetInt32("CompanyId", company.CompanyId);
-                    HttpContext.Session.SetString("CompanyName", company.Name);
-                    return RedirectToAction("CreateJob", "Jobs");
-                }
-                else
-                {
-                    ViewBag.ErrorMessage = "Email hoặc mật khẩu không đúng.";
-                    return View();
-                }
+                ViewBag.ErrorMessage = "Mã sinh viên không tồn tại.";
+                return View();
             }
 
-            ViewBag.ErrorMessage = "Vai trò không hợp lệ.";
+            if (student.PasswordHash != password)
+            {
+                ViewBag.ErrorMessage = "Mật khẩu không đúng.";
+                return View();
+            }
+
+            HttpContext.Session.SetInt32("StudentId", student.StudentId);
+            HttpContext.Session.SetString("StudentName", student.FullName);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult LoginCompany()
+        {
             return View();
         }
+        [HttpPost]
+        public async Task<IActionResult> LoginCompany(string companyEmail, string password)
+        {
+            if (string.IsNullOrEmpty(companyEmail) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.ErrorMessage = "Vui lòng điền đầy đủ thông tin.";
+                return View();
+            }
+
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.Email == companyEmail);
+
+            if (company == null)
+            {
+                ViewBag.ErrorMessage = "Email công ty không tồn tại.";
+                return View();
+            }
+
+            if (company.PasswordHash != password)
+            {
+                ViewBag.ErrorMessage = "Mật khẩu không đúng.";
+                return View();
+            }
+
+            HttpContext.Session.SetInt32("CompanyId", company.CompanyId);
+            HttpContext.Session.SetString("CompanyName", company.Name);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult LoginAdmin()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> LoginAdmin(string adminEmail, string password)
+        {
+            if (string.IsNullOrEmpty(adminEmail) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.ErrorMessage = "Vui lòng điền đầy đủ thông tin.";
+                return View();
+            }
+
+            var admin = await _context.Admins
+                .FirstOrDefaultAsync(a => a.Email == adminEmail);
+
+            if (admin == null)
+            {
+                ViewBag.ErrorMessage = "Email Admin không tồn tại.";
+                return View();
+            }
+
+            if (admin.PasswordHash != password)
+            {
+                ViewBag.ErrorMessage = "Mật khẩu không đúng.";
+                return View();
+            }
+
+            HttpContext.Session.SetInt32("AdminId", admin.AdminId);
+            HttpContext.Session.SetString("AdminName", admin.FullName);
+
+            return RedirectToAction("Dashboard", "Admin");
+        }
+
 
         [HttpGet]
         public IActionResult Register()
@@ -141,9 +201,10 @@ namespace DoAn_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string studentCode, string fullName, string password, string confirmPassword)
+        public async Task<IActionResult> Register(string role, string fullName, string studentCode, string companyName, string companyEmail, string companyPhone, string companyWebsite, string adminFullName, string adminEmail, string password, string confirmPassword)
         {
-            if (string.IsNullOrEmpty(studentCode) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(password))
+            // Kiểm tra xem tất cả các trường dữ liệu cần thiết có được điền không
+            if (string.IsNullOrEmpty(role) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
             {
                 ViewBag.ErrorMessage = "Vui lòng nhập đầy đủ thông tin.";
                 return View();
@@ -155,28 +216,99 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            var existingStudent = await _context.Students
-                .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
-            if (existingStudent != null)
+            if (role == "student")
             {
-                ViewBag.ErrorMessage = "Mã sinh viên đã tồn tại. Vui lòng chọn mã khác.";
-                return View();
+                // Kiểm tra nếu mã sinh viên đã tồn tại
+                var existingStudent = await _context.Students
+                    .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
+                if (existingStudent != null)
+                {
+                    ViewBag.ErrorMessage = "Mã sinh viên đã tồn tại. Vui lòng chọn mã khác.";
+                    return View();
+                }
+
+                var student = new Student
+                {
+                    FullName = fullName,
+                    StudentCode = studentCode,
+                    PasswordHash = password, // Mã hóa mật khẩu nếu cần
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                _context.Students.Add(student);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
+            }
+            else if (role == "company")
+            {
+                var existingCompany = await _context.Companies.FirstOrDefaultAsync(c => c.Email == companyEmail);
+                if (existingCompany != null)
+                {
+                    ViewBag.ErrorMessage = "Email công ty đã tồn tại.";
+                    return View();
+                }
+
+                var company = new Company
+                {
+                    Name = companyName,
+                    Email = companyEmail,
+                    Phone = companyPhone,
+                    Website = companyWebsite,
+                    PasswordHash = password, // Mã hóa mật khẩu nếu cần
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                _context.Companies.Add(company);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đăng ký công ty thành công!";
+            }
+            else if (role == "admin")
+            {
+                var existingAdmin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == adminEmail);
+                if (existingAdmin != null)
+                {
+                    ViewBag.ErrorMessage = "Email Admin đã tồn tại.";
+                    return View();
+                }
+
+                var admin = new Admin
+                {
+                    FullName = adminFullName,
+                    Email = adminEmail,
+                    PasswordHash = password, // Mã hóa mật khẩu nếu cần
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.Admins.Add(admin);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đăng ký Admin thành công!";
             }
 
-            var student = new Student
-            {
-                StudentCode = studentCode,
-                FullName = fullName,
-                PasswordHash = password,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-
-            _context.Students.Add(student);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
             return RedirectToAction("Login");
+        }
+
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var jobPosting = await _context.JobPostings
+                .Include(j => j.Company)
+                .Include(j => j.Location)
+                .Include(j => j.JobType)
+                .Include(j => j.Level)
+                .Include(j => j.Skills)
+                .FirstOrDefaultAsync(j => j.JobId == id);
+
+            if (jobPosting == null)
+            {
+                return NotFound();
+            }
+
+            return View(jobPosting);  // Chuyển sang view Details
         }
 
         public async Task<IActionResult> Profile()
@@ -230,72 +362,6 @@ namespace DoAn_Web.Controllers
                 }
                 student.AvatarUrl = $"/images/avatars/{fileName}";
             }
-
-            //try
-            //{
-            //    // Xóa các kỹ năng cũ
-            //    var existingSkills = await _context.StudentSkills // Sửa "studentSkills" thành "StudentSkills"
-            //        .Where(ss => ss.StudentID == StudentId)
-            //        .ToListAsync();
-            //    _context.StudentSkills.RemoveRange(existingSkills); // Sửa "studentSkills" thành "StudentSkills"
-            //    await _context.SaveChangesAsync();
-
-            //    // Thêm các kỹ năng mới từ checkbox
-            //    if (SelectedSkillIds != null && SelectedSkillIds.Length > 0)
-            //    {
-            //        // Log giá trị đầu vào từ checkbox
-            //        System.Diagnostics.Debug.WriteLine("SelectedSkillIds from Checkbox: " + string.Join(", ", SelectedSkillIds));
-
-            //        // Chuyển đổi và kiểm tra giá trị hợp lệ
-            //        var uniqueSkillIds = SelectedSkillIds
-            //            .Where(s => !string.IsNullOrEmpty(s))
-            //            .Select(s => int.TryParse(s, out int skillId) ? skillId : (int?)null)
-            //            .Where(s => s.HasValue)
-            //            .Select(s => s.Value)
-            //            .Distinct()
-            //            .ToList();
-
-            //        var validSkillIds = await _context.Skills
-            //            .Where(s => uniqueSkillIds.Contains(s.SkillId))
-            //            .Select(s => s.SkillId)
-            //            .ToListAsync();
-
-            //        if (validSkillIds.Count == 0)
-            //        {
-            //            ViewBag.ErrorMessage = "Không có kỹ năng hợp lệ được chọn.";
-            //            ViewBag.Skills = await _context.Skills.ToListAsync();
-            //            return View("Profile", student);
-            //        }
-
-            //        // Log danh sách kỹ năng hợp lệ
-            //        System.Diagnostics.Debug.WriteLine("ValidSkillIds: " + string.Join(", ", validSkillIds));
-
-            //        // Thêm từng kỹ năng một
-            //        foreach (var skillId in validSkillIds)
-            //        {
-            //            var studentSkill = new StudentSkill
-            //            {
-            //                StudentID = StudentId,
-            //                SkillID = skillId
-            //            };
-            //            _context.StudentSkills.Add(studentSkill); // Sửa "studentSkills" thành "StudentSkills"
-            //            await _context.SaveChangesAsync();
-            //        }
-            //    }
-
-            //    ViewBag.SuccessMessage = "Cập nhật thông tin thành công!";
-            //}
-            //catch (DbUpdateException ex)
-            //{
-            //    var innerException = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-            //    ViewBag.ErrorMessage = $"Có lỗi xảy ra khi cập nhật kỹ năng: {innerException}";
-            //    System.Diagnostics.Debug.WriteLine("DbUpdateException: " + ex.ToString());
-            //}
-            //catch (Exception ex)
-            //{
-            //    ViewBag.ErrorMessage = $"Có lỗi xảy ra khi cập nhật kỹ năng: {ex.Message}";
-            //    System.Diagnostics.Debug.WriteLine("Exception: " + ex.ToString());
-            //}
 
             ViewBag.Skills = await _context.Skills.ToListAsync();
             return View("Profile", student);

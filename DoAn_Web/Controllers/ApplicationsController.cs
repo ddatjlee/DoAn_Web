@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 
-namespace YourNamespace.Controllers
+namespace DoAn_Web.Controllers
 {
     public class ApplicationsController : Controller
     {

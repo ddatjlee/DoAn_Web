@@ -73,7 +73,7 @@ public partial class RecruitmentSystemContext : DbContext
                 .HasDefaultValue("pending");
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
 
-            entity.HasOne(d => d.Job).WithMany(p => p.Applications)
+            entity.HasOne(d => d.JobPostings).WithMany(p => p.Applications)
                 .HasForeignKey(d => d.JobId)
                 .HasConstraintName("FK__Applicati__JobID__6383C8BA");
 

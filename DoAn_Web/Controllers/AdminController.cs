@@ -15,34 +15,30 @@ namespace DoAn_Web.Controllers
             _context = context;
         }
 
-        // Trang Dashboard cho admin (Quản lý bài đăng tuyển dụng)
         public async Task<IActionResult> Dashboard()
         {
             var jobPostings = await _context.JobPostings
-                .Where(j => j.IsApproved == false) // Lọc bài đăng chưa duyệt
-                .Include(j => j.Company)  // Thêm thông tin công ty
+                .Where(j => j.IsApproved == false) 
+                .Include(j => j.Company) 
                 .OrderByDescending(j => j.CreatedAt)
                 .ToListAsync();
 
             return View(jobPostings);
         }
 
-        // Duyệt bài đăng tuyển dụng
         [HttpPost]
         public async Task<IActionResult> ApproveJob(int jobId)
         {
             var job = await _context.JobPostings.FindAsync(jobId);
             if (job != null)
             {
-                // Đánh dấu bài đăng là đã duyệt
                 job.IsApproved = true;
                 _context.Update(job);
                 await _context.SaveChangesAsync();
 
-                // Tạo thông báo cho công ty
                 var notification = new Notification
                 {
-                    UserId = job.CompanyId,  // Gửi thông báo cho công ty này
+                    UserId = job.CompanyId,  
                     UserType = "company",
                     Message = $"Bài đăng '{job.Title}' của bạn đã được duyệt.",
                     IsRead = false,

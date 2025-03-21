@@ -61,18 +61,6 @@
         }
     </div>
 
-    <div class="form-group">
-        <label>Kỹ năng</label>
-        @foreach (var skill in ViewBag.Skills as List<DoAn_Web.Models.Skill>)
-        {
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" name="SelectedSkillIds" value="@skill.SkillId"
-                @(Model.Skills?.Any(ss => ss.SkillId == skill.SkillId) == true ? "checked" : "") />
-                    <label class="form-check-label">@skill.Name</label>
-                </div>
-        }
-    </div>
-
     <input type="hidden" asp-for="StudentId" />
     <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
 </form>

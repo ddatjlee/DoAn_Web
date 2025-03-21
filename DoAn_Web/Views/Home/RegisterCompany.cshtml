@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Đăng ký Công ty";
+}
+
+<h2>Đăng ký Công ty</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="RegisterCompany" method="post">
+    <div class="mb-3">
+        <label for="companyName" class="form-label">Tên Công ty</label>
+        <input type="text" class="form-control" id="companyName" name="companyName" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="companyEmail" class="form-label">Email Công ty</label>
+        <input type="email" class="form-control" id="companyEmail" name="companyEmail" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="companyPhone" class="form-label">Số điện thoại</label>
+        <input type="text" class="form-control" id="companyPhone" name="companyPhone" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="companyWebsite" class="form-label">Website</label>
+        <input type="text" class="form-control" id="companyWebsite" name="companyWebsite" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="password" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Nhập lại Mật khẩu</label>
+        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Đăng ký</button>
+</form>

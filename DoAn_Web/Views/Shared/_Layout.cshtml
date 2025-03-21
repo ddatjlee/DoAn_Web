@@ -139,7 +139,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="companyDropdown">
                     <li><a class="dropdown-item" asp-controller="Jobs" asp-action="CreateJob">Đăng tin tuyển dụng</a></li>
-                    <li><a class="dropdown-item" asp-controller="Jobs" asp-action="Index">Quản lý tin tuyển dụng</a></li>
+                    <li><a class="dropdown-item" asp-controller="Jobs" asp-action="CreateInterview">Gửi đơn phỏng vấn</a></li>
                     <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
                 </ul>
@@ -171,8 +171,15 @@
                     <li><a class="dropdown-item" href="@Url.Action("LoginAdmin", "Home")">Đăng nhập bằng Admin</a></li>
                 </ul>
             </li>
-            <li class="nav-item fw-bold">
-                <a class="btn btn-outline-dark btn-sm me-2" asp-controller="Home" asp-action="Register">Đăng ký</a>
+                 <li class="nav-item dropdown">
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuRegister" data-bs-toggle="dropdown" aria-expanded="false">
+                    Đăng ký
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuRegister">
+                    <li><a class="dropdown-item" href="@Url.Action("RegisterStudent", "Home")">Đăng ký Sinh viên</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("RegisterCompany", "Home")">Đăng ký Công ty</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("RegisterAdmin", "Home")">Đăng ký Admin</a></li>
+                </ul>
             </li>
                     }
 </ul>

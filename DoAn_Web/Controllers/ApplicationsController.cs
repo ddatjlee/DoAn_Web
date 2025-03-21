@@ -19,7 +19,6 @@ namespace DoAn_Web.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        // Action để hiển thị form ứng tuyển
         [HttpGet]
         public async Task<IActionResult> ApplyJob(int jobId)
         {
@@ -38,7 +37,6 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Kiểm tra xem sinh viên đã ứng tuyển công việc này chưa
             var existingApplication = await _context.Applications
                 .FirstOrDefaultAsync(a => a.JobId == jobId && a.StudentId == studentId);
             if (existingApplication != null)
@@ -57,7 +55,6 @@ namespace DoAn_Web.Controllers
             return View(application);
         }
 
-        // Action để xử lý form ứng tuyển
         [HttpPost]
         public async Task<IActionResult> ApplyJob(Application application, IFormFile resumeFile)
         {
@@ -78,7 +75,6 @@ namespace DoAn_Web.Controllers
                 return View(application);
             }
 
-            // Kiểm tra xem sinh viên đã ứng tuyển công việc này chưa
             var existingApplication = await _context.Applications
                 .FirstOrDefaultAsync(a => a.JobId == application.JobId && a.StudentId == studentId);
             if (existingApplication != null)
@@ -88,7 +84,7 @@ namespace DoAn_Web.Controllers
                 return View(application);
             }
 
-            // Xử lý file CV
+
             if (resumeFile == null || resumeFile.Length == 0)
             {
                 ViewBag.ErrorMessage = "Vui lòng tải lên file CV.";

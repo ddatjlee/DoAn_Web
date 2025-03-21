@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Đăng ký Sinh viên";
+}
+
+<h2>Đăng ký Sinh viên</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="RegisterStudent" method="post">
+    <div class="mb-3">
+        <label for="fullName" class="form-label">Họ và Tên</label>
+        <input type="text" class="form-control" id="fullName" name="fullName" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="studentCode" class="form-label">Mã Sinh viên</label>
+        <input type="text" class="form-control" id="studentCode" name="studentCode" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="password" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Nhập lại Mật khẩu</label>
+        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Đăng ký</button>
+</form>

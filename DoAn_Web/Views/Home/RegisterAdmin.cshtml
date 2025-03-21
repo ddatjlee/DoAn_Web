@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Đăng ký Admin";
+}
+
+<h2>Đăng ký Admin</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="RegisterAdmin" method="post">
+    <div class="mb-3">
+        <label for="adminFullName" class="form-label">Họ và Tên</label>
+        <input type="text" class="form-control" id="adminFullName" name="adminFullName" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="adminEmail" class="form-label">Email Admin</label>
+        <input type="email" class="form-control" id="adminEmail" name="adminEmail" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="password" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Nhập lại Mật khẩu</label>
+        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Đăng ký</button>
+</form>

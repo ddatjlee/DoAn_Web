@@ -23,7 +23,7 @@ public partial class Application
 
     public virtual ICollection<Interview> Interviews { get; set; } = new List<Interview>();
 
-    public virtual JobPosting Job { get; set; } = null!;
+    public virtual JobPosting JobPostings { get; set; } = null!;
 
     public virtual Student Student { get; set; } = null!;
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DoAn_Web.Controllers
 {
@@ -21,6 +22,76 @@ namespace DoAn_Web.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
         [HttpGet]
+        public IActionResult CreateInterview(int applicationId)
+        {
+            // Kiểm tra xem công ty có tin tuyển dụng nào hay không
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (companyId == null)
+            {
+                return RedirectToAction("LoginCompany", "Home");
+            }
+
+            var application = _context.Applications
+                .Include(a => a.JobPostings)
+                .Include(a => a.Student)
+                .FirstOrDefault(a => a.ApplicationId == applicationId && a.JobPostings.CompanyId == companyId);
+
+            if (application == null)
+            {
+                TempData["ErrorMessage"] = "Công ty chưa có tin tuyển dụng hoặc ứng viên này không phải là ứng viên của công ty.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(application);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateInterview(int applicationId, DateTime startTime, DateTime endTime, string interviewType, string location, string onlineLink, string notes)
+        {
+            var application = await _context.Applications
+                .Include(a => a.Student)
+                .Include(a => a.JobPostings)
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
+
+            if (application == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var interview = new Interview
+            {
+                ApplicationId = applicationId,
+                InterviewType = interviewType,
+                StartTime = startTime,
+                EndTime = endTime,
+                Location = location,
+                OnlineLink = onlineLink,
+                Notes = notes,
+                Result = "pending"
+            };
+
+            _context.Interviews.Add(interview);
+            await _context.SaveChangesAsync();
+
+            // Tạo thông báo cho sinh viên
+            var notification = new Notification
+            {
+                UserId = application.StudentId,
+                UserType = "student",
+                Message = $"Bạn đã được mời tham gia phỏng vấn cho công việc '{application.JobPostings.Title}' vào lúc {startTime:dd/MM/yyyy HH:mm}.",
+                IsRead = false,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đơn phỏng vấn đã được gửi thành công!";
+            return RedirectToAction("Index", "Home");
+        }
+
+
+        [HttpGet]
         public IActionResult CreateJob()
         {
             var companyId = HttpContext.Session.GetInt32("CompanyId");
@@ -33,7 +104,7 @@ namespace DoAn_Web.Controllers
             ViewBag.JobTypes = _context.JobTypes.ToList();
             ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
             ViewBag.Locations = _context.Locations.ToList();
-            ViewBag.Skills = _context.Skills.ToList(); // Thêm danh sách kỹ năng
+            ViewBag.Skills = _context.Skills.ToList(); 
             return View();
         }
 
@@ -44,7 +115,7 @@ namespace DoAn_Web.Controllers
             {
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
-                    Console.WriteLine(error.ErrorMessage);  // In lỗi ra console để kiểm tra
+                    Console.WriteLine(error.ErrorMessage);  
                 }
             }
 
@@ -59,19 +130,17 @@ namespace DoAn_Web.Controllers
             jobPosting.CreatedAt = DateTime.Now;
             jobPosting.UpdatedAt = DateTime.Now;
             jobPosting.IsActive = true;
-            jobPosting.IsApproved = false;  // Đặt IsApproved là false khi tạo tin
+            jobPosting.IsApproved = false;  
 
-            // In giá trị của jobPosting để kiểm tra trước khi lưu
             Console.WriteLine($"Job Title: {jobPosting.Title}");
             Console.WriteLine($"Salary Range: {jobPosting.SalaryRange}");
 
-            // Lưu công việc vào cơ sở dữ liệu
             _context.JobPostings.Add(jobPosting);
             await _context.SaveChangesAsync();
 
             var notification = new Notification
             {
-                UserId = companyId.Value,  // Gửi thông báo cho công ty này
+                UserId = companyId.Value,
                 UserType = "company",
                 Message = $"Bài đăng '{jobPosting.Title}' của bạn đang đợi admin duyệt.",
                 IsRead = false,

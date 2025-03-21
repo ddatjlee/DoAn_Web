@@ -14,7 +14,6 @@ namespace DoAn_Web.Controllers
             _context = context;
         }
 
-        // Action để đánh dấu thông báo đã đọc
         public async Task<IActionResult> MarkAsRead(int id)
         {
             var notification = await _context.Notifications
@@ -26,7 +25,6 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Cập nhật trạng thái thông báo thành đã đọc
             notification.IsRead = true;
             await _context.SaveChangesAsync();
 
@@ -34,7 +32,6 @@ namespace DoAn_Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // Action để xóa thông báo
         public async Task<IActionResult> Delete(int id)
         {
             var notification = await _context.Notifications
@@ -54,11 +51,29 @@ namespace DoAn_Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // Action để hiển thị tất cả thông báo
         public async Task<IActionResult> Index()
         {
+            var userId = HttpContext.Session.GetInt32("StudentId") ??
+                         HttpContext.Session.GetInt32("CompanyId") ??
+                         HttpContext.Session.GetInt32("AdminId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            string userType = "student";
+            if (HttpContext.Session.GetInt32("CompanyId") != null)
+            {
+                userType = "company";
+            }
+            else if (HttpContext.Session.GetInt32("AdminId") != null)
+            {
+                userType = "admin";
+            }
+
             var notifications = await _context.Notifications
-                .Where(n => n.UserId == 1) // Thay đổi theo logic người dùng
+                .Where(n => n.UserId == userId.Value && n.UserType == userType)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
 

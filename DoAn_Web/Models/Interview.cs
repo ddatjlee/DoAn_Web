@@ -23,5 +23,5 @@ public partial class Interview
 
     public string? Result { get; set; }
 
-    public virtual Application Application { get; set; } = null!;
+    public virtual Application? Application { get; set; } = null!;
 }

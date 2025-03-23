@@ -1,0 +1,94 @@
+﻿@model DoAn_Web.Models.Interview
+
+<h2>Lên lịch phỏng vấn cho @ViewBag.StudentName - @ViewBag.JobTitle</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<form asp-action="ScheduleInterview" method="post" id="scheduleInterviewForm">
+    <div class="form-group">
+        <label>Mã ứng tuyển</label>
+        <p class="form-control-plaintext">@Model.ApplicationId</p>
+        <input type="hidden" asp-for="ApplicationId" />
+    </div>
+    <div class="form-group">
+        <label asp-for="InterviewType">Loại phỏng vấn</label>
+        <select asp-for="InterviewType" class="form-control" required>
+            <option value="">Chọn loại phỏng vấn</option>
+            <option value="online">Online</option>
+            <option value="in-person">Trực tiếp</option>
+        </select>
+        <span asp-validation-for="InterviewType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartTime">Thời gian bắt đầu</label>
+        <input asp-for="StartTime" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" required />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndTime">Thời gian kết thúc</label>
+        <input asp-for="EndTime" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")" required />
+        <span asp-validation-for="EndTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Location">Địa điểm (nếu trực tiếp)</label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OnlineLink">Link online (nếu online)</label>
+        <input asp-for="OnlineLink" class="form-control" />
+        <span asp-validation-for="OnlineLink" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Notes">Ghi chú</label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gửi lịch phỏng vấn</button>
+    <a asp-action="ViewApplications" asp-route-jobId="@ViewBag.JobId" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            $(document).ready(function () {
+                console.log("jQuery loaded: " + (typeof jQuery !== "undefined"));
+                console.log("jQuery Validate loaded: " + (typeof $.validator !== "undefined"));
+                console.log("jQuery Validate Unobtrusive loaded: " + (typeof $.validator.unobtrusive !== "undefined"));
+
+                var form = $("#scheduleInterviewForm");
+                form.validate(); // Khởi tạo validation
+                console.log("Form validation initialized: " + form.valid());
+
+                form.on("submit", function (e) {
+                    console.log("Form submitted");
+                    if (!form.valid()) {
+                        console.log("Validation failed");
+                        // Hiển thị lỗi validation trong console
+                        form.find(".input-validation-error").each(function () {
+                            var fieldName = $(this).attr("name");
+                            var errorMessage = $(this).next(".text-danger").text();
+                            console.log("Field: " + fieldName + ", Error: " + errorMessage);
+                        });
+                        e.preventDefault();
+                    } else {
+                        console.log("Validation passed, submitting form...");
+                    }
+                });
+            });
+        </script>
+}

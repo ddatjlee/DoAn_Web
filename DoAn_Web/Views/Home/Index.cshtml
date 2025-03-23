@@ -21,37 +21,102 @@
 
 <!-- Nội dung chính -->
 <div class="row">
-    <!-- Việc làm mới nhất -->
     <h4 class="mt-4">Việc làm mới nhất</h4>
-    <div class="row">
-        @foreach (var job in Model.Jobs)
-        {
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm job-card">
-                        <div class="card-body">
-                            <!-- Hiển thị tên công việc -->
-                            <h5 class="card-title">@job.Title</h5>
-                            <!-- Hiển thị tên công ty và lương -->
-                            <p class="card-text"><strong>@job.Company.Name</strong> - <span class="text-success">@job.SalaryRange</span></p>
-                            <!-- Hiển thị địa điểm -->
-                            <p class="card-text"><strong>Địa điểm:</strong> @(job.Location != null ? $"{job.Location.City}, {job.Location.Country}" : "Không xác định")</p>
-                            <!-- Hiển thị yêu cầu công việc -->
-                            <p class="card-text"><strong>Mô tả:</strong> @job.Description</p>
-                            <!-- Hiển thị hạn nộp -->
-                            <p class="card-text"><small class="text-muted">Hạn nộp: @job.ApplicationDeadline.ToString("dd/MM/yyyy")</small></p>
-                            <!-- Nút Xem chi tiết và Ứng tuyển -->
-                            <div class="d-flex justify-content-end mt-3">
-                                <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-custom job-btn me-2">Xem chi tiết</a>
-                            @if (Context.Session.GetInt32("StudentId") != null)
-                            {
-                                        <a asp-controller="Applications" asp-action="ApplyJob" asp-route-jobId="@job.JobId" class="btn btn-custom job-btn">Ứng tuyển</a>
-                            }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        }
+    <div class="d-flex align-items-center">
+        <!-- Nút mũi tên trái -->
+        <button class="btn btn-outline-secondary me-3 @(ViewBag.CurrentPage > 1 ? "" : "disabled")" id="prev-btn">
+            <
+        </button>
+
+        <!-- Danh sách công việc -->
+        <div id="job-list">
+            <div class="job-list-inner">
+                @await Html.PartialAsync("_JobList", Model.Jobs)
+            </div>
+        </div>
+
+        <!-- Nút mũi tên phải -->
+        <button class="btn btn-outline-secondary ms-3 @(ViewBag.CurrentPage < ViewBag.TotalPages ? "" : "disabled")" id="next-btn">
+            >
+        </button>
     </div>
+</div>
+
+<!-- Script AJAX -->
+<script>
+    let currentPage = @ViewBag.CurrentPage;
+    const totalPages = @ViewBag.TotalPages;
+    let isAnimating = false;
+
+    function loadJobs(page, direction) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const jobListInner = document.querySelector('#job-list .job-list-inner');
+
+        // Hiệu ứng trượt ra
+        jobListInner.style.animation = direction === 'next' ? 'slideOutToLeft 0.5s ease-in-out' : 'slideOutToRight 0.5s ease-in-out';
+
+        // Chờ hiệu ứng trượt ra hoàn tất
+        setTimeout(() => {
+            fetch(`/Home/GetJobs?page=${page}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'text/html'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Tạo một container mới để chứa nội dung mới
+                const newInner = document.createElement('div');
+                newInner.className = 'job-list-inner';
+                newInner.innerHTML = html;
+
+                // Thay thế container cũ bằng container mới
+                jobListInner.parentNode.replaceChild(newInner, jobListInner);
+
+                // Hiệu ứng trượt vào
+                newInner.style.animation = direction === 'next' ? 'slideInFromRight 0.5s ease-in-out' : 'slideInFromLeft 0.5s ease-in-out';
+
+                currentPage = page;
+                updateButtons();
+                isAnimating = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                isAnimating = false;
+            });
+        }, 500);
+    }
+
+    function updateButtons() {
+        const prevBtn = document.querySelector('#prev-btn');
+        const nextBtn = document.querySelector('#next-btn');
+
+        // Kiểm tra trạng thái nút
+        prevBtn.classList.toggle('disabled', currentPage <= 1);
+        nextBtn.classList.toggle('disabled', currentPage >= totalPages);
+
+        // Gán sự kiện onclick
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                loadJobs(currentPage - 1, 'prev');
+            }
+        };
+
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                loadJobs(currentPage + 1, 'next');
+            }
+        };
+    }
+
+    // Khởi tạo sự kiện khi trang tải
+    document.addEventListener('DOMContentLoaded', () => {
+        updateButtons();
+    });
+</script>
+
 
     <!-- Công ty nổi bật -->
     <h4 class="mt-4">Công ty nổi bật</h4>

@@ -22,75 +22,243 @@ namespace DoAn_Web.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
         [HttpGet]
-        public IActionResult CreateInterview(int applicationId)
+        public async Task<IActionResult> ViewInterviews(int jobId)
         {
-            // Kiểm tra xem công ty có tin tuyển dụng nào hay không
             var companyId = HttpContext.Session.GetInt32("CompanyId");
-            if (companyId == null)
+            if (!companyId.HasValue)
             {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Kiểm tra xem công việc có thuộc về công ty này không
+            var job = await _context.JobPostings
+                .FirstOrDefaultAsync(j => j.JobId == jobId && j.CompanyId == companyId.Value);
+            if (job == null)
+            {
+                TempData["ErrorMessage"] = "Công việc không tồn tại hoặc không thuộc quyền quản lý của bạn.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var interviews = await _context.Interviews
+                .Include(i => i.Application)
+                .ThenInclude(a => a.Student)
+                .Include(i => i.Application)
+                .ThenInclude(a => a.JobPostings)
+                .Where(i => i.Application.JobId == jobId)
+                .ToListAsync();
+
+            ViewBag.JobTitle = job.Title;
+            ViewBag.JobId = jobId;
+            return View(interviews);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SelectJobForApplications()
+        {
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
                 return RedirectToAction("LoginCompany", "Home");
             }
 
-            var application = _context.Applications
-                .Include(a => a.JobPostings)
-                .Include(a => a.Student)
-                .FirstOrDefault(a => a.ApplicationId == applicationId && a.JobPostings.CompanyId == companyId);
+            var jobs = await _context.JobPostings
+                .Where(j => j.CompanyId == companyId.Value)
+                .OrderByDescending(j => j.CreatedAt)
+                .ToListAsync();
 
-            if (application == null)
+            if (!jobs.Any())
             {
-                TempData["ErrorMessage"] = "Công ty chưa có tin tuyển dụng hoặc ứng viên này không phải là ứng viên của công ty.";
-                return RedirectToAction("Index", "Home");
+                TempData["ErrorMessage"] = "Bạn chưa đăng công việc nào.";
             }
 
-            return View(application);
+            return View(jobs);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateInterview(int applicationId, DateTime startTime, DateTime endTime, string interviewType, string location, string onlineLink, string notes)
+        [HttpGet]
+        public async Task<IActionResult> SelectJobForInterview()
         {
-            var application = await _context.Applications
-                .Include(a => a.Student)
-                .Include(a => a.JobPostings)
-                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
-
-            if (application == null)
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
             {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
+                return RedirectToAction("LoginCompany", "Home");
+            }
+
+            var jobs = await _context.JobPostings
+                .Where(j => j.CompanyId == companyId.Value)
+                .OrderByDescending(j => j.CreatedAt)
+                .ToListAsync();
+
+            if (!jobs.Any())
+            {
+                TempData["ErrorMessage"] = "Bạn chưa đăng công việc nào.";
+            }
+
+            return View(jobs);
+        }
+        [HttpGet]
+        public async Task<IActionResult> ViewApplications(int jobId)
+        {
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
                 return RedirectToAction("Index", "Home");
             }
+
+            // Kiểm tra xem công việc có thuộc về công ty này không
+            var job = await _context.JobPostings
+                .FirstOrDefaultAsync(j => j.JobId == jobId && j.CompanyId == companyId.Value);
+            if (job == null)
+            {
+                TempData["ErrorMessage"] = "Công việc không tồn tại hoặc không thuộc quyền quản lý của bạn.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var applications = await _context.Applications
+                .Include(a => a.Student)
+                .Include(a => a.JobPostings)
+                .Where(a => a.JobId == jobId && a.Status != "rejected")
+                .ToListAsync();
+
+            ViewBag.JobTitle = job.Title;
+            return View(applications);
+        }
+        [HttpGet]
+        public async Task<IActionResult> ScheduleInterview(int applicationId)
+        {
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var application = await _context.Applications
+                .Include(a => a.JobPostings)
+                .ThenInclude(j => j.Company)
+                .Include(a => a.Student)
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
+
+            if (application == null || application.JobPostings == null || application.Student == null || application.JobPostings.CompanyId != companyId.Value)
+            {
+                TempData["ErrorMessage"] = "Ứng tuyển không tồn tại, không có thông tin công việc/sinh viên, hoặc không thuộc công ty của bạn.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var existingInterview = await _context.Interviews
+                .FirstOrDefaultAsync(i => i.ApplicationId == applicationId);
+            if (existingInterview != null)
+            {
+                TempData["ErrorMessage"] = "Ứng viên này đã được lên lịch phỏng vấn.";
+                return RedirectToAction("ViewApplications", new { jobId = application.JobId });
+            }
+
+            ViewBag.StudentName = application.Student.FullName;
+            ViewBag.JobTitle = application.JobPostings.Title;
+            ViewBag.JobId = application.JobId;
 
             var interview = new Interview
             {
                 ApplicationId = applicationId,
-                InterviewType = interviewType,
-                StartTime = startTime,
-                EndTime = endTime,
-                Location = location,
-                OnlineLink = onlineLink,
-                Notes = notes,
-                Result = "pending"
+                // Không gán Application
+                StartTime = DateTime.Now.AddDays(1),
+                EndTime = DateTime.Now.AddDays(1).AddHours(1),
+                InterviewType = "online"
             };
-
-            _context.Interviews.Add(interview);
-            await _context.SaveChangesAsync();
-
-            // Tạo thông báo cho sinh viên
-            var notification = new Notification
-            {
-                UserId = application.StudentId,
-                UserType = "student",
-                Message = $"Bạn đã được mời tham gia phỏng vấn cho công việc '{application.JobPostings.Title}' vào lúc {startTime:dd/MM/yyyy HH:mm}.",
-                IsRead = false,
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Đơn phỏng vấn đã được gửi thành công!";
-            return RedirectToAction("Index", "Home");
+            return View(interview);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ScheduleInterview(Interview interview)
+        {
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (!companyId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập với tư cách công ty.";
+                return RedirectToAction("Index", "Home");
+            }
 
+            var application = await _context.Applications
+                .Include(a => a.JobPostings)
+                .ThenInclude(j => j.Company)
+                .Include(a => a.Student)
+                .FirstOrDefaultAsync(a => a.ApplicationId == interview.ApplicationId);
+
+            if (application == null || application.JobPostings == null || application.Student == null || application.JobPostings.CompanyId != companyId.Value)
+            {
+                TempData["ErrorMessage"] = "Ứng tuyển không tồn tại, không có thông tin công việc/sinh viên, hoặc không thuộc công ty của bạn.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (interview.StartTime < DateTime.Now)
+            {
+                ModelState.AddModelError("StartTime", "Thời gian bắt đầu phải từ hiện tại trở đi.");
+            }
+
+            if (interview.EndTime < DateTime.Now)
+            {
+                ModelState.AddModelError("EndTime", "Thời gian kết thúc phải từ hiện tại trở đi.");
+            }
+
+            if (interview.StartTime >= interview.EndTime)
+            {
+                ModelState.AddModelError("EndTime", "Thời gian kết thúc phải sau thời gian bắt đầu.");
+            }
+
+            if (interview.InterviewType == "online" && string.IsNullOrEmpty(interview.OnlineLink))
+            {
+                ModelState.AddModelError("OnlineLink", "Vui lòng cung cấp link phỏng vấn online.");
+            }
+
+            if (interview.InterviewType == "in-person" && string.IsNullOrEmpty(interview.Location))
+            {
+                ModelState.AddModelError("Location", "Vui lòng cung cấp địa điểm phỏng vấn.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + string.Join("; ", errors);
+
+                ViewBag.StudentName = application.Student.FullName;
+                ViewBag.JobTitle = application.JobPostings.Title;
+                ViewBag.JobId = application.JobId;
+                return View(interview);
+            }
+
+            try
+            {
+                interview.Result = "pending";
+                _context.Interviews.Add(interview);
+                application.Status = "reviewing";
+                _context.Applications.Update(application);
+                await _context.SaveChangesAsync();
+
+                var notification = new Notification
+                {
+                    UserId = application.StudentId,
+                    UserType = "student",
+                    Message = $"Bạn được mời phỏng vấn cho vị trí {application.JobPostings.Title} vào {interview.StartTime:dd/MM/yyyy HH:mm}.",
+                    IsRead = false,
+                    CreatedAt = DateTime.Now
+                };
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Lịch phỏng vấn đã được gửi thành công!";
+                return RedirectToAction("ViewApplications", new { jobId = application.JobId });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Có lỗi xảy ra khi lưu lịch phỏng vấn: {ex.Message}";
+                ViewBag.StudentName = application.Student.FullName;
+                ViewBag.JobTitle = application.JobPostings.Title;
+                ViewBag.JobId = application.JobId;
+                return View(interview);
+            }
+        }
         [HttpGet]
         public IActionResult CreateJob()
         {

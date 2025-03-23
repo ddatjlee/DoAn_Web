@@ -1,0 +1,49 @@
+﻿@model List<DoAn_Web.Models.Interview>
+
+<h2>Lịch phỏng vấn của bạn</h2>
+
+@if (Model.Any())
+{
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Công việc</th>
+                    <th>Công ty</th>
+                    <th>Loại phỏng vấn</th>
+                    <th>Thời gian bắt đầu</th>
+                    <th>Thời gian kết thúc</th>
+                    <th>Địa điểm/Link</th>
+                    <th>Kết quả</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var interview in Model)
+            {
+                        <tr>
+                            <td>@interview.Application.JobPostings.Title</td>
+                            <td>@interview.Application.JobPostings.Company.Name</td>
+                            <td>@interview.InterviewType</td>
+                            <td>@interview.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@interview.EndTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                        @if (interview.InterviewType == "online")
+                        {
+                                        <a href="@interview.OnlineLink" target="_blank">Tham gia</a>
+                        }
+                        else
+                        {
+                            @interview.Location
+                        }
+                            </td>
+                            <td>@interview.Result</td>
+                        </tr>
+            }
+            </tbody>
+        </table>
+}
+else
+{
+        <p>Bạn chưa có lịch phỏng vấn nào.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Quay lại</a>

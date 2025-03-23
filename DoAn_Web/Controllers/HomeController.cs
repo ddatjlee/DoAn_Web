@@ -19,21 +19,45 @@ namespace DoAn_Web.Controllers
             _context = context;
             _hostingEnvironment = hostingEnvironment;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Interviews()
         {
+            var studentId = HttpContext.Session.GetInt32("StudentId");
+            if (!studentId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập để xem lịch phỏng vấn.";
+                return RedirectToAction("LoginStudent");
+            }
+
+            var interviews = await _context.Interviews
+                .Include(i => i.Application)
+                .ThenInclude(a => a.JobPostings)
+                .ThenInclude(j => j.Company)
+                .Where(i => i.Application.StudentId == studentId.Value)
+                .OrderBy(i => i.StartTime)
+                .ToListAsync();
+
+            return View(interviews);
+        }
+        public async Task<IActionResult> Index(int page = 1)
+        {
+            int pageSize = 3; // Số lượng công việc hiển thị mỗi trang
+            var totalJobs = await _context.JobPostings
+                .Where(j => j.IsActive == true && j.IsApproved == true)
+                .CountAsync(); // Đếm tổng số công việc
+
             var jobs = await _context.JobPostings
                 .Include(j => j.Company)
                 .Include(j => j.Location)
-                .Where(j => j.IsActive == true && j.IsApproved == true) 
+                .Where(j => j.IsActive == true && j.IsApproved == true)
                 .OrderByDescending(j => j.CreatedAt)
-                .Take(3) 
+                .Skip((page - 1) * pageSize)  // Bỏ qua các công việc đã hiển thị
+                .Take(pageSize)  // Lấy 4 công việc
                 .ToListAsync();
 
             var companies = await _context.Companies
                 .Where(c => c.Verified == true)
                 .OrderByDescending(c => c.CreatedAt)
-                .Take(4) 
+                .Take(4)
                 .ToListAsync();
 
             var model = new HomeViewModel
@@ -56,9 +80,28 @@ namespace DoAn_Web.Controllers
 
             ViewBag.IsLoggedIn = HttpContext.Session.GetInt32("StudentId") != null || HttpContext.Session.GetInt32("CompanyId") != null;
 
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalJobs / (double)pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
             return View(model);
         }
 
+        public async Task<IActionResult> GetJobs(int page = 1)
+        {
+            int pageSize = 3; // Số lượng công việc mỗi trang
+            var jobs = await _context.JobPostings
+                .Include(j => j.Company)
+                .Include(j => j.Location)
+                .Where(j => j.IsActive == true && j.IsApproved == true)
+                .OrderByDescending(j => j.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return PartialView("_JobList", jobs);
+        }
 
         public async Task<IActionResult> SearchCompany(string companyName)
         {

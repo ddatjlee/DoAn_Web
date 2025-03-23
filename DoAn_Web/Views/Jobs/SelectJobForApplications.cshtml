@@ -1,0 +1,39 @@
+﻿@model List<DoAn_Web.Models.JobPosting>
+
+<h2>Chọn công việc để xem ứng viên</h2>
+
+@if (Model.Any())
+{
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tiêu đề</th>
+                    <th>Ngày đăng</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var job in Model)
+            {
+                        <tr>
+                            <td>@job.Title</td>
+                            <td>@job.CreatedAt?.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a asp-action="ViewApplications" asp-route-jobId="@job.JobId" class="btn btn-primary">Xem ứng viên</a>
+                            </td>
+                        </tr>
+            }
+            </tbody>
+        </table>
+}
+else
+{
+        <p>Bạn chưa đăng công việc nào.</p>
+}
+
+<a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Quay lại</a>
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}

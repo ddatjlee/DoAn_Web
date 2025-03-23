@@ -1,0 +1,49 @@
+﻿@model List<DoAn_Web.Models.Application>
+
+<h2>Danh sách ứng viên cho công việc: @ViewBag.JobTitle</h2>
+
+@if (Model.Any())
+{
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mã sinh viên</th>
+                    <th>Họ tên</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày nộp đơn</th>
+                    <th>CV</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var app in Model)
+            {
+                        <tr>
+                            <td>@app.Student?.StudentCode</td>
+                            <td>@app.Student?.FullName</td>
+                            <td>@app.Status</td>
+                            <td>@app.AppliedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><a href="@app.ResumeUrl" target="_blank">Xem CV</a></td>
+                            <td>
+                                <a asp-action="ScheduleInterview" asp-route-applicationId="@app.ApplicationId" class="btn btn-primary">Lên lịch phỏng vấn</a>
+                            </td>
+                        </tr>
+            }
+            </tbody>
+        </table>
+}
+else
+{
+        <p>Chưa có ứng viên nào nộp đơn cho công việc này.</p>
+}
+
+<a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Quay lại</a>
+
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}

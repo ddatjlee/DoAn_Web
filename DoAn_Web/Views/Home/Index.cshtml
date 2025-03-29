@@ -8,10 +8,12 @@
         <section class="header-section">
             <div class="header-content">
                 <h3 class="text-center">Chào mừng đến với trang tuyển dụng!</h3>
-                <!-- Khung tìm kiếm công ty -->
+                <!-- Khung tìm kiếm chính -->
                 <div class="search-bar mt-4">
-                    <form class="d-flex" asp-controller="Home" asp-action="SearchCompany" method="get">
-                        <input type="text" name="companyName" class="form-control" placeholder="Tìm công ty...">
+                    <form class="d-flex" asp-controller="Home" asp-action="SearchJobs" method="get">
+                        <!-- Tìm kiếm theo từ khóa -->
+                        <input type="text" name="keyword" class="form-control" placeholder="Tìm theo kỹ năng, thành phố, công ty, thể loại..." value="@ViewBag.Keyword" />
+                        <!-- Nút tìm kiếm -->
                         <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
                     </form>
                 </div>
@@ -121,18 +123,18 @@
     <!-- Công ty nổi bật -->
     <h4 class="mt-4">Công ty nổi bật</h4>
     <div class="row">
-        @foreach (var company in Model.Companies)
-        {
-                <div class="col-md-3">
-                    <div class="card shadow-sm company-card">
-                        <img src="/images/@company.LogoUrl" class="card-img-top" alt="@company.Name Logo">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@company.Name</h5>
-                            <p class="card-text">@company.Address</p>
-                            <a href="#" class="btn btn-outline-primary btn-sm">Xem công ty</a>
+    @foreach (var company in Model.Companies)
+    {
+                    <div class="col-md-3">
+                        <div class="card shadow-sm company-card">
+                            <img src="/images/@company.LogoUrl" class="card-img-top" alt="@company.Name Logo">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">@company.Name</h5>
+                                <p class="card-text">@company.Address</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm">Xem công ty</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-        }
+    }
     </div>
 </div>

@@ -16,19 +16,6 @@
         <p class="card-text"><strong>Mô tả:</strong> @Model.Description</p>
         <p class="card-text"><strong>Yêu cầu:</strong> @Model.Requirements</p>
         <p class="card-text"><strong>Lợi ích:</strong> @Model.Benefits</p>
-
-        @* <p class="card-text"> *@
-        @*     <strong>Kỹ năng yêu cầu:</strong> *@
-        @*     @foreach (var skill in Model.Skills) *@
-        @*     { *@
-        @*             <span>@skill.Name</span> *@
-        @*         @if (skill != Model.Skills.Last()) *@
-        @*         { *@
-        @*                     <span>, </span> *@
-        @*         } *@
-        @*     } *@
-        @* </p> *@
-
         <p class="card-text"><strong>Hạn nộp:</strong> @Model.ApplicationDeadline.ToString("dd/MM/yyyy")</p>
         <p class="card-text"><strong>Số lượng tuyển:</strong> @Model.Vacancies</p>
 

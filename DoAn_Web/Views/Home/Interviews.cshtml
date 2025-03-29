@@ -13,15 +13,14 @@
                     <th>Thời gian bắt đầu</th>
                     <th>Thời gian kết thúc</th>
                     <th>Địa điểm/Link</th>
-                    <th>Kết quả</th>
                 </tr>
             </thead>
             <tbody>
             @foreach (var interview in Model)
             {
                         <tr>
-                            <td>@interview.Application.JobPostings.Title</td>
-                            <td>@interview.Application.JobPostings.Company.Name</td>
+                            <td>@interview.Application.Job.Title</td>
+                            <td>@interview.Application.Job.Company.Name</td>
                             <td>@interview.InterviewType</td>
                             <td>@interview.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
                             <td>@interview.EndTime.ToString("dd/MM/yyyy HH:mm")</td>
@@ -35,7 +34,6 @@
                             @interview.Location
                         }
                             </td>
-                            <td>@interview.Result</td>
                         </tr>
             }
             </tbody>

@@ -2,63 +2,192 @@
 body {
     background-color: #ffffff;
     color: #333;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+}
+
+/* Class chung để đồng bộ kích thước nút */
+.uniform-btn {
+    padding: 8px 15px; /* Kích thước padding cố định */
+    font-size: 0.9rem; /* Kích thước chữ cố định */
+    line-height: 1.5; /* Đảm bảo chiều cao dòng đồng đều */
+    min-width: 100px; /* Chiều rộng tối thiểu để các nút bằng nhau */
+    text-align: center; /* Căn giữa nội dung */
+    border-radius: 5px; /* Bo tròn đồng đều */
 }
 
 /* Navbar (Menu) */
 .navbar {
-    background-color: #eaeaea !important;
-    border-bottom: 2px solid #d6d6d6;
-    padding: 15px;
+    background: linear-gradient(90deg, #ffffff, #d3d3d3);
+    padding: 15px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-.navbar-nav {
-    display: flex;
-    align-items: center;
+/* Tùy chỉnh logo DoAn_Web */
+.navbar-brand {
+    font-size: 1.8rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: transparent !important;
+    background: linear-gradient(45deg, #f1c40f, #ff6f61);
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    pointer-events: none;
+    animation: glow 2s infinite;
 }
 
-.navbar .nav-link {
-    color: #333 !important;
-    transition: color 0.3s ease-in-out;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-    .navbar .nav-link:hover {
-        color: #007bff !important;
+/* Hiệu ứng phát sáng */
+@keyframes glow {
+    0% {
+        text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
     }
 
-.navbar .btn-outline-light {
-    color: #333 !important;
-    border-color: #333 !important;
-    font-size: 16px;
-    padding: 8px 12px;
+    50% {
+        text-shadow: 0 0 15px rgba(241, 196, 15, 0.8);
+    }
+
+    100% {
+        text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+    }
 }
 
-    .navbar .btn-outline-light:hover {
-        background-color: #007bff !important;
-        color: white !important;
+/* Hiệu ứng gạch chân động bên dưới logo */
+.navbar-brand::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    background: #ff6f61;
+    bottom: -5px;
+    left: 0;
+    transition: width 0.3s ease;
+}
+
+.navbar-brand:hover::after {
+    width: 100%;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+/* Tùy chỉnh nav-link */
+.nav-link {
+    color: #333 !important;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 10px 20px !important;
+    transition: all 0.3s ease;
+}
+
+    .nav-link:hover {
+        color: #ff6f61 !important;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 5px;
     }
+
+/* Tùy chỉnh dropdown */
+.dropdown-menu {
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-item {
+    color: #333 !important;
+    transition: all 0.3s ease;
+}
+
+    .dropdown-item:hover {
+        background-color: #d3d3d3;
+        color: #ff6f61 !important;
+    }
+
+/* Tùy chỉnh nút Đăng nhập/Đăng ký */
+.btn-custom {
+    background: linear-gradient(45deg, #ff6f61, #e65b50);
+    color: #fff !important;
+    border: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+    .btn-custom.uniform-btn:hover {
+        background: linear-gradient(45deg, #e65b50, #ff6f61);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+/* Tùy chỉnh nút trong bảng (Danh sách việc làm) và thông báo */
+.btn-primary {
+    background: linear-gradient(45deg, #ff6f61, #e65b50);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+    .btn-primary.uniform-btn:hover {
+        background: linear-gradient(45deg, #e65b50, #ff6f61);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+/* Tùy chỉnh nút trong card (Việc làm mới nhất) */
+.job-btn {
+    font-size: 0.9rem;
+    border-radius: 5px;
+}
+
+/* Tùy chỉnh badge thông báo */
+.badge {
+    background-color: #ff6f61 !important;
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .navbar-nav {
+        text-align: center;
+    }
+
+    .nav-link {
+        padding: 10px !important;
+    }
+}
 
 /* Form nhập liệu */
 .form-control {
     background-color: #ffffff;
     color: #333 !important;
-    border: 1px solid #ccc;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 40px 12px 40px; /* Padding trái và phải đều 40px để chừa chỗ cho biểu tượng */
+    height: 48px; /* Tăng chiều cao để phù hợp với thiết kế */
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Đảm bảo padding và border không làm tăng kích thước */
+    width: 100%;
+}
+.toggle-password {
+    position: absolute;
+    right: 0px;
+    top: calc(50% + 0px); /* Điều chỉnh top tương tự như .form-group i */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+
 }
 
+    .toggle-password i {
+        font-size: 16px;
+    }
     .form-control:focus {
         background-color: #ffffff;
-        border-color: #007bff;
-        box-shadow: none;
-    }
-
-/* Nút đăng nhập */
-.btn-primary {
-    background-color: #007bff;
-}
-
-    .btn-primary:hover {
-        background-color: #0056b3;
+        border-color: #ff6f61;
+        box-shadow: 0 0 5px rgba(255, 111, 97, 0.3);
+        outline: none;
     }
 
 /* Footer */
@@ -87,41 +216,59 @@ footer {
 }
 
 /* Tùy chỉnh thẻ công việc */
-.job-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.job-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    background: #fff;
 }
 
-/* Tùy chỉnh nút */
-.job-btn {
-    padding: 10px 25px; /* Tăng kích thước nút */
-    font-size: 1rem; /* Tăng kích thước chữ trong nút */
-    border-radius: 5px;
-}
-
-/* Tùy chỉnh nút */
-.job-btn {
-    padding: 8px 20px;
-    font-size: 0.9rem;
-    border-radius: 5px;
-}
-
-.btn-custom {
-    background-color: #000000;
-    color: #ffffff;
-    border: none;
-}
-
-    .btn-custom:hover {
-        background-color: #333333;
-        color: #ffffff;
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-color: #ff6f61;
     }
+
+    .job-card .salary {
+        color: #ff6f61;
+        font-weight: 600;
+    }
+
+    .job-card .location::before {
+        content: '\f3c5';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 5px;
+        color: #666;
+    }
+
+    .job-card .view-details {
+        display: inline-block;
+        margin-top: 10px;
+        background: #ff6f61;
+        color: #fff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+        .job-card .view-details:hover {
+            background: #e65b50;
+        }
 
 /* Tùy chỉnh thẻ công ty */
 .company-card {
-    border-radius: 10px;
     border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
 }
+
+    .company-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
     .company-card img {
         height: 150px;
@@ -141,17 +288,16 @@ footer {
 
 /* Hiệu ứng trượt */
 .btn-outline-secondary {
-    min-width: 40px; /* Giảm chiều rộng vì chỉ có ký tự < hoặc > */
-    width: 40px; /* Đặt chiều rộng cố định để nút nhỏ gọn */
-    height: 40px; /* Đặt chiều cao cố định để nút cân đối */
-    padding: 0; /* Bỏ padding để nút nhỏ gọn */
-    font-size: 1.2rem; /* Tăng kích thước ký tự < và > */
-    border-radius: 50%; /* Làm nút tròn */
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.2rem;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: center; /* Căn giữa ký tự */
+    justify-content: center;
 }
-
 
 .d-flex.align-items-center {
     gap: 15px;
@@ -166,8 +312,8 @@ footer {
 
 .job-list-inner {
     transition: transform 0.5s ease-in-out;
-    width: 100%; /* Đảm bảo .job-list-inner chiếm toàn bộ chiều rộng của #job-list */
-    min-height: 350px; /* Đảm bảo chiều cao tối thiểu */
+    width: 100%;
+    min-height: 350px;
     position: relative;
 }
 
@@ -195,3 +341,229 @@ footer {
         opacity: 1;
     }
 }
+
+.header-section {
+    background-image: url('/images/OIP.jpg');
+    background-size: 120%;
+    background-position: center;
+    padding: 70px 0;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+    .header-section.gradient-bg {
+        background: linear-gradient(90deg, #1a3c34 0%, #2e6a5c 100%);
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+    .header-content h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 1s ease-in;
+    }
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-bar {
+    max-width: 600px;
+    margin: 20px auto;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+    .search-bar input {
+        padding: 12px 20px;
+        border: none;
+        flex: 1;
+        border-radius: 25px 0 0 25px;
+        outline: none;
+    }
+
+    .search-bar button {
+        padding: 12px 25px;
+        border-radius: 0 25px 25px 0;
+        background: linear-gradient(45deg, #ff6f61, #e65b50);
+        color: #fff;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .search-bar button:hover {
+            background: linear-gradient(45deg, #e65b50, #ff6f61);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+/* Tùy chỉnh form đăng nhập/đăng ký */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    padding: 20px;
+}
+
+.auth-form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+    .auth-form:hover {
+        transform: translateY(-5px);
+    }
+
+    .auth-form h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+.form-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 40px 12px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-group input:focus {
+            border-color: #ff6f61;
+            box-shadow: 0 0 5px rgba(255, 111, 97, 0.3);
+            outline: none;
+        }
+
+    .form-group i {
+        position: absolute;
+        right: 15px;
+        top: calc(50% + 15px); /* Điều chỉnh top để căn giữa, cộng thêm 10px để bù cho chiều cao của label */
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.1rem;
+        line-height: 1; /* Đảm bảo biểu tượng không bị lệch do line-height */
+    }
+
+.alert {
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, #ff6f61, #e65b50);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .btn-submit:hover {
+        background: linear-gradient(45deg, #e65b50, #ff6f61);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+.auth-links {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+    .auth-links a {
+        color: #ff6f61;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+/* Responsive cho form */
+@media (max-width: 576px) {
+    .auth-form {
+        padding: 20px;
+        max-width: 90%;
+    }
+
+        .auth-form h3 {
+            font-size: 1.5rem;
+        }
+}
+
+/* Thêm khoảng cách giữa các nav-item trong navbar */
+.nav-item.dropdown {
+    margin-right: 10px; /* Thêm khoảng cách 10px giữa các nav-item */
+}
+
+    /* Đảm bảo nút dropdown không bị ảnh hưởng bởi margin */
+    .nav-item.dropdown:last-child {
+        margin-right: 0; /* Bỏ margin cho nav-item cuối cùng để tránh khoảng trống thừa */
+    }
+
+/* Tùy chỉnh nút dropdown để đồng bộ với thiết kế */
+.btn-outline-dark.btn-sm.dropdown-toggle {
+    padding: 6px 12px; /* Điều chỉnh padding để nút trông gọn gàng */
+    font-size: 0.9rem; /* Kích thước chữ nhỏ hơn một chút */
+    border-radius: 5px; /* Bo tròn nút */
+    transition: all 0.3s ease;
+}
+
+    /* Hiệu ứng hover cho nút dropdown */
+    .btn-outline-dark.btn-sm.dropdown-toggle:hover {
+        background-color: #ff6f61;
+        color: #fff !important;
+        border-color: #ff6f61;
+    }
+

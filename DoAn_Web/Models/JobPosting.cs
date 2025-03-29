@@ -31,13 +31,15 @@ public partial class JobPosting
 
     public bool? IsActive { get; set; }
 
-    public bool IsApproved { get; set; }
+    public bool? IsApproved { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
+
+    public virtual ICollection<ApprovalHistory> ApprovalHistories { get; set; } = new List<ApprovalHistory>();
 
     public virtual Company Company { get; set; } = null!;
 

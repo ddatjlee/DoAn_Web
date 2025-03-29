@@ -21,14 +21,14 @@ namespace DoAn_Web.Controllers
 
             if (notification == null)
             {
-                TempData["ErrorMessage"] = "Thông báo không tồn tại.";
+                TempData["NotificationError"] = "Thông báo không tồn tại.";
                 return RedirectToAction("Index");
             }
 
             notification.IsRead = true;
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Thông báo đã được đánh dấu là đã đọc.";
+            TempData["NotificationSuccess"] = "Thông báo đã được đánh dấu là đã đọc.";
             return RedirectToAction("Index");
         }
 
@@ -41,11 +41,11 @@ namespace DoAn_Web.Controllers
             {
                 _context.Notifications.Remove(notification);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Thông báo đã được xóa.";
+                TempData["NotificationSuccess"] = "Thông báo đã được xóa.";
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy thông báo cần xóa.";
+                TempData["NotificationError"] = "Không tìm thấy thông báo cần xóa.";
             }
 
             return RedirectToAction("Index");

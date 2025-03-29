@@ -1,0 +1,66 @@
+﻿@model IEnumerable<DoAn_Web.Controllers.AccountViewModel>
+
+<h2>Quản lý tài khoản</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên</th>
+            <th>Email/Mã sinh viên</th>
+            <th>Loại tài khoản</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model)
+        {
+                <tr>
+                    <td>@account.Name</td>
+                    <td>@account.Email</td>
+                    <td>@account.Type</td>
+                    <td>
+                    @if (account.IsLocked)
+                    {
+                                <span class="badge bg-danger">Đã khóa</span>
+                    }
+                    else
+                    {
+                                <span class="badge bg-success">Đang hoạt động</span>
+                    }
+                    </td>
+                    <td>
+                    @if (account.IsLocked)
+                    {
+                                <form method="post" asp-action="UnlockAccount" asp-route-id="@account.Id" asp-route-type="@account.Type" style="display:inline;">
+                                    <button type="submit" class="btn btn-success">Mở khóa</button>
+                                </form>
+                    }
+                    else
+                    {
+                                <form method="post" asp-action="LockAccount" asp-route-id="@account.Id" asp-route-type="@account.Type" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Khóa</button>
+                                </form>
+                    }
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    const button = form.querySelector("button[type='submit']");
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                    button.disabled = true;
+                });
+            });
+        </script>
+}

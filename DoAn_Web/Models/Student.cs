@@ -23,6 +23,8 @@ public partial class Student
 
     public int? GraduationYear { get; set; }
 
+    public bool IsLocked { get; set; }
+
     public string? GitHubProfile { get; set; }
 
     public DateTime? CreatedAt { get; set; }

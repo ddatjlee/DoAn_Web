@@ -21,6 +21,40 @@ namespace DoAn_Web.Controllers
             _context = context;
             _hostingEnvironment = hostingEnvironment;
         }
+        public async Task<IActionResult> Details(int id)
+        {
+            var jobPosting = await _context.JobPostings
+                .Include(j => j.Company)
+                .Include(j => j.Location)
+                .Include(j => j.JobType)
+                .Include(j => j.Level)
+                .Include(j => j.Skills)
+                .FirstOrDefaultAsync(j => j.JobId == id);
+
+            if (jobPosting == null)
+            {
+                return NotFound();
+            }
+
+            return View(jobPosting);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            // Lấy danh sách công việc đã được duyệt (IsApproved = true) và còn hoạt động (IsActive = true)
+            var jobs = await _context.JobPostings
+                .Include(j => j.Company) // Include thông tin công ty
+                .Where(j => j.IsApproved == true && j.IsActive == true)
+                .OrderByDescending(j => j.CreatedAt)
+                .ToListAsync();
+
+            // Nhóm công việc theo công ty
+            var jobsByCompany = jobs
+                .GroupBy(j => j.Company)
+                .OrderBy(g => g.Key.Name);
+
+            return View(jobsByCompany);
+        }
         [HttpGet]
         public async Task<IActionResult> ViewInterviews(int jobId)
         {
@@ -44,7 +78,7 @@ namespace DoAn_Web.Controllers
                 .Include(i => i.Application)
                 .ThenInclude(a => a.Student)
                 .Include(i => i.Application)
-                .ThenInclude(a => a.JobPostings)
+                .ThenInclude(a => a.Job)
                 .Where(i => i.Application.JobId == jobId)
                 .ToListAsync();
 
@@ -118,7 +152,7 @@ namespace DoAn_Web.Controllers
 
             var applications = await _context.Applications
                 .Include(a => a.Student)
-                .Include(a => a.JobPostings)
+                .Include(a => a.Job)
                 .Where(a => a.JobId == jobId && a.Status != "rejected")
                 .ToListAsync();
 
@@ -136,12 +170,12 @@ namespace DoAn_Web.Controllers
             }
 
             var application = await _context.Applications
-                .Include(a => a.JobPostings)
+                .Include(a => a.Job)
                 .ThenInclude(j => j.Company)
                 .Include(a => a.Student)
                 .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
 
-            if (application == null || application.JobPostings == null || application.Student == null || application.JobPostings.CompanyId != companyId.Value)
+            if (application == null || application.Job == null || application.Student == null || application.Job.CompanyId != companyId.Value)
             {
                 TempData["ErrorMessage"] = "Ứng tuyển không tồn tại, không có thông tin công việc/sinh viên, hoặc không thuộc công ty của bạn.";
                 return RedirectToAction("Index", "Home");
@@ -156,7 +190,7 @@ namespace DoAn_Web.Controllers
             }
 
             ViewBag.StudentName = application.Student.FullName;
-            ViewBag.JobTitle = application.JobPostings.Title;
+            ViewBag.JobTitle = application.Job.Title;
             ViewBag.JobId = application.JobId;
 
             var interview = new Interview
@@ -181,12 +215,12 @@ namespace DoAn_Web.Controllers
             }
 
             var application = await _context.Applications
-                .Include(a => a.JobPostings)
+                .Include(a => a.Job)
                 .ThenInclude(j => j.Company)
                 .Include(a => a.Student)
                 .FirstOrDefaultAsync(a => a.ApplicationId == interview.ApplicationId);
 
-            if (application == null || application.JobPostings == null || application.Student == null || application.JobPostings.CompanyId != companyId.Value)
+            if (application == null || application.Job == null || application.Student == null || application.Job.CompanyId != companyId.Value)
             {
                 TempData["ErrorMessage"] = "Ứng tuyển không tồn tại, không có thông tin công việc/sinh viên, hoặc không thuộc công ty của bạn.";
                 return RedirectToAction("Index", "Home");
@@ -223,7 +257,7 @@ namespace DoAn_Web.Controllers
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + string.Join("; ", errors);
 
                 ViewBag.StudentName = application.Student.FullName;
-                ViewBag.JobTitle = application.JobPostings.Title;
+                ViewBag.JobTitle = application.Job.Title;
                 ViewBag.JobId = application.JobId;
                 return View(interview);
             }
@@ -240,7 +274,7 @@ namespace DoAn_Web.Controllers
                 {
                     UserId = application.StudentId,
                     UserType = "student",
-                    Message = $"Bạn được mời phỏng vấn cho vị trí {application.JobPostings.Title} vào {interview.StartTime:dd/MM/yyyy HH:mm}.",
+                    Message = $"Bạn được mời phỏng vấn cho vị trí {application.Job.Title} vào {interview.StartTime:dd/MM/yyyy HH:mm}.",
                     IsRead = false,
                     CreatedAt = DateTime.Now
                 };
@@ -254,7 +288,7 @@ namespace DoAn_Web.Controllers
             {
                 TempData["ErrorMessage"] = $"Có lỗi xảy ra khi lưu lịch phỏng vấn: {ex.Message}";
                 ViewBag.StudentName = application.Student.FullName;
-                ViewBag.JobTitle = application.JobPostings.Title;
+                ViewBag.JobTitle = application.Job.Title;
                 ViewBag.JobId = application.JobId;
                 return View(interview);
             }
@@ -269,24 +303,22 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ViewBag.JobTypes = _context.JobTypes.ToList();
-            ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
-            ViewBag.Locations = _context.Locations.ToList();
-            ViewBag.Skills = _context.Skills.ToList(); 
+            // Load dữ liệu cho dropdown và log để kiểm tra
+            var jobTypes = _context.JobTypes.ToList();
+            var experienceLevels = _context.ExperienceLevels.ToList();
+            var locations = _context.Locations.ToList();
+            var skills = _context.Skills.ToList();
+
+            ViewBag.JobTypes = jobTypes;
+            ViewBag.ExperienceLevels = experienceLevels;
+            ViewBag.Locations = locations;
+            ViewBag.Skills = skills;
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateJob(JobPosting jobPosting, int[] selectedSkills)
         {
-            if (!ModelState.IsValid)
-            {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine(error.ErrorMessage);  
-                }
-            }
-
             var companyId = HttpContext.Session.GetInt32("CompanyId");
             if (!companyId.HasValue)
             {
@@ -294,14 +326,32 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // Gán CompanyId từ session
             jobPosting.CompanyId = companyId.Value;
+            var currentDate = DateOnly.FromDateTime(DateTime.Now); // Ngày hiện tại
+            var minDeadline = currentDate.AddDays(7); // Ngày hiện tại + 7 ngày
+            if (jobPosting.ApplicationDeadline < minDeadline)
+            {
+                TempData["ErrorMessage"] = "Hạn nộp đơn phải là hơn 7 ngày so với ngày hiện tại!";
+                ViewBag.JobTypes = _context.JobTypes.ToList();
+                ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
+                ViewBag.Locations = _context.Locations.ToList();
+                ViewBag.Skills = _context.Skills.ToList();
+                return View(jobPosting);
+            }
+            if (jobPosting.Vacancies < 1)
+            {
+                TempData["ErrorMessage"] = "Kh được nhập số lượng tuyển dưới 1!";
+                ViewBag.JobTypes = _context.JobTypes.ToList();
+                ViewBag.ExperienceLevels = _context.ExperienceLevels.ToList();
+                ViewBag.Locations = _context.Locations.ToList();
+                ViewBag.Skills = _context.Skills.ToList();
+                return View(jobPosting);
+            }
             jobPosting.CreatedAt = DateTime.Now;
             jobPosting.UpdatedAt = DateTime.Now;
             jobPosting.IsActive = true;
-            jobPosting.IsApproved = false;  
-
-            Console.WriteLine($"Job Title: {jobPosting.Title}");
-            Console.WriteLine($"Salary Range: {jobPosting.SalaryRange}");
+            jobPosting.IsApproved = false;
 
             _context.JobPostings.Add(jobPosting);
             await _context.SaveChangesAsync();
@@ -318,7 +368,7 @@ namespace DoAn_Web.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Đăng tin tuyển dụng thành công! Đợi admin duyệt.";
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("CreateJob", "Jobs");
         }
 
     }

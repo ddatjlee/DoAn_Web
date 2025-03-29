@@ -1,10 +1,15 @@
-﻿@model IEnumerable<DoAn_Web.Models.JobPosting>
+﻿@model IEnumerable<DoAn_Web.Controllers.JobPostingViewModel>
 
 <h2>Quản lý bài đăng tuyển dụng</h2>
 
 @if (TempData["SuccessMessage"] != null)
 {
         <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
 <table class="table">
@@ -17,36 +22,62 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var job in Model)
+        @foreach (var item in Model)
         {
+            var job = item.Job;
+            var history = item.History;
                 <tr>
                     <td>
                         <a href="@Url.Action("Details", "Jobs", new { id = job.JobId })">@job.Title</a>
                     </td>
                     <td>@job.Company.Name</td>
                     <td>
-                    @if (job.IsApproved == false)
+                    @if (history == null)
                     {
                                 <span class="badge bg-warning">Chưa duyệt</span>
                     }
-                    else
+                    else if (history.Action == "Approved")
                     {
                                 <span class="badge bg-success">Đã duyệt</span>
                     }
+                    else if (history.Action == "Rejected")
+                    {
+                                <span class="badge bg-danger">Đã từ chối</span>
+                    }
                     </td>
                     <td>
-                    @if (job.IsApproved == false)
+                    @if (history == null)
                     {
-                                <form method="post" asp-action="ApproveJob" asp-route-jobId="@job.JobId">
+                                <form method="post" asp-action="ApproveJob" asp-route-jobId="@job.JobId" style="display:inline;">
                                     <button type="submit" class="btn btn-success">Duyệt</button>
                                 </form>
+                                <form method="post" asp-action="RejectJob" asp-route-jobId="@job.JobId" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Từ chối</button>
+                                </form>
                     }
-                    else
+                    else if (history.Action == "Approved")
                     {
-                                <span class="badge bg-info">Đã duyệt</span>
+                                <span class="badge bg-success">Đã duyệt</span>
+                    }
+                    else if (history.Action == "Rejected")
+                    {
+                                <span class="badge bg-danger">Đã từ chối</span>
                     }
                     </td>
                 </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+        <script>
+            // Thêm hiệu ứng loading cho các nút
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    const button = form.querySelector("button[type='submit']");
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                    button.disabled = true;
+                });
+            });
+        </script>
+}

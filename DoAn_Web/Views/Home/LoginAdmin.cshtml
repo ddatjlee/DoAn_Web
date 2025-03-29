@@ -2,29 +2,52 @@
     ViewData["Title"] = "Đăng nhập Admin";
 }
 
-<div class="container mt-4">
-    <h3 class="text-center text-primary">Đăng nhập Admin</h3>
+<div class="auth-container">
+    <div class="auth-form">
+        <h3>Đăng nhập Admin</h3>
 
-    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-    {
-            <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
-    }
+        @if (TempData["ErrorMessage"] != null)
+        {
+                                <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
+        }
+        <form method="post" asp-controller="Home" asp-action="LoginAdmin">
+            <div class="form-group">
+                <label for="adminEmail">Email Admin</label>
+                <input type="email" id="adminEmail" name="adminEmail" class="form-control" placeholder="Nhập email admin" required />
+                <i class="fas fa-envelope"></i>
+            </div>
 
-    <form method="post" asp-controller="Home" asp-action="LoginAdmin">
-        <div class="mb-3">
-            <label class="form-label">Email Admin</label>
-            <input type="email" name="adminEmail" class="form-control" placeholder="Nhập email admin" required />
-        </div>
+            <div class="form-group position-relative">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
+                <span class="toggle-password" onclick="togglePassword('password')">
+                    <i class="fas fa-eye" id="toggleIconAdmin"></i>
+                </span>
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Mật khẩu</label>
-            <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
-        </div>
+            <button type="submit" class="btn-submit" onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Đang xử lý...';">Đăng nhập</button>
+        </form>
 
-        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
-    </form>
-
-    <p class="mt-3 text-center">
-        Chưa có tài khoản? <a asp-controller="Home" asp-action="Register">Đăng ký</a>
-    </p>
+        <p class="auth-links">
+            Chưa có tài khoản? <a asp-controller="Home" asp-action="RegisterAdmin">Đăng ký</a>
+        </p>
+    </div>
 </div>
+
+@section Scripts {
+        <script>
+            function togglePassword(inputId) {
+                var passwordInput = document.getElementById(inputId);
+                var toggleIcon = document.getElementById("toggleIconAdmin");
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    toggleIcon.classList.remove("fa-eye");
+                    toggleIcon.classList.add("fa-eye-slash");
+                } else {
+                    passwordInput.type = "password";
+                    toggleIcon.classList.remove("fa-eye-slash");
+                    toggleIcon.classList.add("fa-eye");
+                }
+            }
+        </script>
+}

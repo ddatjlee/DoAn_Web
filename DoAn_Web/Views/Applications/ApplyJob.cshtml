@@ -4,32 +4,36 @@
     ViewData["Title"] = "Ứng tuyển công việc";
 }
 
-<h2>Ứng tuyển công việc: @ViewBag.JobTitle</h2>
+<div class="job-application-container">
+    <h2 class="application-title">Ứng tuyển công việc: @ViewBag.JobTitle</h2>
 
-@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-{
-        <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
-}
+    @if (TempData["ErrorMessage"] != null)
+    {
+            <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
+    }
 
-@if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
-{
-        <div class="alert alert-success">@ViewBag.SuccessMessage</div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+            <div class="alert alert-success" role="alert">@TempData["SuccessMessage"]</div>
+    }
 
-<form asp-action="ApplyJob" method="post" enctype="multipart/form-data">
-    <input type="hidden" asp-for="JobId" />
-    <input type="hidden" asp-for="StudentId" />
+    <form asp-action="ApplyJob" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="JobId" />
+        <input type="hidden" asp-for="StudentId" />
 
-    <div class="form-group">
-        <label asp-for="CoverLetter">Thư ứng tuyển</label>
-        <textarea asp-for="CoverLetter" class="form-control" rows="5"></textarea>
-    </div>
+        <div class="form-group">
+            <label asp-for="CoverLetter">Thư ứng tuyển</label>
+            <textarea asp-for="CoverLetter" class="form-control" rows="5" placeholder="Nhập thư ứng tuyển của bạn..."></textarea>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="ResumeUrl">Tải lên CV (PDF)</label>
-        <input type="file" name="resumeFile" class="form-control-file" accept=".pdf" required />
-    </div>
+        <div class="form-group">
+            <label asp-for="ResumeUrl">Tải lên CV (PDF)</label>
+            <input type="file" name="resumeFile" class="form-control-file" accept=".pdf" required />
+        </div>
 
-    <button type="submit" class="btn btn-primary">Nộp đơn</button>
-    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Quay lại</a>
-</form>
+        <div class="application-actions">
+            <button type="submit" class="btn btn-primary">Nộp đơn</button>
+            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>

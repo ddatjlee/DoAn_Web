@@ -142,7 +142,7 @@ namespace DoAn_Web.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Nộp đơn ứng tuyển thành công!";
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("", "Home");
             }
             catch (Exception ex)
             {

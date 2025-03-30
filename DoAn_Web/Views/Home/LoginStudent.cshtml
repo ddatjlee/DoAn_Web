@@ -1,17 +1,28 @@
 ﻿@{
     ViewData["Title"] = "Đăng nhập Sinh viên";
 }
+@if (TempData["ErrorMessage"] != null)
+{
+            <div class="alert alert-danger alert-floating" role="alert">@TempData["ErrorMessage"]</div>
 
+}
+@if (TempData["SuccessMessage"] != null)
+{
+            <div class="alert alert-success alert-floating" role="alert">@TempData["SuccessMessage"]</div>
+}
+<script>
+    // Chờ 5 giây (5000ms) rồi ẩn thông báo
+    setTimeout(function(){
+        var alertElem = document.querySelector('.alert-floating');
+        if(alertElem) {
+            // Bạn có thể dùng fadeOut bằng CSS hoặc ẩn luôn
+            alertElem.style.display = 'none';
+        }
+    }, 5000);
+</script>
 <div class="auth-container">
     <div class="auth-form">
         <h3>Đăng nhập Sinh viên</h3>
-
-        @* Hiển thị thông báo lỗi nếu có *@
-        @if (TempData["ErrorMessage"] != null)
-        {
-                            <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
-        }
-
         <form method="post" asp-controller="Home" asp-action="LoginStudent">
             <div class="form-group">
                 <label for="studentCode">Mã Sinh viên</label>

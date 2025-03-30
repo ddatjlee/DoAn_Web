@@ -3,27 +3,46 @@
 @{
     ViewData["Title"] = "Trang chủ";
 }
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger alert-floating" role="alert">@TempData["ErrorMessage"]</div>
+        
+}
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success alert-floating" role="alert">@TempData["SuccessMessage"]</div>
+}
+<script>
+    // Chờ 5 giây (5000ms) rồi ẩn thông báo
+    setTimeout(function(){
+        var alertElem = document.querySelector('.alert-floating');
+        if(alertElem) {
+            // Bạn có thể dùng fadeOut bằng CSS hoặc ẩn luôn
+            alertElem.style.display = 'none';
+        }
+    }, 5000);
+</script>
 
 @section Header {
-        <section class="header-section">
-            <div class="header-content">
-                <h3 class="text-center">Chào mừng đến với trang tuyển dụng!</h3>
-                <!-- Khung tìm kiếm chính -->
-                <div class="search-bar mt-4">
-                    <form class="d-flex" asp-controller="Home" asp-action="SearchJobs" method="get">
-                        <!-- Tìm kiếm theo từ khóa -->
-                        <input type="text" name="keyword" class="form-control" placeholder="Tìm theo kỹ năng, thành phố, công ty, thể loại..." value="@ViewBag.Keyword" />
-                        <!-- Nút tìm kiếm -->
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
-                    </form>
+            <section class="header-section">
+                <div class="header-content">
+                    <h1>Chào mừng đến với trang tuyển dụng!</h1>
+                    <!-- Khung tìm kiếm chính -->
+                    <div class="search-bar mt-4">
+                        <form class="d-flex" asp-controller="Home" asp-action="SearchJobs" method="get">
+                            <!-- Tìm kiếm theo từ khóa -->
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm theo kỹ năng, thành phố, công ty, thể loại..." value="@ViewBag.Keyword" />
+                            <!-- Nút tìm kiếm -->
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 }
-
+   <hr class="divider">
 <!-- Nội dung chính -->
 <div class="row">
-    <h4 class="mt-4">Việc làm mới nhất</h4>
+    <h2 class="latest-jobs-title">Việc làm mới nhất</h2>
     <div class="d-flex align-items-center">
         <!-- Nút mũi tên trái -->
         <button class="btn btn-outline-secondary me-3 @(ViewBag.CurrentPage > 1 ? "" : "disabled")" id="prev-btn">
@@ -44,7 +63,7 @@
     </div>
 </div>
 
-<!-- Script AJAX -->
+<!-- Script AJAX cho việc làm -->
 <script>
     let currentPage = @ViewBag.CurrentPage;
     const totalPages = @ViewBag.TotalPages;
@@ -118,23 +137,81 @@
         updateButtons();
     });
 </script>
+   <hr class="divider">
+<!-- Phần công ty nổi bật -->
+<div class="company-section mt-4">
+    <h2 class="featured-companies-title">Công ty nổi bật</h2>
+    <div class="company-list">
+        @for (int i = 0; i < Model.Companies.Count; i++)
+        {
+            var company = Model.Companies[i];
+            var isEvenRow = i % 2 == 0; // Hàng chẵn (0, 2): công ty bên trái, chi tiết bên phải
 
-
-    <!-- Công ty nổi bật -->
-    <h4 class="mt-4">Công ty nổi bật</h4>
-    <div class="row">
-    @foreach (var company in Model.Companies)
-    {
-                    <div class="col-md-3">
-                        <div class="card shadow-sm company-card">
-                            <img src="/images/@company.LogoUrl" class="card-img-top" alt="@company.Name Logo">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">@company.Name</h5>
-                                <p class="card-text">@company.Address</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">Xem công ty</a>
-                            </div>
-                        </div>
+                    <div class="row mb-4">
+                @if (isEvenRow)
+                {
+                                    <!-- Hàng chẵn: Công ty bên trái, chi tiết bên phải -->
+                                    <div class="col-md-6">
+                                        <div class="company-card" data-company-id="@company.CompanyId" style="cursor: pointer; border: 2px solid #000; padding: 15px; text-align: center;">
+                                            <img src="@company.LogoUrl" alt="@company.Name Logo" style="width: 100%; height: 150px; object-fit: contain;">
+                                            <h5 class="mt-2">@company.Name</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="company-details-@company.CompanyId p-4">
+                                            <h4>@company.Name</h4>
+                                            <p><strong>Địa chỉ:</strong> @company.Address</p>
+                                            <p><strong>Email:</strong> @company.Email</p>
+                                            <p><strong>Số điện thoại:</strong> @company.Phone</p>
+                            @if (!string.IsNullOrEmpty(company.Website))
+                            {
+                                                        <p><strong>Website:</strong> <a href="@company.Website" target="_blank">@company.Website</a></p>
+                            }
+                                            <p><strong>Giới thiệu:</strong> @company.Description</p>
+                                            <a href="@company.Website" target="_blank" class="btn btn-success">Xem thêm</a>
+                                        </div>
+                                    </div>
+                }
+                else
+                {
+                                    <!-- Hàng lẻ: Chi tiết bên trái, công ty bên phải -->
+                                    <div class="col-md-6">
+                                        <div class="company-details-@company.CompanyId p-4">
+                                            <h4>@company.Name</h4>
+                                            <p><strong>Địa chỉ:</strong> @company.Address</p>
+                                            <p><strong>Email:</strong> @company.Email</p>
+                                            <p><strong>Số điện thoại:</strong> @company.Phone</p>
+                            @if (!string.IsNullOrEmpty(company.Website))
+                            {
+                                                        <p><strong>Website:</strong> <a href="@company.Website" target="_blank">@company.Website</a></p>
+                            }
+                                             <p><strong>Giới thiệu:</strong> @company.Description</p>
+                                            <a href="@company.Website" target="_blank" class="btn btn-success">Xem thêm</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="company-card" data-company-id="@company.CompanyId" style="cursor: pointer; border: 2px solid #000; padding: 15px; text-align: center;">
+                                            <img src="@company.LogoUrl" alt="@company.Name Logo" style="width: 100%; height: 150px; object-fit: contain;">
+                                            <h5 class="mt-2">@company.Name</h5>
+                                        </div>
+                                    </div>
+                }
                     </div>
-    }
+        }
     </div>
 </div>
+<div class="info-box mt-5">
+    <div class="container">
+        <h2 class="info-title">Nhiều công ty đang tham gia tuyển dụng!</h2>
+        <p class="info-description">
+            Trang tuyển dụng của chúng tôi đã thu hút nhiều công ty hàng đầu tham gia tuyển dụng các ứng viên tài năng.
+            Chúng tôi kết nối các công ty và ứng viên tiềm năng trong nhiều ngành nghề khác nhau. Với hàng nghìn công việc
+            mới cập nhật mỗi ngày, chắc chắn bạn sẽ tìm thấy cơ hội việc làm phù hợp với kỹ năng và sở thích của mình.
+        </p>
+        <p class="info-description">
+            Hãy bắt đầu tìm kiếm việc làm ngay hôm nay để mở ra những cơ hội nghề nghiệp tuyệt vời tại các công ty danh tiếng trong và ngoài nước!
+        </p>
+    </div>
+</div>
+
+

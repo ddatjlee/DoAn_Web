@@ -77,6 +77,8 @@ namespace DoAn_Web.Controllers
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
 
+            ViewBag.UnreadNotifications = notifications.Count(n => !n.IsRead.HasValue || !n.IsRead.Value);
+
             return View(notifications);
         }
     }

@@ -25,17 +25,17 @@ public partial class JobPosting
 
     public string? SalaryRange { get; set; }
 
-    public DateOnly ApplicationDeadline { get; set; }
+    public DateTime ApplicationDeadline { get; set; }
 
     public int? Vacancies { get; set; }
 
     public bool? IsActive { get; set; }
 
-    public bool? IsApproved { get; set; }
-
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public bool? IsApproved { get; set; }
 
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 

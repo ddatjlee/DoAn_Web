@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-
+using BCrypt.Net;
 namespace DoAn_Web.Controllers
 {
     public class HomeController : Controller
@@ -39,8 +39,20 @@ namespace DoAn_Web.Controllers
 
             return View(interviews);
         }
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, int? companyId = null)
         {
+            var expiredJobs = await _context.JobPostings
+        .Where(j => j.IsActive == true && j.IsApproved == true && j.ApplicationDeadline <= DateTime.Today)
+        .ToListAsync();
+
+            if (expiredJobs.Any())
+            {
+                foreach (var job in expiredJobs)
+                {
+                    job.IsActive = false;
+                }
+                await _context.SaveChangesAsync();
+            }
             int pageSize = 3; // Số lượng công việc hiển thị mỗi trang
             var totalJobs = await _context.JobPostings
                 .Where(j => j.IsActive == true && j.IsApproved == true)
@@ -52,7 +64,7 @@ namespace DoAn_Web.Controllers
                 .Where(j => j.IsActive == true && j.IsApproved == true)
                 .OrderByDescending(j => j.CreatedAt)
                 .Skip((page - 1) * pageSize)  // Bỏ qua các công việc đã hiển thị
-                .Take(pageSize)  // Lấy 4 công việc
+                .Take(pageSize)  // Lấy 3 công việc
                 .ToListAsync();
 
             var companies = await _context.Companies
@@ -61,10 +73,22 @@ namespace DoAn_Web.Controllers
                 .Take(4)
                 .ToListAsync();
 
+            // Nếu không có companyId, chọn công ty đầu tiên trong danh sách
+            Company selectedCompany = null;
+            if (companyId.HasValue)
+            {
+                selectedCompany = await _context.Companies.FirstOrDefaultAsync(c => c.CompanyId == companyId.Value);
+            }
+            else if (companies.Any())
+            {
+                selectedCompany = companies.First(); // Chọn công ty đầu tiên nếu không có companyId
+            }
+
             var model = new HomeViewModel
             {
                 Jobs = jobs,
-                Companies = companies
+                Companies = companies,
+                SelectedCompany = selectedCompany // Thêm công ty được chọn vào model
             };
 
             var studentId = HttpContext.Session.GetInt32("StudentId");
@@ -89,6 +113,17 @@ namespace DoAn_Web.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> CompanyDetails(int companyId)
+        {
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.CompanyId == companyId);
+            if (company == null)
+            {
+                return Content("Không tìm thấy công ty."); // Trả về thông báo nếu không tìm thấy
+            }
+            return PartialView("_CompanyDetails", company);
+        }
+
         public async Task<IActionResult> GetJobs(int page = 1)
         {
             int pageSize = 3; // Số lượng công việc mỗi trang
@@ -107,57 +142,46 @@ namespace DoAn_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchJobs(string keyword, int page = 1)
         {
-            int pageSize = 3; // Số công việc mỗi trang
+            int pageSize = 3; 
 
-            // Truy vấn cơ bản: lấy các công việc đang hoạt động và đã được duyệt
             var query = _context.JobPostings
                 .Include(j => j.Company)
                 .Include(j => j.Location)
                 .Include(j => j.JobType)
                 .Include(j => j.Skills)
-                .Where(j => j.IsActive == true && j.IsApproved == true);
+                .Where(j => j.IsActive == true && j.IsApproved == true && j.ApplicationDeadline >= DateTime.Today);
 
-            // Nếu có từ khóa, tìm kiếm trên nhiều trường
             if (!string.IsNullOrEmpty(keyword))
             {
                 keyword = keyword.Trim().ToLower();
                 query = query.Where(j =>
-                    // Tìm theo tên công ty
                     j.Company.Name.ToLower().Contains(keyword) ||
-                    // Tìm theo thành phố
                     (j.Location != null && j.Location.City != null && j.Location.City.ToLower().Contains(keyword)) ||
-                    // Tìm theo thể loại công việc
                     (j.JobType != null && j.JobType.Name != null && j.JobType.Name.ToLower().Contains(keyword)) ||
-                    // Tìm theo kỹ năng
                     j.Skills.Any(s => s.Name != null && s.Name.ToLower().Contains(keyword))
                 );
             }
 
-            // Đếm tổng số công việc khớp với tiêu chí
             var totalJobs = await query.CountAsync();
 
-            // Phân trang
             var jobs = await query
                 .OrderByDescending(j => j.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Lấy danh sách công ty để hiển thị trong phần "Công ty nổi bật"
             var companies = await _context.Companies
                 .Where(c => c.Verified == true)
                 .OrderByDescending(c => c.CreatedAt)
                 .Take(4)
                 .ToListAsync();
 
-            // Tạo model để truyền vào view
             var model = new HomeViewModel
             {
                 Jobs = jobs,
                 Companies = companies
             };
 
-            // Xử lý thông báo chưa đọc và trạng thái đăng nhập (giống như trong Index)
             var studentId = HttpContext.Session.GetInt32("StudentId");
             if (studentId.HasValue)
             {
@@ -172,13 +196,13 @@ namespace DoAn_Web.Controllers
 
             ViewBag.IsLoggedIn = HttpContext.Session.GetInt32("StudentId") != null || HttpContext.Session.GetInt32("CompanyId") != null;
 
-            // Truyền thông tin vào ViewBag
             ViewBag.Keyword = keyword;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling(totalJobs / (double)pageSize);
 
             return View("Index", model);
         }
+
 
         [HttpGet]
         public IActionResult LoginStudent()
@@ -194,9 +218,7 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            var student = await _context.Students
-                .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
-
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentCode == studentCode);
             if (student == null)
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc tài khoản không đúng.";
@@ -209,7 +231,8 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            if (student.PasswordHash != password)
+            // Sử dụng BCrypt để so sánh mật khẩu nhập vào với mật khẩu đã mã hóa
+            if (!BCrypt.Net.BCrypt.Verify(password, student.PasswordHash))
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc tài khoản không đúng.";
                 return View();
@@ -220,6 +243,7 @@ namespace DoAn_Web.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
 
         [HttpGet]
         public IActionResult LoginCompany()
@@ -235,9 +259,7 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            var company = await _context.Companies
-                .FirstOrDefaultAsync(c => c.Email == companyEmail);
-
+            var company = await _context.Companies.FirstOrDefaultAsync(c => c.Email == companyEmail);
             if (company == null)
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc Email không đúng.";
@@ -248,7 +270,9 @@ namespace DoAn_Web.Controllers
                 TempData["ErrorMessage"] = "Tài khoản đã bị khóa!";
                 return View();
             }
-            if (company.PasswordHash != password)
+
+            // So sánh mật khẩu đã mã hóa
+            if (!BCrypt.Net.BCrypt.Verify(password, company.PasswordHash))
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc Email không đúng.";
                 return View();
@@ -259,6 +283,7 @@ namespace DoAn_Web.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
 
         [HttpGet]
         public IActionResult LoginAdmin()
@@ -273,16 +298,16 @@ namespace DoAn_Web.Controllers
                 TempData["ErrorMessage"] = "Vui lòng điền đầy đủ thông tin.";
                 return View();
             }
-            
-            var admin = await _context.Admins
-                .FirstOrDefaultAsync(a => a.Email == adminEmail);
 
+            var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == adminEmail);
             if (admin == null)
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc Email không đúng.";
                 return View();
             }
-            if (admin.PasswordHash != password)
+
+            // So sánh mật khẩu đã mã hóa
+            if (!BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc Email không đúng.";
                 return View();
@@ -295,7 +320,7 @@ namespace DoAn_Web.Controllers
         }
 
 
-        // Trang đăng ký cho Sinh viên
+
         [HttpGet]
         public IActionResult RegisterStudent()
         {
@@ -305,35 +330,31 @@ namespace DoAn_Web.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterStudent(string fullName, string studentCode, string password, string confirmPassword)
         {
-            // Kiểm tra các trường bắt buộc
-            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(studentCode) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
+            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(studentCode) ||
+                string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
             {
                 TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
                 return View();
             }
 
-            // Kiểm tra mã số sinh viên: 10 chữ số
             if (!Regex.IsMatch(studentCode, @"^\d{10}$"))
             {
                 TempData["ErrorMessage"] = "Mã số sinh viên phải chứa đúng 10 chữ số.";
                 return View();
             }
 
-            // Kiểm tra mật khẩu: ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
             if (!Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"))
             {
                 TempData["ErrorMessage"] = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.";
                 return View();
             }
 
-            // Kiểm tra mật khẩu và xác nhận mật khẩu
             if (password != confirmPassword)
             {
                 TempData["ErrorMessage"] = "Mật khẩu nhập lại không khớp.";
                 return View();
             }
 
-            // Kiểm tra mã số sinh viên đã tồn tại
             var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.StudentCode == studentCode);
             if (existingStudent != null)
             {
@@ -341,12 +362,13 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            // Tạo sinh viên mới
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+
             var student = new Student
             {
                 FullName = fullName,
                 StudentCode = studentCode,
-                PasswordHash = password, // Nên mã hóa mật khẩu trước khi lưu (xem phần lưu ý)
+                PasswordHash = hashedPassword, 
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -367,56 +389,50 @@ namespace DoAn_Web.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterCompany(string companyName, string companyTaxCode, string companyEmail, string companyPhone, string companyWebsite, string password, string confirmPassword)
         {
-            // Kiểm tra các trường bắt buộc
-            if (string.IsNullOrEmpty(companyName) || string.IsNullOrEmpty(companyTaxCode) || string.IsNullOrEmpty(companyEmail) || string.IsNullOrEmpty(companyPhone) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
+            if (string.IsNullOrEmpty(companyName) || string.IsNullOrEmpty(companyTaxCode) ||
+                string.IsNullOrEmpty(companyEmail) || string.IsNullOrEmpty(companyPhone) ||
+                string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
             {
                 TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
                 return View();
             }
 
-            // Kiểm tra email: phải có đuôi @gmail.com
             if (!Regex.IsMatch(companyEmail, @"^[a-zA-Z0-9._%+-]+@gmail\.com$"))
             {
                 TempData["ErrorMessage"] = "Email công ty phải có đuôi @gmail.com.";
                 return View();
             }
 
-            // Kiểm tra số điện thoại: 10 chữ số
             if (!Regex.IsMatch(companyPhone, @"^\d{10}$"))
             {
                 TempData["ErrorMessage"] = "Số điện thoại phải chứa đúng 10 chữ số.";
                 return View();
             }
 
-            // Kiểm tra mã số thuế: 10-13 chữ số
             if (!Regex.IsMatch(companyTaxCode, @"^\d{10,13}$"))
             {
                 TempData["ErrorMessage"] = "Mã số thuế phải chứa từ 10 đến 13 chữ số.";
                 return View();
             }
 
-            // Kiểm tra website: bắt đầu bằng http:// hoặc https://
             if (!string.IsNullOrEmpty(companyWebsite) && !Regex.IsMatch(companyWebsite, @"^https?://"))
             {
                 TempData["ErrorMessage"] = "Website phải bắt đầu bằng http:// hoặc https://.";
                 return View();
             }
 
-            // Kiểm tra mật khẩu: ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
             if (!Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"))
             {
                 TempData["ErrorMessage"] = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.";
                 return View();
             }
 
-            // Kiểm tra mật khẩu và xác nhận mật khẩu
             if (password != confirmPassword)
             {
                 TempData["ErrorMessage"] = "Mật khẩu nhập lại không khớp.";
                 return View();
             }
 
-            // Kiểm tra email công ty đã tồn tại
             var existingCompany = await _context.Companies.FirstOrDefaultAsync(c => c.Email == companyEmail);
             if (existingCompany != null)
             {
@@ -424,7 +440,8 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            // Tạo công ty mới
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+
             var company = new Company
             {
                 Name = companyName,
@@ -432,7 +449,7 @@ namespace DoAn_Web.Controllers
                 Email = companyEmail,
                 Phone = companyPhone,
                 Website = companyWebsite,
-                PasswordHash = password, // Nên mã hóa mật khẩu trước khi lưu (xem phần lưu ý)
+                PasswordHash = hashedPassword, 
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -442,67 +459,6 @@ namespace DoAn_Web.Controllers
 
             TempData["SuccessMessage"] = "Đăng ký công ty thành công!";
             return RedirectToAction("LoginCompany", "Home");
-        }
-
-        [HttpGet]
-        public IActionResult RegisterAdmin()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> RegisterAdmin(string adminFullName, string adminEmail, string password, string confirmPassword)
-        {
-            // Kiểm tra các trường bắt buộc
-            if (string.IsNullOrEmpty(adminFullName) || string.IsNullOrEmpty(adminEmail) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
-            {
-                TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
-                return View();
-            }
-
-            // Kiểm tra email: phải có đuôi @gmail.com
-            if (!Regex.IsMatch(adminEmail, @"^[a-zA-Z0-9._%+-]+@gmail\.com$"))
-            {
-                TempData["ErrorMessage"] = "Email admin phải có đuôi @gmail.com.";
-                return View();
-            }
-
-            // Kiểm tra mật khẩu: ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
-            if (!Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"))
-            {
-                TempData["ErrorMessage"] = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.";
-                return View();
-            }
-
-            // Kiểm tra mật khẩu và xác nhận mật khẩu
-            if (password != confirmPassword)
-            {
-                TempData["ErrorMessage"] = "Mật khẩu nhập lại không khớp.";
-                return View();
-            }
-
-            // Kiểm tra email admin đã tồn tại
-            var existingAdmin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == adminEmail);
-            if (existingAdmin != null)
-            {
-                TempData["ErrorMessage"] = "Email Admin đã tồn tại.";
-                return View();
-            }
-
-            // Tạo admin mới
-            var admin = new Admin
-            {
-                FullName = adminFullName,
-                Email = adminEmail,
-                PasswordHash = password, // Nên mã hóa mật khẩu trước khi lưu (xem phần lưu ý)
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Admins.Add(admin);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Đăng ký Admin thành công!";
-            return RedirectToAction("LoginAdmin", "Home");
         }
 
 
@@ -555,18 +511,79 @@ namespace DoAn_Web.Controllers
             if (student == null)
             {
                 TempData["ErrorMessage"] = "Sinh viên không tồn tại.";
+                ViewBag.Skills = await _context.Skills.ToListAsync();
                 return View("Profile", student);
             }
 
-            student.DateOfBirth = DateOfBirth.HasValue ? DateOnly.FromDateTime(DateOfBirth.Value) : null;
-            student.Phone = Phone;
-            student.Gpa = GPA;
-            student.GraduationYear = GraduationYear;
-            student.GitHubProfile = GitHubProfile;
-            student.UpdatedAt = DateTime.Now;
+            if (DateOfBirth.HasValue)
+            {
+                if (DateOfBirth.Value > DateTime.Now)
+                {
+                    TempData["ErrorMessage"] = "Ngày sinh không được là ngày trong tương lai.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(Phone))
+            {
+                if (!Regex.IsMatch(Phone, @"^\d{10}$"))
+                {
+                    TempData["ErrorMessage"] = "Số điện thoại phải chứa đúng 10 chữ số.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+            }
+
+            if (GPA.HasValue)
+            {
+                if (GPA < 0.0m || GPA > 4.0m) 
+                {
+                    TempData["ErrorMessage"] = "GPA phải nằm trong khoảng từ 0.0 đến 4.0.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+            }
+
+            if (GraduationYear.HasValue)
+            {
+                int currentYear = DateTime.Now.Year;
+                if (GraduationYear < 2000 || GraduationYear > currentYear)
+                {
+                    TempData["ErrorMessage"] = $"Năm tốt nghiệp phải nằm trong khoảng từ 2000 đến {currentYear}.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(GitHubProfile))
+            {
+                if (!Regex.IsMatch(GitHubProfile, @"^https?://"))
+                {
+                    TempData["ErrorMessage"] = "GitHub profile phải bắt đầu bằng http:// hoặc https://.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+            }
 
             if (avatarFile != null && avatarFile.Length > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var fileExtension = Path.GetExtension(avatarFile.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    TempData["ErrorMessage"] = "Ảnh đại diện chỉ hỗ trợ định dạng .jpg, .jpeg, .png, .gif.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+
+                if (avatarFile.Length > 5 * 1024 * 1024) 
+                {
+                    TempData["ErrorMessage"] = "Ảnh đại diện không được lớn hơn 5MB.";
+                    ViewBag.Skills = await _context.Skills.ToListAsync();
+                    return View("Profile", student);
+                }
+
                 var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images/avatars");
                 Directory.CreateDirectory(uploadsFolder);
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(avatarFile.FileName);
@@ -577,12 +594,115 @@ namespace DoAn_Web.Controllers
                 }
                 student.AvatarUrl = $"/images/avatars/{fileName}";
             }
+
+            student.DateOfBirth = DateOfBirth.HasValue ? DateOnly.FromDateTime(DateOfBirth.Value) : null;
+            student.Phone = Phone;
+            student.Gpa = GPA;
+            student.GraduationYear = GraduationYear;
+            student.GitHubProfile = GitHubProfile;
+            student.UpdatedAt = DateTime.Now;
+
+            if (SelectedSkillIds != null && SelectedSkillIds.Any())
+            {
+                student.Skills.Clear();
+
+                var selectedSkills = await _context.Skills
+                    .Where(s => SelectedSkillIds.Contains(s.SkillId.ToString()))
+                    .ToListAsync();
+                foreach (var skill in selectedSkills)
+                {
+                    student.Skills.Add(skill);
+                }
+            }
+
             _context.Update(student);
             await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Cập nhật thành công!";
             ViewBag.Skills = await _context.Skills.ToListAsync();
             return View("Profile", student);
         }
+        public async Task<IActionResult> ProfileCompany()
+        {
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (companyId == null)
+            {
+                TempData["ErrorMessage"] = "Công ty không tồn tại.";
+                return RedirectToAction("LoginCompany");
+            }
 
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.CompanyId == companyId);
+            if (company == null)
+            {
+                return RedirectToAction("LoginCompany");
+            }
+
+            return View(company);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfileCompany(int companyId, IFormFile logoFile, string phone, string website, string description, string address)
+        {
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.CompanyId == companyId);
+            if (company == null)
+            {
+                TempData["ErrorMessage"] = "Công ty không tồn tại.";
+                return View("ProfileCompany", company);
+            }
+
+            if (!string.IsNullOrEmpty(phone) && !Regex.IsMatch(phone, @"^\d{10}$"))
+            {
+                TempData["ErrorMessage"] = "Số điện thoại phải chứa đúng 10 chữ số.";
+                return View("ProfileCompany", company);
+            }
+
+            if (!string.IsNullOrEmpty(website) && !Regex.IsMatch(website, @"^https?://"))
+            {
+                TempData["ErrorMessage"] = "Website phải bắt đầu bằng http:// hoặc https://.";
+                return View("ProfileCompany", company);
+            }
+
+            if (logoFile != null && logoFile.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var fileExtension = Path.GetExtension(logoFile.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    TempData["ErrorMessage"] = "Logo chỉ hỗ trợ định dạng .jpg, .jpeg, .png, .gif.";
+                    return View("ProfileCompany", company);
+                }
+
+                if (logoFile.Length > 5 * 1024 * 1024) 
+                {
+                    TempData["ErrorMessage"] = "Logo không được lớn hơn 5MB.";
+                    return View("ProfileCompany", company);
+                }
+
+                var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images/logos");
+                Directory.CreateDirectory(uploadsFolder);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(logoFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await logoFile.CopyToAsync(stream);
+                }
+                company.LogoUrl = $"/images/logos/{fileName}";
+            }
+
+            company.Phone = phone;
+            company.Website = website;
+            company.Description = description;
+            company.Address = address;
+            company.UpdatedAt = DateTime.Now;
+
+            _context.Update(company);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Cập nhật thông tin công ty thành công!";
+            return View("ProfileCompany", company);
+        }
 
         public IActionResult Logout()
         {

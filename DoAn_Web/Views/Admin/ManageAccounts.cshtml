@@ -1,57 +1,61 @@
 ﻿@model IEnumerable<DoAn_Web.Controllers.AccountViewModel>
 
-<h2>Quản lý tài khoản</h2>
+<div class="account-management-container">
+    <h2 class="account-management-title">Quản lý tài khoản</h2>
 
-@if (TempData["SuccessMessage"] != null)
-{
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+            <div class="alert alert-success" role="alert">@TempData["SuccessMessage"]</div>
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Tên</th>
-            <th>Email/Mã sinh viên</th>
-            <th>Loại tài khoản</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var account in Model)
-        {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
                 <tr>
-                    <td>@account.Name</td>
-                    <td>@account.Email</td>
-                    <td>@account.Type</td>
-                    <td>
-                    @if (account.IsLocked)
-                    {
-                                <span class="badge bg-danger">Đã khóa</span>
-                    }
-                    else
-                    {
-                                <span class="badge bg-success">Đang hoạt động</span>
-                    }
-                    </td>
-                    <td>
-                    @if (account.IsLocked)
-                    {
-                                <form method="post" asp-action="UnlockAccount" asp-route-id="@account.Id" asp-route-type="@account.Type" style="display:inline;">
-                                    <button type="submit" class="btn btn-success">Mở khóa</button>
-                                </form>
-                    }
-                    else
-                    {
-                                <form method="post" asp-action="LockAccount" asp-route-id="@account.Id" asp-route-type="@account.Type" style="display:inline;">
-                                    <button type="submit" class="btn btn-danger">Khóa</button>
-                                </form>
-                    }
-                    </td>
+                    <th>Tên</th>
+                    <th>Email/Mã sinh viên</th>
+                    <th>Loại tài khoản</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
                 </tr>
-        }
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                @foreach (var account in Model)
+                {
+                        <tr>
+                            <td>@account.Name</td>
+                            <td>@account.Email</td>
+                            <td>@account.Type</td>
+                            <td>
+                            @if (account.IsLocked)
+                            {
+                                        <span class="badge bg-danger">Đã khóa</span>
+                            }
+                            else
+                            {
+                                        <span class="badge badge-read">Đang hoạt động</span>
+                            }
+                            </td>
+                            <td>
+                            @if (account.IsLocked)
+                            {
+                                        <form method="post" asp-action="UnlockAccount" asp-route-id="@account.Id" asp-route-type="@account.Type" class="d-inline">
+                                            <button type="submit" class="btn btn-success uniform-btn">Mở khóa</button>
+                                        </form>
+                            }
+                            else
+                            {
+                                        <form method="post" asp-action="LockAccount" asp-route-id="@account.Id" asp-route-type="@account.Type" class="d-inline">
+                                            <button type="submit" class="btn btn-danger uniform-btn">Khóa</button>
+                                        </form>
+                            }
+                            </td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @section Scripts {
         <script>

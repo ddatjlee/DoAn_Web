@@ -328,7 +328,7 @@ namespace DoAn_Web.Controllers
 
             // Gán CompanyId từ session
             jobPosting.CompanyId = companyId.Value;
-            var currentDate = DateOnly.FromDateTime(DateTime.Now); // Ngày hiện tại
+            var currentDate = DateTime.Now; // Ngày hiện tại
             var minDeadline = currentDate.AddDays(7); // Ngày hiện tại + 7 ngày
             if (jobPosting.ApplicationDeadline < minDeadline)
             {

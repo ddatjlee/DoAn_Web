@@ -1,21 +1,17 @@
-﻿	-- Tạo database
-	CREATE DATABASE RecruitmentSystem;
+﻿	CREATE DATABASE RecruitmentSystem;
 	GO
 	USE RecruitmentSystem;
 	GO
-	-- Bảng loại hình công việc
 	CREATE TABLE JobTypes (
 		JobTypeID INT PRIMARY KEY IDENTITY(1,1),
 		Name NVARCHAR(50) NOT NULL UNIQUE
 	);
 
-	-- Bảng mức độ kinh nghiệm
 	CREATE TABLE ExperienceLevels (
 		LevelID INT PRIMARY KEY IDENTITY(1,1),
 		Name NVARCHAR(50) NOT NULL UNIQUE
 	);
 
-	-- Bảng địa điểm
 	CREATE TABLE Locations (
 		LocationID INT PRIMARY KEY IDENTITY(1,1),
 		City NVARCHAR(100) NOT NULL,
@@ -23,7 +19,6 @@
 		CONSTRAINT UC_CityCountry UNIQUE (City, Country)
 	);
 
-	-- Bảng công ty
 	CREATE TABLE Companies (
 		CompanyID INT PRIMARY KEY IDENTITY(1,1),
 		Name NVARCHAR(255) NOT NULL,
@@ -40,10 +35,9 @@
 		CreatedAt DATETIME2 DEFAULT GETDATE(),
 		UpdatedAt DATETIME2 DEFAULT GETDATE()
 	);
-	-- Bảng sinh viên (chỉ dành cho khoa CNTT của một trường cụ thể)
 	CREATE TABLE Students (
 		StudentID INT PRIMARY KEY IDENTITY(1,1),
-		StudentCode NVARCHAR(20) UNIQUE NOT NULL, -- Mã sinh viên thay cho email cá nhân
+		StudentCode NVARCHAR(20) UNIQUE NOT NULL,
 		PasswordHash NVARCHAR(255) NOT NULL,
 		FullName NVARCHAR(255) NOT NULL,
 		AvatarUrl NVARCHAR(512),
@@ -56,13 +50,11 @@
 		CreatedAt DATETIME2 DEFAULT GETDATE(),
 		UpdatedAt DATETIME2 DEFAULT GETDATE()
 	);
-	-- Bảng kỹ năng (chủ yếu liên quan đến CNTT)
 	CREATE TABLE Skills (
 		SkillID INT PRIMARY KEY IDENTITY(1,1),
 		Name NVARCHAR(100) NOT NULL UNIQUE,
 		Description NVARCHAR(MAX)
 	);
-	-- Bảng kỹ năng của sinh viên
 	CREATE TABLE StudentSkills (
 		StudentID INT NOT NULL,
 		SkillID INT NOT NULL,
@@ -70,7 +62,6 @@
 		FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
 		FOREIGN KEY (SkillID) REFERENCES Skills(SkillID)
 	);
-	-- Bảng tin tuyển dụng
 	CREATE TABLE JobPostings (
 		JobID INT PRIMARY KEY IDENTITY(1,1),
 		CompanyID INT NOT NULL,
@@ -93,7 +84,6 @@
 		FOREIGN KEY (LevelID) REFERENCES ExperienceLevels(LevelID),
 		FOREIGN KEY (LocationID) REFERENCES Locations(LocationID)
 	);
-	-- Bảng kỹ năng yêu cầu cho công việc
 	CREATE TABLE JobSkills (
 		JobID INT NOT NULL,
 		SkillID INT NOT NULL,
@@ -101,7 +91,6 @@
 		FOREIGN KEY (JobID) REFERENCES JobPostings(JobID) ON DELETE CASCADE,
 		FOREIGN KEY (SkillID) REFERENCES Skills(SkillID)
 	);
-	-- Bảng ứng tuyển
 	CREATE TABLE Applications (
 		ApplicationID INT PRIMARY KEY IDENTITY(1,1),
 		JobID INT NOT NULL,
@@ -115,7 +104,6 @@
 		FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
 		CONSTRAINT UC_JobStudent UNIQUE (JobID, StudentID)
 	);
-	-- Bảng phỏng vấn
 	CREATE TABLE Interviews (
 		InterviewID INT PRIMARY KEY IDENTITY(1,1),
 		ApplicationID INT NOT NULL,
@@ -129,7 +117,6 @@
 		FOREIGN KEY (ApplicationID) REFERENCES Applications(ApplicationID) ON DELETE CASCADE
 	);
 
-	-- Bảng quản trị viên
 	CREATE TABLE Admins (
 		AdminID INT PRIMARY KEY IDENTITY(1,1),
 		Email NVARCHAR(255) UNIQUE NOT NULL,
@@ -138,7 +125,6 @@
 		CreatedAt DATETIME2 DEFAULT GETDATE()
 	);
 
-	-- Bảng thông báo
 	CREATE TABLE Notifications (
 		NotificationID INT PRIMARY KEY IDENTITY(1,1),
 		UserID INT NOT NULL,
@@ -150,13 +136,12 @@
 	CREATE TABLE ApprovalHistory (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     JobId INT NOT NULL,
-    Action NVARCHAR(50) NOT NULL, -- "Approved" hoặc "Rejected"
+    Action NVARCHAR(50) NOT NULL, 
     ActionDate DATETIME NOT NULL,
     AdminId INT NOT NULL,
     CONSTRAINT FK_ApprovalHistory_JobPostings FOREIGN KEY (JobId) REFERENCES JobPostings(JobId)
 	);
 
-	-- Indexes để tối ưu truy vấn
 	CREATE INDEX idx_CompanyName ON Companies(Name);
 	CREATE INDEX idx_JobTitle ON JobPostings(Title);
 	CREATE INDEX idx_ApplicationStatus ON Applications(Status);
@@ -229,7 +214,8 @@
 	(3, N'online', '2025-03-15 10:00:00', '2025-03-15 11:00:00', NULL, N'zoom.us/123456', N'Phỏng vấn kỹ thuật', N'pending');
 
 	INSERT INTO Admins (Email, PasswordHash, FullName) VALUES
-	(N'admin@xyz.edu.vn', N'hashadmin', N'Nguyễn Thị Admin');
+	(N'admin@xyz.edu.vn', N'hashadmin', N'Nguyễn Thị Admin'),
+	(N'admin123@xyz.edu.vn', N'alo123', N'Nguyễn  Admin');
 
 	INSERT INTO Notifications (UserID, UserType, Message, IsRead) VALUES
 	(1, N'student', N'Đơn ứng tuyển của bạn đang được xem xét', 0),

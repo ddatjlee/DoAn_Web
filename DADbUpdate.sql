@@ -221,3 +221,72 @@
 	(1, N'student', N'Đơn ứng tuyển của bạn đang được xem xét', 0),
 	(3, N'company', N'Có ứng viên mới cho vị trí Kỹ sư Python', 0),
 	(1, N'admin', N'Công ty Axon Active cần xác minh', 0);
+
+
+	-- Bảng Giảng viên hướng dẫn
+CREATE TABLE Supervisors (
+    SupervisorID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100),
+    Phone NVARCHAR(20)
+);
+
+-- Bảng Kỳ thực tập
+CREATE TABLE Internships (
+    InternshipID INT PRIMARY KEY IDENTITY(1,1),
+    StudentID INT NOT NULL,
+    CompanyID INT NOT NULL,
+    SupervisorID INT NOT NULL,  -- 1 giảng viên duy nhất hướng dẫn sinh viên đó
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL,
+    Status NVARCHAR(50) DEFAULT N'Đang thực tập',
+
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID),
+    FOREIGN KEY (SupervisorID) REFERENCES Supervisors(SupervisorID)
+);
+
+-- Bảng báo cáo hàng tuần (Sinh viên ghi report)
+-- Bảng giảng viên hướng dẫn
+CREATE TABLE Supervisors (
+    SupervisorID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(255) NOT NULL,
+    Email NVARCHAR(255) NOT NULL UNIQUE,
+    Phone NVARCHAR(20) NOT NULL,
+    Password NVARCHAR(255) NOT NULL,
+    Position NVARCHAR(100) NOT NULL,
+    Department NVARCHAR(100) NOT NULL,
+    CreatedAt DATETIME2 DEFAULT GETDATE()
+);
+
+-- Bảng báo cáo thực tập hàng tuần
+CREATE TABLE WeeklyReports (
+    ReportID INT PRIMARY KEY IDENTITY(1,1),
+    InternshipID INT NOT NULL,
+    WeekNumber INT NOT NULL,
+    ReportDate DATE DEFAULT GETDATE(),
+    Content NVARCHAR(MAX) NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT N'Chờ duyệt',
+    FOREIGN KEY (InternshipID) REFERENCES Internships(InternshipID)
+);
+
+-- Bảng đánh giá của doanh nghiệp
+CREATE TABLE CompanyEvaluations (
+    EvaluationID INT PRIMARY KEY IDENTITY(1,1),
+    InternshipID INT NOT NULL,
+    EvaluationDate DATE DEFAULT GETDATE(),
+    Score INT CHECK (Score BETWEEN 0 AND 100),
+    Comments NVARCHAR(1000),
+    FOREIGN KEY (InternshipID) REFERENCES Internships(InternshipID)
+);
+
+-- Bảng đánh giá của giảng viên
+CREATE TABLE SupervisorEvaluations (
+    EvaluationID INT PRIMARY KEY IDENTITY(1,1),
+    InternshipID INT NOT NULL,
+    EvaluationDate DATE DEFAULT GETDATE(),
+    Score INT CHECK (Score BETWEEN 0 AND 100),
+    Comments NVARCHAR(1000),
+    FOREIGN KEY (InternshipID) REFERENCES Internships(InternshipID)
+);
+

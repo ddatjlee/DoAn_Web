@@ -290,3 +290,15 @@ CREATE TABLE SupervisorEvaluations (
     FOREIGN KEY (InternshipID) REFERENCES Internships(InternshipID)
 );
 
+-- Thêm các cột tiêu chí đánh giá vào bảng CompanyEvaluations
+ALTER TABLE CompanyEvaluations
+ADD CriteriaCompliance decimal(3,1) NOT NULL DEFAULT 0,
+    CriteriaTaskPerformance decimal(3,1) NOT NULL DEFAULT 0,
+    CriteriaRelationship decimal(3,1) NOT NULL DEFAULT 0;
+
+-- Cập nhật Score về thang điểm 10 cho các đánh giá hiện tại (nếu có)
+UPDATE CompanyEvaluations 
+SET Score = CASE 
+    WHEN Score > 10 THEN ROUND(Score / 10.0, 0)
+    ELSE Score 
+END;

@@ -1,0 +1,40 @@
+@{
+    var path = Context.Request.Path.Value?.ToLower();
+    
+    if (path != null)
+    {
+        // Kiểm tra đường dẫn để xác định loại người dùng
+        if (path.StartsWith("/supervisor"))
+        {
+            if (Context.Session.GetInt32("SupervisorId") == null)
+            {
+                Context.Response.Redirect("/Home/LoginSupervisor");
+            }
+        }
+        else if (path.StartsWith("/company"))
+        {
+            if (Context.Session.GetInt32("CompanyId") == null)
+            {
+                Context.Response.Redirect("/Home/LoginCompany");
+            }
+        }
+        else if (path.StartsWith("/admin"))
+        {
+            if (Context.Session.GetInt32("AdminId") == null)
+            {
+                Context.Response.Redirect("/Home/LoginAdmin");
+            }
+        }
+        else if (Context.Session.GetInt32("StudentId") == null && 
+                Context.Session.GetInt32("CompanyId") == null && 
+                Context.Session.GetInt32("SupervisorId") == null &&
+                Context.Session.GetInt32("AdminId") == null)
+        {
+            // Nếu không có ai đăng nhập và không phải trang login/register
+            if (!path.Contains("/login") && !path.Contains("/register"))
+            {
+                Context.Response.Redirect("/Home/LoginStudent");
+            }
+        }
+    }
+}

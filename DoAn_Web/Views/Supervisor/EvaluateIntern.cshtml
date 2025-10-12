@@ -1,0 +1,51 @@
+@model DoAn_Web.Models.SupervisorEvaluation
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Đánh giá sinh viên thực tập</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Thông tin sinh viên</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Họ tên:</strong> @ViewBag.StudentName</p>
+                                <p><strong>MSSV:</strong> @ViewBag.StudentCode</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Công ty:</strong> @ViewBag.CompanyName</p>
+                                <p><strong>Thời gian thực tập:</strong> @ViewBag.Duration</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="EvaluateIntern" method="post">
+                        <input type="hidden" name="internshipId" value="@ViewBag.InternshipId" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Điểm đánh giá (0-100)</label>
+                            <input type="number" name="score" class="form-control" min="0" max="100" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Nhận xét chi tiết</label>
+                            <textarea name="comments" class="form-control" rows="5" required></textarea>
+                        </div>
+
+                        <div class="text-end">
+                            <a href="@Url.Action("StudentList")" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu đánh giá
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

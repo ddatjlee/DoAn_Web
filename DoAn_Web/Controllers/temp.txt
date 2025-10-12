@@ -64,12 +64,6 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Xử lý OnlineLink để đảm bảo có http:// hoặc https://
-            if (!string.IsNullOrEmpty(onlineLink) && !onlineLink.StartsWith("http://") && !onlineLink.StartsWith("https://"))
-            {
-                onlineLink = "https://" + onlineLink;
-            }
-
             var interview = new Interview
             {
                 ApplicationId = applicationId,

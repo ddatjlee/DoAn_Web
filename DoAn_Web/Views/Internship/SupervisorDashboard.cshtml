@@ -1,0 +1,76 @@
+@model IEnumerable<DoAn_Web.Models.Internship>
+
+@{
+    ViewData["Title"] = "Dashboard Giảng viên";
+}
+
+<div class="container mt-4">
+    <h2>Quản lý sinh viên thực tập</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Hiện tại bạn chưa được phân công quản lý sinh viên thực tập nào.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sinh viên</th>
+                        <th>Công ty</th>
+                        <th>Thời gian</th>
+                        <th>Số báo cáo</th>
+                        <th>Đánh giá công ty</th>
+                        <th>Đánh giá của bạn</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var internship in Model)
+                    {
+                        <tr>
+                            <td>@internship.Student.FullName</td>
+                            <td>@internship.Company.Name</td>
+                            <td>
+                                @internship.StartDate.ToString("dd/MM/yyyy") - 
+                                @(internship.EndDate.HasValue ? internship.EndDate.Value.ToString("dd/MM/yyyy") : "Hiện tại")
+                            </td>
+                            <td>@internship.WeeklyReports.Count báo cáo</td>
+                            <td>
+                                @if (internship.CompanyEvaluation != null)
+                                {
+                                    <span>@internship.CompanyEvaluation.Score/10</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </td>
+                            <td>
+                                @if (internship.SupervisorEvaluation != null)
+                                {
+                                    <span>@internship.SupervisorEvaluation.Score/10</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="StudentReports" asp-route-id="@internship.InternshipId" 
+                                       class="btn btn-sm btn-primary">Xem báo cáo</a>
+                                    <a asp-action="SupervisorEvaluation" asp-route-internshipId="@internship.InternshipId" 
+                                       class="btn btn-sm btn-success">Đánh giá</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

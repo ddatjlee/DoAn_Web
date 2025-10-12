@@ -1,0 +1,88 @@
+@model DoAn_Web.Models.Internship
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Đánh giá của công ty cho sinh viên</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Thông tin sinh viên và công ty -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Thông tin sinh viên</h5>
+                            <p><strong>Họ tên:</strong> @Model.Student.FullName</p>
+                            <p><strong>Mã sinh viên:</strong> @Model.Student.StudentCode</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Thông tin công ty</h5>
+                            <p><strong>Công ty:</strong> @Model.Company.Name</p>
+                            <p><strong>Thời gian:</strong> @Model.StartDate.ToString("dd/MM/yyyy") - @(Model.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</p>
+                        </div>
+                    </div>
+
+                    <!-- Kết quả đánh giá -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Kết quả đánh giá</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Điểm tổng -->
+                            <div class="text-center mb-4">
+                                <h3 class="text-primary">Điểm tổng: <span class="badge badge-primary">@Model.CompanyEvaluation.Score.ToString("F1")/10</span></h3>
+                                <p><em>Ngày đánh giá: @Model.CompanyEvaluation.EvaluationDate.ToString("dd/MM/yyyy HH:mm")</em></p>
+                            </div>
+
+                            <!-- Chi tiết từng tiêu chí -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card text-center">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Tuân thủ quy định</h6>
+                                            <h4 class="text-info">@Model.CompanyEvaluation.CriteriaCompliance.ToString("F1")/10</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card text-center">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Hiệu suất công việc</h6>
+                                            <h4 class="text-info">@Model.CompanyEvaluation.CriteriaTaskPerformance.ToString("F1")/10</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card text-center">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Quan hệ làm việc</h6>
+                                            <h4 class="text-info">@Model.CompanyEvaluation.CriteriaRelationship.ToString("F1")/10</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nhận xét -->
+                            @if (!string.IsNullOrEmpty(Model.CompanyEvaluation.Comments))
+                            {
+                                <div class="mt-4">
+                                    <h6>Nhận xét của công ty:</h6>
+                                    <div class="bg-light p-3 rounded">
+                                        @Model.CompanyEvaluation.Comments
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Nút quay lại -->
+                    <div class="mt-4 text-center">
+                        <a href="@Url.Action("StudentList")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách sinh viên
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

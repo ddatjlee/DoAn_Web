@@ -22,6 +22,7 @@
                             <th>Họ tên</th>
                             <th>Trạng thái</th>
                             <th>Ngày nộp đơn</th>
+                            <th>Phỏng vấn</th>
                             <th>CV</th>
                             <th>Hành động</th>
                         </tr>
@@ -32,11 +33,70 @@
                                 <tr>
                                     <td>@app.Student?.StudentCode</td>
                                     <td>@app.Student?.FullName</td>
-                                    <td>@app.Status</td>
-                                    <td>@(app.AppliedAt.HasValue ? app.AppliedAt.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
-                                    <td><a href="@app.ResumeUrl" target="_blank">Xem CV</a></td>
                                     <td>
-                                        <a asp-action="ScheduleInterview" asp-route-applicationId="@app.ApplicationId" class="btn btn-primary uniform-btn">Lên lịch phỏng vấn</a>
+                                        @switch (app.Status?.ToLower())
+                                        {
+                                            case "pending":
+                                                <span class="badge bg-warning">Đang chờ</span>
+                                                break;
+                                            case "interviewed":
+                                                <span class="badge bg-info">Đã phỏng vấn</span>
+                                                break;
+                                            case "accepted":
+                                                <span class="badge bg-success">Đã chấp nhận</span>
+                                                break;
+                                            case "rejected":
+                                                <span class="badge bg-danger">Đã từ chối</span>
+                                                break;
+                                            case "assigned":
+                                                <span class="badge bg-primary">Đã phân công GVHD</span>
+                                                break;
+                                            default:
+                                                <span>@app.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(app.AppliedAt.HasValue ? app.AppliedAt.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
+                                    <td>
+                                        @if (app.Interviews != null && app.Interviews.Any())
+                                        {
+                                            var latestInterview = app.Interviews.OrderByDescending(i => i.StartTime).First();
+                                            <text>@latestInterview.StartTime.ToString("dd/MM/yyyy HH:mm")</text>
+                                            @if (!string.IsNullOrEmpty(latestInterview.OnlineLink))
+                                            {
+                                                <a href="@latestInterview.OnlineLink" target="_blank" class="ms-2">Link phỏng vấn</a>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <text>Chưa có</text>
+                                        }
+                                    </td>
+                                    <td><a href="@app.ResumeUrl" target="_blank" class="btn btn-outline-primary btn-sm">Xem CV</a></td>
+                                    <td>
+                                        @if (app.Status == "pending")
+                                        {
+                                            <a asp-controller="Interview" asp-action="ScheduleInterview" asp-route-applicationId="@app.ApplicationId" class="btn btn-primary uniform-btn">Lên lịch phỏng vấn</a>
+                                        }
+                                        @if (app.Status == "interviewed")
+                                        {
+                                            <form asp-action="AcceptApplication" method="post" style="display: inline;">
+                                                <input type="hidden" name="applicationId" value="@app.ApplicationId" />
+                                                <button type="submit" class="btn btn-success uniform-btn">Chấp nhận</button>
+                                            </form>
+                                        }
+                                        @if (app.Status == "rejected")
+                                        {
+                                            <span class="badge bg-danger">Đã từ chối</span>
+                                        }
+                                        @if (app.Status == "accepted")
+                                        {
+                                            <span class="badge bg-success">Đã chấp nhận</span>
+                                        }
+                                        @if (app.Status == "assigned")
+                                        {
+                                            <span class="badge bg-info">Đã phân công GVHD</span>
+                                        }
                                     </td>
                                 </tr>
                     }

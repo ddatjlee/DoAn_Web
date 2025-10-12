@@ -71,6 +71,34 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="studentDropdown">
                                     <li><a class="dropdown-item" asp-controller="Home" asp-action="Profile">Thông tin cá nhân</a></li>
                                     <li><a class="dropdown-item" asp-controller="Home" asp-action="Interviews">Xem lịch phỏng vấn</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Internship" asp-action="WeeklyReportTable">Báo cáo thực tập</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Internship" asp-action="ViewEvaluations">Xem đánh giá thực tập</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                    }
+                    else if (Context.Session.GetInt32("SupervisorId") != null)
+                    {
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" asp-controller="Notifications" asp-action="Index">
+                                    <i class="fas fa-bell"></i> Thông báo
+                                @if (ViewBag.UnreadNotifications > 0)
+                                {
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        @ViewBag.UnreadNotifications
+                                                <span class="visually-hidden">Thông báo chưa đọc</span>
+                                            </span>
+                                }
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="supervisorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Chào @Context.Session.GetString("SupervisorName")
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="supervisorDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Supervisor" asp-action="StudentList">Danh sách sinh viên</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Internship" asp-action="StudentReports">Xem báo cáo sinh viên</a></li>
                                     <li><hr class="dropdown-divider" /></li>
                                     <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
                                 </ul>
@@ -98,6 +126,8 @@
                                     <li><a class="dropdown-item" asp-controller="Jobs" asp-action="CreateJob">Đăng tin tuyển dụng</a></li>
                                     <li><a class="dropdown-item" asp-controller="Jobs" asp-action="SelectJobForApplications">Xem ứng viên</a></li>
                                     <li><a class="dropdown-item" asp-controller="Home" asp-action="ProfileCompany">Thông tin công ty</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Internship" asp-action="InternList">Quản lý sinh viên thực tập</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Internship" asp-action="CompanyEvaluation">Đánh giá sinh viên</a></li>
                                     <li><hr class="dropdown-divider" /></li>
                                     <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
                                 </ul>
@@ -111,6 +141,7 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
                                     <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Quản lý bài đăng tuyển dụng</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="AssignInternships">Phân công thực tập</a></li>
                                     <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageAccounts">Quản lý tài khoản</a></li>
                                     <li><hr class="dropdown-divider" /></li>
                                     <li><a class="dropdown-item" asp-controller="Home" asp-action="Logout">Đăng xuất</a></li>
@@ -126,6 +157,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     <li><a class="dropdown-item" href="@Url.Action("LoginStudent", "Home")">Đăng nhập bằng Sinh viên</a></li>
                                     <li><a class="dropdown-item" href="@Url.Action("LoginCompany", "Home")">Đăng nhập bằng Công ty</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("LoginSupervisor", "Home")">Đăng nhập bằng Giảng viên</a></li>
                                     <li><a class="dropdown-item" href="@Url.Action("LoginAdmin", "Home")">Đăng nhập bằng Admin</a></li>
                                 </ul>
                             </li>
@@ -136,6 +168,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuRegister">
                                     <li><a class="dropdown-item" href="@Url.Action("RegisterStudent", "Home")">Đăng ký Sinh viên</a></li>
                                     <li><a class="dropdown-item" href="@Url.Action("RegisterCompany", "Home")">Đăng ký Công ty</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("RegisterSupervisor", "Home")">Đăng ký Giảng viên</a></li>
                                 </ul>
                             </li>
                     }

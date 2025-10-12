@@ -1,0 +1,67 @@
+@model IEnumerable<DoAn_Web.Models.Internship>
+
+@{
+    ViewData["Title"] = "Danh sách sinh viên thực tập";
+}
+
+<div class="container mt-4">
+    <h2>Danh sách sinh viên thực tập</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Hiện tại chưa có sinh viên thực tập tại công ty.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sinh viên</th>
+                        <th>Thời gian</th>
+                        <th>Số báo cáo</th>
+                        <th>Đánh giá của công ty</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var internship in Model)
+                    {
+                        <tr>
+                            <td>@internship.Student.FullName</td>
+                            <td>
+                                @internship.StartDate.ToString("dd/MM/yyyy") - 
+                                @(internship.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")
+                            </td>
+                            <td>@internship.WeeklyReports.Count báo cáo</td>
+                            <td>
+                                @if (internship.CompanyEvaluation != null)
+                                {
+                                    <span class="badge bg-success">@internship.CompanyEvaluation.Score/10</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa đánh giá</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="@Url.Action("ViewStudentReports", "Internship", new { internshipId = internship.InternshipId })" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-file-alt"></i> Xem báo cáo
+                                    </a>
+                                    <a asp-action="CompanyEvaluation" asp-route-internshipId="@internship.InternshipId" 
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-star"></i> Đánh giá
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

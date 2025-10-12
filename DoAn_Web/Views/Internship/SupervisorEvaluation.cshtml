@@ -1,0 +1,92 @@
+@model DoAn_Web.Models.Internship
+
+<div class="container mt-4">
+    <h2>Đánh giá cuối kỳ thực tập</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Thông tin sinh viên</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Họ tên:</strong> @Model.Student.FullName</p>
+            <p><strong>Mã sinh viên:</strong> @Model.Student.StudentCode</p>
+            <p><strong>Công ty thực tập:</strong> @Model.Company.Name</p>
+            <p><strong>Thời gian:</strong> @Model.StartDate.ToString("dd/MM/yyyy") - @(Model.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Báo cáo thực tập</h4>
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="reportAccordion">
+                @foreach (var report in Model.WeeklyReports.OrderByDescending(r => r.WeekNumber))
+                {
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading@(report.ReportId)">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse@(report.ReportId)">
+                                Tuần @report.WeekNumber - @report.ReportDate.ToString("dd/MM/yyyy")
+                            </button>
+                        </h2>
+                        <div id="collapse@(report.ReportId)" class="accordion-collapse collapse" 
+                             data-bs-parent="#reportAccordion">
+                            <div class="accordion-body">
+                                <pre class="report-content">                                @report.Content</pre>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.CompanyEvaluation != null)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Đánh giá từ công ty</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Điểm:</strong> @Model.CompanyEvaluation.Score/100</p>
+                <p><strong>Nhận xét:</strong> @Model.CompanyEvaluation.Comments</p>
+                <p><strong>Ngày đánh giá:</strong> @Model.CompanyEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</p>
+            </div>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Đánh giá cuối kỳ</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="SupervisorEvaluation" method="post">
+                <input type="hidden" name="internshipId" value="@Model.InternshipId" />
+                
+                <div class="form-group">
+                    <label for="score">Điểm cuối kỳ (0-100)</label>
+                    <input type="number" class="form-control" id="score" name="score" min="0" max="100" required
+                           value="@(Model.SupervisorEvaluation?.Score ?? 0)" />
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="comments">Nhận xét</label>
+                    <textarea class="form-control" id="comments" name="comments" rows="5" required>@(Model.SupervisorEvaluation?.Comments ?? "")</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Lưu đánh giá</button>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-secondary mt-3">Quay lại</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .report-content {
+        white-space: pre-wrap;
+        font-family: inherit;
+        margin: 0;
+        padding: 0;
+    }
+</style>

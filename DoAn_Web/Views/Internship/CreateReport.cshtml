@@ -1,0 +1,16 @@
+@model DoAn_Web.Models.Internship
+
+<div class="container mt-4">
+    <h2>Tạo báo cáo tuần mới</h2>
+
+    <form asp-action="CreateReport" method="post">
+        <div class="form-group">
+            <label for="reportContent">Nội dung báo cáo</label>
+            <textarea class="form-control" id="reportContent" name="reportContent" rows="10" required></textarea>
+            <small class="form-text text-muted">Mô tả chi tiết công việc đã thực hiện trong tuần.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Gửi báo cáo</button>
+        <a href="@Url.Action("StudentReports")" class="btn btn-secondary mt-3">Quay lại</a>
+    </form>
+</div>

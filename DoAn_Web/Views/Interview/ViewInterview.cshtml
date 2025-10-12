@@ -23,7 +23,7 @@ else
             @foreach (var interview in Model)
             {
                         <tr>
-                            <td>@interview.Application.JobPostings.Title</td>
+                            <td>@interview.Application.Job.Title</td>
                             <td>@interview.InterviewType</td>
                             <td>@interview.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
                             <td>@interview.Location ?? "Không có địa điểm"</td>

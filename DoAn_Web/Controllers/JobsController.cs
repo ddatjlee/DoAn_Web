@@ -153,6 +153,7 @@ namespace DoAn_Web.Controllers
             var applications = await _context.Applications
                 .Include(a => a.Student)
                 .Include(a => a.Job)
+                .Include(a => a.Interviews)
                 .Where(a => a.JobId == jobId && a.Status != "rejected")
                 .ToListAsync();
 
@@ -371,5 +372,62 @@ namespace DoAn_Web.Controllers
             return RedirectToAction("CreateJob", "Jobs");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AcceptApplication(int applicationId)
+        {
+            // Kiểm tra đăng nhập của công ty
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (companyId == null)
+            {
+                return RedirectToAction("LoginCompany", "Home");
+            }
+
+            // Lấy thông tin đơn ứng tuyển
+            var application = await _context.Applications
+                .Include(a => a.Job)
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId && a.Job.CompanyId == companyId);
+
+            if (application == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền thực hiện thao tác này.";
+                return RedirectToAction(nameof(ViewApplications), new { jobId = application.JobId });
+            }
+
+            if (application.Status != "interviewed")
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể chấp nhận đơn ứng tuyển sau khi đã phỏng vấn.";
+                return RedirectToAction(nameof(ViewApplications), new { jobId = application.JobId });
+            }
+
+            // Cập nhật trạng thái đơn
+            application.Status = "accepted";
+            await _context.SaveChangesAsync();
+
+            // Tạo thông báo cho sinh viên
+            var notification = new Notification
+            {
+                UserId = application.StudentId,
+                UserType = "student",
+                Message = $"Chúc mừng! Đơn ứng tuyển của bạn cho vị trí {application.Job.Title} đã được chấp nhận.",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            };
+            _context.Notifications.Add(notification);
+
+            // Tạo thông báo cho admin
+            var adminNotification = new Notification
+            {
+                UserType = "admin",
+                Message = "Có sinh viên được nhận thực tập cần phân công giảng viên hướng dẫn.",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            };
+            _context.Notifications.Add(adminNotification);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã chấp nhận đơn ứng tuyển thành công.";
+            return RedirectToAction(nameof(ViewApplications), new { jobId = application.JobId });
+        }
     }
 }

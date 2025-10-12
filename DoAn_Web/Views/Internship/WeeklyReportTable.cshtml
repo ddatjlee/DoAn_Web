@@ -1,0 +1,114 @@
+@model DoAn_Web.Models.Internship
+
+@{
+    ViewData["Title"] = "Báo cáo thực tập hàng tuần";
+}
+
+<div class="container mt-4">
+    <h2>Báo cáo thực tập hàng tuần</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Thông tin thực tập</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Sinh viên:</strong> @Model.Student.FullName</p>
+            <p><strong>Công ty:</strong> @Model.Company.Name</p>
+            <p><strong>Giảng viên hướng dẫn:</strong> @Model.Supervisor.Name</p>
+            <p><strong>Thời gian:</strong> @Model.StartDate.ToString("dd/MM/yyyy") - @(Model.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Bảng báo cáo công việc</h4>
+            <button type="button" class="btn btn-primary" id="btnSaveAll">Lưu tất cả</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="weeklyReportTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">Tuần</th>
+                            <th>Công việc đã thực hiện</th>
+                            <th style="width: 120px;">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var totalWeeks = 8; // Số tuần thực tập mặc định
+                            for (int i = 1; i <= totalWeeks; i++)
+                            {
+                                var report = Model.WeeklyReports.FirstOrDefault(r => r.WeekNumber == i);
+                                var content = report?.Content ?? "";
+                                var status = report != null ? "Đã nộp" : "Chưa nộp";
+                                var statusClass = report != null ? "text-success" : "text-danger";
+                                var startDate = Model.StartDate.AddDays((i-1) * 7);
+                                var endDate = startDate.AddDays(6);
+
+                                <tr data-week="@i">
+                                    <td>
+                                        <strong>Tuần @i</strong><br/>
+                                        <small>@startDate.ToString("dd/MM") - @endDate.ToString("dd/MM")</small>
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control report-content" rows="3" 
+                                                 data-week="@i" @(report != null ? "readonly" : "")>@content</textarea>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="@statusClass">@status</span>
+                                        @if (report == null)
+                                        {
+                                            <button class="btn btn-sm btn-primary mt-2 btn-save-report" 
+                                                    data-week="@i">Nộp báo cáo</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.btn-save-report').click(function() {
+                var btn = $(this);
+                var week = btn.data('week');
+                var content = $(`textarea[data-week="${week}"]`).val();
+
+                if (!content) {
+                    alert('Vui lòng nhập nội dung báo cáo!');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("SubmitReport", "Internship")',
+                    type: 'POST',
+                    data: {
+                        weekNumber: week,
+                        content: content,
+                        internshipId: @Model.InternshipId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            var td = btn.closest('td');
+                            td.html('<span class="text-success">Đã nộp</span>');
+                            $(`textarea[data-week="${week}"]`).prop('readonly', true);
+                            alert('Nộp báo cáo thành công!');
+                        } else {
+                            alert(response.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra, vui lòng thử lại!');
+                    }
+                });
+            });
+        });
+    </script>
+}

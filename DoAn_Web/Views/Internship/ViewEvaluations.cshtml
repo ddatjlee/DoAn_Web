@@ -1,0 +1,51 @@
+@model DoAn_Web.Models.Internship
+
+@{
+    ViewData["Title"] = "Xem đánh giá thực tập";
+}
+
+<div class="container mt-4">
+    <h2>Đánh giá thực tập của bạn</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Đánh giá từ công ty</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CompanyEvaluation != null)
+                    {
+                        <p><strong>Điểm số:</strong> @Model.CompanyEvaluation.Score/10</p>
+                        <p><strong>Nhận xét:</strong> @Model.CompanyEvaluation.Comments</p>
+                        <p><small>Đánh giá ngày: @Model.CompanyEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</small></p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Chưa có đánh giá từ công ty.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Đánh giá từ giảng viên</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.SupervisorEvaluation != null)
+                    {
+                        <p><strong>Điểm số:</strong> @Model.SupervisorEvaluation.Score/10</p>
+                        <p><strong>Nhận xét:</strong> @Model.SupervisorEvaluation.Comments</p>
+                        <p><small>Đánh giá ngày: @Model.SupervisorEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</small></p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Chưa có đánh giá từ giảng viên.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

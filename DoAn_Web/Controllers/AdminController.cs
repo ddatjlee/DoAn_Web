@@ -21,6 +21,88 @@ namespace DoAn_Web.Controllers
             return View();
         }
 
+        // Danh sách đơn được chấp nhận chờ phân công
+        public async Task<IActionResult> AssignInternships()
+        {
+            // Kiểm tra đăng nhập admin
+            if (HttpContext.Session.GetInt32("AdminId") == null)
+            {
+                return RedirectToAction("LoginAdmin", "Home");
+            }
+
+            var acceptedApplications = await _context.Applications
+                .Include(a => a.Student)
+                .Include(a => a.Job)
+                    .ThenInclude(j => j.Company)
+                .Where(a => a.Status == "Accepted" && 
+                       !_context.Internships.Any(i => i.StudentId == a.StudentId))
+                .ToListAsync();
+
+            ViewBag.Supervisors = await _context.Supervisors.ToListAsync();
+
+            return View(acceptedApplications);
+        }
+
+        // Xử lý phân công thực tập
+        [HttpPost]
+        public async Task<IActionResult> AssignInternship(int applicationId, int supervisorId, DateTime startDate)
+        {
+            // Kiểm tra đăng nhập admin
+            if (HttpContext.Session.GetInt32("AdminId") == null)
+            {
+                return RedirectToAction("LoginAdmin", "Home");
+            }
+
+            var application = await _context.Applications
+                .Include(a => a.Student)
+                .Include(a => a.Job)
+                    .ThenInclude(j => j.Company)
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
+
+            if (application == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy đơn ứng tuyển.";
+                return RedirectToAction(nameof(AssignInternships));
+            }
+
+            // Kiểm tra xem sinh viên đã được phân công chưa
+            var existingInternship = await _context.Internships
+                .FirstOrDefaultAsync(i => i.StudentId == application.StudentId);
+
+            if (existingInternship != null)
+            {
+                TempData["ErrorMessage"] = "Sinh viên này đã được phân công thực tập.";
+                return RedirectToAction(nameof(AssignInternships));
+            }
+
+            // Tạo bản ghi thực tập mới
+            var newInternship = new Internship
+            {
+                StudentId = application.StudentId,
+                CompanyId = application.Job.CompanyId,
+                SupervisorId = supervisorId,
+                StartDate = startDate,
+                EndDate = startDate.AddMonths(3), // Thêm EndDate mặc định là 3 tháng
+                Status = "Đang thực tập"
+            };
+
+            _context.Internships.Add(newInternship);
+
+            // Cập nhật trạng thái đơn
+            application.Status = "assigned"; // Hoặc trạng thái phù hợp khác
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã phân công giảng viên hướng dẫn thành công.";
+            return RedirectToAction(nameof(AssignInternships));
+            application.Status = "Completed";
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Phân công thực tập thành công!";
+            return RedirectToAction("AssignInternships");
+        }
+
         public async Task<IActionResult> Dashboard()
         {
             var jobPostings = await _context.JobPostings

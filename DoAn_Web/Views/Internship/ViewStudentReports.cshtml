@@ -1,0 +1,86 @@
+@model List<DoAn_Web.Models.WeeklyReport>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Báo cáo thực tập của sinh viên: @ViewBag.StudentName (@ViewBag.StudentCode)</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tuần</th>
+                                        <th>Ngày báo cáo</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày duyệt</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var report in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>Tuần @report.WeekNumber</strong>
+                                            </td>
+                                            <td>@report.ReportDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                @if (report.Status == "approved")
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check"></i> Đã duyệt
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock"></i> Chờ duyệt
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (report.ReviewedAt.HasValue)
+                                                {
+                                                    @report.ReviewedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Chưa duyệt</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("ViewReport", "Internship", new { reportId = report.ReportId })" 
+                                                   class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Sinh viên chưa nộp báo cáo nào.
+                        </div>
+                    }
+
+                    <!-- Nút quay lại -->
+                    <div class="mt-4">
+                        <a href="@Url.Action("InternList")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

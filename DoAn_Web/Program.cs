@@ -1,4 +1,4 @@
-﻿using DoAn_Web.Data;
+﻿using DoAn_Web.Models;
 using DoAn_Web.Models;
 using Microsoft.EntityFrameworkCore;
 

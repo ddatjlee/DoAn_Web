@@ -1,0 +1,68 @@
+@model List<DoAn_Web.Models.WeeklyReport>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Báo cáo thực tập của sinh viên: @ViewBag.StudentName</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tuần</th>
+                                        <th>Ngày báo cáo</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var report in Model.OrderBy(r => r.WeekNumber))
+                                    {
+                                        <tr>
+                                            <td>Tuần @report.WeekNumber</td>
+                                            <td>@report.ReportDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                @switch (report.Status?.ToLower())
+                                                {
+                                                    case "pending":
+                                                        <span class="badge bg-warning">Chờ duyệt</span>
+                                                        break;
+                                                    case "approved":
+                                                        <span class="badge bg-success">Đã duyệt</span>
+                                                        break;
+                                                    case "rejected":
+                                                        <span class="badge bg-danger">Từ chối</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@report.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("ReviewReport", "Supervisor", new { reportId = report.ReportId })" 
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            Sinh viên chưa có báo cáo nào.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

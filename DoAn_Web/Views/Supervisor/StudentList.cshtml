@@ -1,0 +1,81 @@
+@model List<DoAn_Web.Models.Internship>
+
+<div class="container mt-4">
+    <h2 class="mb-4">Danh sách sinh viên thực tập</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Mã SV</th>
+                            <th>Họ tên</th>
+                            <th>Công ty</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Trạng thái</th>
+                            <th>Số báo cáo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var internship in Model)
+                        {
+                            <tr>
+                                <td>@internship.Student.StudentCode</td>
+                                <td>@internship.Student.FullName</td>
+                                <td>@internship.Company.Name</td>
+                                <td>@internship.StartDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge bg-primary">@internship.Status</span>
+                                </td>
+                                <td>@internship.WeeklyReports.Count</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="@Url.Action("ViewStudentReports", "Supervisor", new { studentId = internship.StudentId })" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-file-alt"></i> Xem báo cáo
+                                        </a>
+                                        @{
+                                            var hasEvaluation = internship.SupervisorEvaluation != null;
+                                            var hasCompanyEvaluation = internship.CompanyEvaluation != null;
+                                        }
+                                        @if (!hasEvaluation)
+                                        {
+                                            <a href="@Url.Action("EvaluateIntern", "Supervisor", new { internshipId = internship.InternshipId })" 
+                                               class="btn btn-success btn-sm">
+                                                <i class="fas fa-star"></i> Đánh giá
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success ms-1">
+                                                <i class="fas fa-check"></i> Đã đánh giá (@internship.SupervisorEvaluation.Score/100)
+                                            </span>
+                                        }
+                                        @if (hasCompanyEvaluation)
+                                        {
+                                            <a href="@Url.Action("ViewCompanyEvaluation", "Supervisor", new { internshipId = internship.InternshipId })" 
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-building"></i> Đánh giá công ty
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

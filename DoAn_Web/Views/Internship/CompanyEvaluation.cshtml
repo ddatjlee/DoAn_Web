@@ -1,0 +1,115 @@
+@model DoAn_Web.Models.Internship
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Đánh giá sinh viên thực tập</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Thông tin sinh viên</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Họ tên:</strong> @Model.Student.FullName</p>
+                                <p><strong>Mã sinh viên:</strong> @Model.Student.StudentCode</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Thời gian thực tập:</strong> @Model.StartDate.ToString("dd/MM/yyyy") - @(Model.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</p>
+                                <p><strong>Trạng thái:</strong> <span class="badge bg-info">@Model.Status</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="CompanyEvaluation" method="post" id="evaluationForm">
+                        <input type="hidden" name="internshipId" value="@Model.InternshipId" />
+                        
+                        <div class="mb-4">
+                            <h5 class="text-primary">Tiêu chí đánh giá (Thang điểm 10)</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">1. Chấp hành nội quy, quy định của cơ quan trong thời gian thực tập</label>
+                                    <input type="number" class="form-control criteria-input" name="criteriaCompliance" min="0" max="10" step="0.5" required
+                                           value="@(Model.CompanyEvaluation?.CriteriaCompliance ?? 0)" />
+                                    <div class="form-text">Điểm từ 0 đến 10 (có thể dùng 0.5)</div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">2. Thực hiện nhiệm vụ trong thời gian thực tập</label>
+                                    <input type="number" class="form-control criteria-input" name="criteriaTaskPerformance" min="0" max="10" step="0.5" required
+                                           value="@(Model.CompanyEvaluation?.CriteriaTaskPerformance ?? 0)" />
+                                    <div class="form-text">Điểm từ 0 đến 10 (có thể dùng 0.5)</div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">3. Quan hệ, giao tiếp tại đơn vị thực tập</label>
+                                    <input type="number" class="form-control criteria-input" name="criteriaRelationship" min="0" max="10" step="0.5" required
+                                           value="@(Model.CompanyEvaluation?.CriteriaRelationship ?? 0)" />
+                                    <div class="form-text">Điểm từ 0 đến 10 (có thể dùng 0.5)</div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <strong>Điểm tổng kết:</strong> <span id="finalScore" class="h5 text-primary">@(Model.CompanyEvaluation?.Score ?? 0)/10</span>
+                                <br><small>Điểm này được tính tự động dựa trên trung bình cộng của 3 tiêu chí trên</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">4. Các nhận xét khác</label>
+                            <textarea class="form-control" name="comments" rows="5" required 
+                                      placeholder="Nhập nhận xét chi tiết về hiệu suất làm việc, thái độ, kỹ năng của sinh viên...">@(Model.CompanyEvaluation?.Comments ?? "")</textarea>
+                        </div>
+
+                        @if (Model.CompanyEvaluation != null)
+                        {
+                            <div class="alert alert-warning">
+                                <strong>Lưu ý:</strong> Bạn đã đánh giá sinh viên này trước đây vào ngày @Model.CompanyEvaluation.EvaluationDate.ToString("dd/MM/yyyy"). 
+                                Việc lưu lại sẽ cập nhật đánh giá mới.
+                            </div>
+                        }
+
+                        <div class="text-end">
+                            <a href="@Url.Action("InternList")" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> @(Model.CompanyEvaluation != null ? "Cập nhật đánh giá" : "Lưu đánh giá")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const criteriaInputs = document.querySelectorAll('.criteria-input');
+    const finalScoreSpan = document.getElementById('finalScore');
+    
+    function updateFinalScore() {
+        let total = 0;
+        let count = 0;
+        
+        criteriaInputs.forEach(input => {
+            const value = parseFloat(input.value) || 0;
+            total += value;
+            count++;
+        });
+        
+        const average = count > 0 ? total / count : 0;
+        const roundedScore = Math.round(average);
+        finalScoreSpan.textContent = roundedScore + '/10';
+    }
+    
+    criteriaInputs.forEach(input => {
+        input.addEventListener('input', updateFinalScore);
+    });
+    
+    // Tính điểm ban đầu
+    updateFinalScore();
+});
+</script>

@@ -1,0 +1,98 @@
+@model DoAn_Web.Models.Interview
+
+@{
+    ViewData["Title"] = "Lên lịch phỏng vấn";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Lên lịch phỏng vấn</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">Thông tin ứng viên</h5>
+                        <p class="mb-1"><strong>Họ tên:</strong> @ViewBag.StudentName</p>
+                        <p class="mb-0"><strong>Vị trí ứng tuyển:</strong> @ViewBag.JobTitle</p>
+                    </div>
+
+                    <form asp-action="CreateInterview" method="post">
+                        <input type="hidden" name="applicationId" value="@ViewBag.ApplicationId" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hình thức phỏng vấn</label>
+                            <select name="interviewType" class="form-select" required>
+                                <option value="online">Trực tuyến (Online)</option>
+                                <option value="offline">Trực tiếp (Offline)</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Thời gian bắt đầu</label>
+                                <input type="datetime-local" name="startTime" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Thời gian kết thúc</label>
+                                <input type="datetime-local" name="endTime" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Link phỏng vấn (nếu phỏng vấn online)</label>
+                            <input type="text" name="onlineLink" class="form-control" placeholder="Nhập link Google Meet/Zoom/..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Địa điểm (nếu phỏng vấn trực tiếp)</label>
+                            <input type="text" name="location" class="form-control" placeholder="Nhập địa chỉ phỏng vấn..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú thêm</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Nhập thông tin thêm về buổi phỏng vấn..."></textarea>
+                        </div>
+
+                        <div class="text-end">
+                            <a asp-controller="Jobs" asp-action="ViewApplications" class="btn btn-secondary me-2">Quay lại</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-plus"></i>
+                                Tạo lịch phỏng vấn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Tự động điền thời gian kết thúc sau thời gian bắt đầu 1 giờ
+        document.querySelector('input[name="startTime"]').addEventListener('change', function() {
+            var startTime = new Date(this.value);
+            var endTime = new Date(startTime.getTime() + 60 * 60000); // Thêm 1 giờ
+            document.querySelector('input[name="endTime"]').value = endTime.toISOString().slice(0, 16);
+        });
+
+        // Hiển thị/ẩn các trường thông tin dựa trên loại phỏng vấn
+        document.querySelector('select[name="interviewType"]').addEventListener('change', function() {
+            var onlineLinkInput = document.querySelector('input[name="onlineLink"]').parentElement;
+            var locationInput = document.querySelector('input[name="location"]').parentElement;
+
+            if (this.value === 'online') {
+                onlineLinkInput.style.display = 'block';
+                locationInput.style.display = 'none';
+            } else {
+                onlineLinkInput.style.display = 'none';
+                locationInput.style.display = 'block';
+            }
+        });
+
+        // Kích hoạt sự kiện change lần đầu để thiết lập trạng thái ban đầu
+        document.querySelector('select[name="interviewType"]').dispatchEvent(new Event('change'));
+    </script>
+}

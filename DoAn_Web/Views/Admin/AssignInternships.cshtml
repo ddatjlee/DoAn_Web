@@ -1,0 +1,125 @@
+@model IEnumerable<DoAn_Web.Models.Application>
+
+@{
+    ViewData["Title"] = "Phân công thực tập";
+}
+
+<div class="container mt-4">
+    <h2>Phân công sinh viên thực tập</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Danh sách đơn được chấp nhận</h4>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    Không có đơn ứng tuyển nào được chấp nhận đang chờ phân công.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Sinh viên</th>
+                                <th>Công ty</th>
+                                <th>Vị trí thực tập</th>
+                                <th>Ngày ứng tuyển</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var application in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @application.Student.FullName<br/>
+                                        <small class="text-muted">@application.Student.StudentCode</small>
+                                    </td>
+                                    <td>@application.Job.Company.Name</td>
+                                    <td>@application.Job.Title</td>
+                                    <td>@application.AppliedAt?.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-success">@application.Status</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#assignModal"
+                                                data-application-id="@application.ApplicationId"
+                                                data-student-name="@application.Student.FullName"
+                                                data-company-name="@application.Job.Company.Name">
+                                            Phân công
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal phân công -->
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Phân công thực tập</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="AssignInternship" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="applicationId" id="applicationId" />
+                    
+                    <p>Phân công thực tập cho sinh viên <strong id="studentName"></strong> 
+                       tại công ty <strong id="companyName"></strong></p>
+
+                    <div class="mb-3">
+                        <label for="supervisorId" class="form-label">Giảng viên hướng dẫn</label>
+                        <select class="form-select" id="supervisorId" name="supervisorId" required>
+                            <option value="">Chọn giảng viên...</option>
+                            @foreach (var supervisor in ViewBag.Supervisors)
+                            {
+                                <option value="@supervisor.SupervisorId">@supervisor.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#assignModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var applicationId = button.data('application-id');
+                var studentName = button.data('student-name');
+                var companyName = button.data('company-name');
+                
+                var modal = $(this);
+                modal.find('#applicationId').val(applicationId);
+                modal.find('#studentName').text(studentName);
+                modal.find('#companyName').text(companyName);
+            });
+        });
+    </script>
+}

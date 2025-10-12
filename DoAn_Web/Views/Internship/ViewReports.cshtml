@@ -1,0 +1,31 @@
+@model DoAn_Web.Models.Internship
+
+@{
+    ViewData["Title"] = "Xem báo cáo đã nộp";
+}
+
+<div class="container mt-4">
+    <h2>Báo cáo thực tập của bạn</h2>
+
+    @if (!Model.WeeklyReports.Any())
+    {
+        <div class="alert alert-info">
+            Bạn chưa có báo cáo nào.
+        </div>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var report in Model.WeeklyReports.OrderByDescending(r => r.WeekNumber))
+            {
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Tuần @report.WeekNumber</h5>
+                        <small>@report.ReportDate.ToString("dd/MM/yyyy")</small>
+                    </div>
+                    <p class="mb-1">@report.Content</p>
+                </div>
+            }
+        </div>
+    }
+</div>

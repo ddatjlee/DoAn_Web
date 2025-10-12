@@ -288,6 +288,11 @@ namespace DoAn_Web.Controllers
         [HttpGet]
         public IActionResult LoginAdmin()
         {
+            // Generate hashed password for admin
+            string plainPassword = "admin123";
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
+            Console.WriteLine($"Admin password hash: {hashedPassword}");
+            
             return View();
         }
         [HttpPost]
@@ -306,8 +311,8 @@ namespace DoAn_Web.Controllers
                 return View();
             }
 
-            // So sánh mật khẩu đã mã hóa
-            if (!BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
+            // Kiểm tra trực tiếp mật khẩu với giá trị trong database
+            if (password != admin.PasswordHash)
             {
                 TempData["ErrorMessage"] = "Mật khẩu hoặc Email không đúng.";
                 return View();
@@ -325,6 +330,66 @@ namespace DoAn_Web.Controllers
         public IActionResult RegisterStudent()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult RegisterSupervisor()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterSupervisor(Supervisor supervisor)
+        {
+            if (ModelState.IsValid)
+            {
+                // Kiểm tra email đã tồn tại
+                var existingSupervisor = await _context.Supervisors.FirstOrDefaultAsync(s => s.Email == supervisor.Email);
+                if (existingSupervisor != null)
+                {
+                    ModelState.AddModelError("", "Email này đã được đăng ký.");
+                    return View(supervisor);
+                }
+
+                // Hash mật khẩu
+                supervisor.Password = BCrypt.Net.BCrypt.HashPassword(supervisor.Password);
+
+                // Lưu vào database
+                _context.Add(supervisor);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
+                return RedirectToAction(nameof(LoginSupervisor));
+            }
+            return View(supervisor);
+        }
+
+        [HttpGet]
+        public IActionResult LoginSupervisor()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoginSupervisor(string email, string password)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
+                return View();
+            }
+
+            var supervisor = await _context.Supervisors.FirstOrDefaultAsync(s => s.Email == email);
+            if (supervisor == null || !BCrypt.Net.BCrypt.Verify(password, supervisor.Password))
+            {
+                TempData["ErrorMessage"] = "Email hoặc mật khẩu không chính xác.";
+                return View();
+            }
+
+            HttpContext.Session.SetInt32("SupervisorId", supervisor.SupervisorId);
+            HttpContext.Session.SetString("SupervisorName", supervisor.Name);
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

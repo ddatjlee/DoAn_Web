@@ -1,0 +1,106 @@
+@model DoAn_Web.Models.WeeklyReport
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Thông tin báo cáo -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Chi tiết báo cáo tuần @Model.WeekNumber</h4>
+                    <a href="@Url.Action("ViewStudentReports", new { studentId = Model.Internship.StudentId })" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Sinh viên:</strong> @Model.Internship.Student.FullName (@Model.Internship.Student.StudentCode)</p>
+                            <p><strong>Công ty:</strong> @Model.Internship.Company.Name</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Ngày báo cáo:</strong> @Model.ReportDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p><strong>Trạng thái hiện tại:</strong> 
+                                @switch (Model.Status?.ToLower())
+                                {
+                                    case "pending":
+                                        <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                        break;
+                                    case "approved":
+                                        <span class="badge bg-success">Đã duyệt</span>
+                                        break;
+                                    case "rejected":
+                                        <span class="badge bg-danger">Đã từ chối</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@Model.Status</span>
+                                        break;
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="text-primary">Nội dung báo cáo:</h5>
+                        <div class="p-3 bg-light border rounded" style="min-height: 200px;">
+                            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">@Model.Content</pre>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.SupervisorComment))
+                    {
+                        <div class="mb-4">
+                            <h5 class="text-success">Nhận xét đã có:</h5>
+                            <div class="p-3 border rounded @(Model.Status?.ToLower() == "approved" ? "bg-success-subtle border-success" : "bg-danger-subtle border-danger")">
+                                <p class="mb-1">@Model.SupervisorComment</p>
+                                <small class="text-muted">Đánh giá lúc: @Model.ReviewedAt?.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Khu vực duyệt báo cáo (chỉ hiện khi chưa duyệt) -->
+            @if (string.IsNullOrEmpty(Model.Status) || Model.Status?.ToLower() == "pending" || Model.Status?.ToLower() != "approved" && Model.Status?.ToLower() != "rejected")
+            {
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-tasks"></i> Duyệt báo cáo</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="ReviewReport" method="post">
+                            <input type="hidden" name="reportId" value="@Model.ReportId" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nhận xét của giảng viên: <span class="text-danger">*</span></label>
+                                <textarea name="comment" class="form-control" rows="4" 
+                                          placeholder="Nhập nhận xét về báo cáo của sinh viên..." required></textarea>
+                                <div class="form-text">Vui lòng nhập nhận xét chi tiết để sinh viên hiểu rõ đánh giá của bạn.</div>
+                            </div>
+                            
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button type="submit" name="decision" value="approve" class="btn btn-success btn-lg">
+                                    <i class="fas fa-check-circle"></i> Duyệt báo cáo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-subtle {
+        background-color: #d1f2d1;
+    }
+    .bg-danger-subtle {
+        background-color: #f8d7da;
+    }
+    .border-success {
+        border-color: #198754 !important;
+    }
+    .border-danger {
+        border-color: #dc3545 !important;
+    }
+</style>

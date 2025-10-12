@@ -38,8 +38,79 @@ public partial class RecruitmentSystemContext : DbContext
     public virtual DbSet<Skill> Skills { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
+    
+    public virtual DbSet<Supervisor> Supervisors { get; set; }
+
+    public virtual DbSet<Internship> Internships { get; set; }
+
+    public virtual DbSet<WeeklyReport> WeeklyReports { get; set; }
+
+    public virtual DbSet<CompanyEvaluation> CompanyEvaluations { get; set; }
+
+    public virtual DbSet<SupervisorEvaluation> SupervisorEvaluations { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Supervisor>(entity =>
+        {
+            entity.HasKey(e => e.SupervisorId);
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Phone).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Password).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Position).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Department).HasMaxLength(100).IsRequired();
+        });
+
+        modelBuilder.Entity<CompanyEvaluation>(entity =>
+        {
+            entity.HasKey(e => e.EvaluationId).HasName("PK_CompanyEvaluations");
+            entity.Property(e => e.EvaluationId).HasColumnName("EvaluationID");
+            entity.Property(e => e.InternshipId).HasColumnName("InternshipID");
+            entity.Property(e => e.EvaluationDate).IsRequired();
+            entity.Property(e => e.CriteriaCompliance).HasColumnType("decimal(3,1)").IsRequired();
+            entity.Property(e => e.CriteriaTaskPerformance).HasColumnType("decimal(3,1)").IsRequired();
+            entity.Property(e => e.CriteriaRelationship).HasColumnType("decimal(3,1)").IsRequired();
+            entity.Property(e => e.Score).IsRequired();
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Internship)
+                .WithOne(i => i.CompanyEvaluation)
+                .HasForeignKey<CompanyEvaluation>(e => e.InternshipId)
+                .HasConstraintName("FK_CompanyEvaluations_Internships");
+        });
+
+        modelBuilder.Entity<SupervisorEvaluation>(entity =>
+        {
+            entity.HasKey(e => e.EvaluationID).HasName("PK_SupervisorEvaluations");
+            entity.Property(e => e.EvaluationID).HasColumnName("EvaluationID");
+            entity.Property(e => e.InternshipId).HasColumnName("InternshipID");
+            entity.Property(e => e.EvaluationDate).IsRequired();
+            entity.Property(e => e.Score).IsRequired();
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Internship)
+                .WithOne(i => i.SupervisorEvaluation)
+                .HasForeignKey<SupervisorEvaluation>(e => e.InternshipId)
+                .HasConstraintName("FK_SupervisorEvaluations_Internships");
+        });
+
+        modelBuilder.Entity<WeeklyReport>(entity =>
+        {
+            entity.HasKey(e => e.ReportId);
+            entity.Property(e => e.ReportDate).IsRequired();
+            entity.Property(e => e.Content).IsRequired().HasMaxLength(4000);
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.SupervisorComment).HasMaxLength(1000);
+            entity.Property(e => e.ReviewedAt);
+
+            entity.HasOne(e => e.Internship)
+                .WithMany(i => i.WeeklyReports)
+                .HasForeignKey(e => e.InternshipId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        
         modelBuilder.Entity<Admin>(entity =>
         {
             entity.HasKey(e => e.AdminId).HasName("PK__Admins__719FE4E85095AB1B");

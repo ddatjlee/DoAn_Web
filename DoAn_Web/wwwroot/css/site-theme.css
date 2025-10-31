@@ -1,0 +1,269 @@
+/* site-theme.css
+   Modern, lightweight theme to replace Bootstrap look.
+   Keep styles conservative to avoid breaking existing markup.
+*/
+
+:root{
+  --brand: #ff9f1c; /* warm orange */
+  --muted: #6c757d;
+  --bg: #ffffff;
+  --surface: #fbfbfd;
+  --card-border: rgba(16,24,40,0.06);
+  --shadow: 0 6px 18px rgba(16,24,40,0.06);
+  --radius: 10px;
+}
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  color: #222;
+  background: var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Page container narrower for better reading */
+.container{
+  max-width:1100px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* Navbar */
+.navbar{
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
+  border-bottom: 1px solid rgba(16,24,40,0.04);
+}
+.navbar .navbar-brand{
+  color: var(--brand);
+  font-size:1.25rem;
+  letter-spacing: 0.6px;
+}
+.navbar .nav-link{
+  color: #333;
+  padding: 10px 16px;
+  margin: 0 4px;
+  border-radius: 8px;
+  transition: color .18s ease, background .18s ease, transform .12s ease;
+}
+.navbar .nav-link:hover{ color: var(--brand); background: rgba(255,159,28,0.06); transform: translateY(-1px); }
+
+/* Emphasize nav items a bit more */
+.navbar .nav-link.active{ background: var(--brand); color: #fff; box-shadow: 0 6px 18px rgba(255,159,28,0.12); }
+
+/* CTA area on the right */
+.nav-cta .btn-primary{ background: var(--brand); border-color: transparent; color: #fff; }
+.nav-cta .btn-outline-secondary{ background: #fff; border:1px solid rgba(16,24,40,0.08); color:#222; }
+.nav-cta .btn-sm{ padding:6px 10px; border-radius:8px; }
+
+/* Slightly reduce brand font weight for readability */
+.navbar .navbar-brand{ font-weight:600; }
+
+/* Layout: keep nav items left and auth CTAs right */
+.navbar-collapse{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  gap: 12px;
+}
+.navbar-nav{
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  padding-left:0;
+  margin:0;
+  list-style:none;
+}
+.navbar-nav.me-auto{ margin-right: auto; }
+
+/* Keep CTA group visually separated */
+.nav-cta{ display:flex; align-items:center; gap:8px; }
+
+/* Add small chevron indicator to dropdown buttons (visual only) */
+.btn.dropdown-toggle::after{
+  /* Font Awesome chevron-down (f078) */
+  font-family: "Font Awesome 6 Free";
+  content: "\f078";
+  font-weight: 900;
+  margin-left: 8px;
+  font-size: 0.78em;
+  color: rgba(0,0,0,0.6);
+}
+
+/* Enhanced auth button visuals (no markup changes) */
+.navbar .btn.btn-primary {
+  background: linear-gradient(90deg, #ff7a3d 0%, var(--brand) 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 999px; /* pill */
+  box-shadow: 0 6px 18px rgba(255,159,28,0.12);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.navbar .btn.btn-primary:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(255,159,28,0.14);
+  opacity: .98;
+}
+.navbar .btn.btn-primary:focus{
+  outline: 3px solid rgba(255,159,28,0.18);
+  outline-offset: 3px;
+}
+
+.navbar .btn.btn-outline-secondary{
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(16,24,40,0.08);
+  color: #111827;
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: background .12s ease, color .12s ease, transform .12s ease;
+}
+.navbar .btn.btn-outline-secondary:hover{
+  background: rgba(255,159,28,0.06);
+  color: var(--brand);
+  transform: translateY(-1px);
+}
+.navbar .btn.btn-outline-secondary:focus{ outline: 3px solid rgba(16,24,40,0.06); outline-offset: 2px; }
+
+/* Make the caret lighter on dark primary */
+.navbar .btn.btn-primary.dropdown-toggle::after{ color: rgba(255,255,255,0.95); }
+
+/* Slightly increase spacing between auth CTA and nav items */
+.navbar .navbar-nav > li + li { margin-left: 6px; }
+
+/* --- Alternate style: glassy login + subtle register pill (icons via FontAwesome) --- */
+/* Login: glass button with user icon */
+.navbar .btn.btn-outline-secondary {
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(16,24,40,0.06);
+  color: #0f1724;
+  position: relative;
+  padding-left: 12px;
+}
+.navbar .btn.btn-outline-secondary::before{
+  content: "\f007"; /* user icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-right: 8px;
+  display: inline-block;
+  color: rgba(16,24,40,0.7);
+}
+.navbar .btn.btn-outline-secondary:hover{
+  background: rgba(255,255,255,0.9);
+  color: var(--brand);
+}
+
+/* Register: softer white pill with subtle border and inset highlight */
+.navbar .btn.btn-primary{
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), linear-gradient(90deg, #ff8a5b 0%, var(--brand) 100%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(16,24,40,0.06);
+}
+.navbar .btn.btn-primary::before{
+  content: "\f067"; /* plus icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-right: 8px;
+  display: inline-block;
+  color: rgba(255,255,255,0.95);
+}
+.navbar .btn.btn-primary:hover{ transform: translateY(-2px) scale(1.01); }
+
+/* Make sure icons don't interfere with caret */
+.navbar .btn.dropdown-toggle::after{ margin-left:6px; }
+
+/* Responsive fallback: stack nav items on small screens */
+@media (max-width: 768px){
+  .navbar-collapse{ flex-direction:column; align-items:flex-start; }
+  .navbar-nav{ flex-wrap:wrap; }
+  .nav-cta{ width:100%; justify-content:flex-start; margin-top:8px; }
+}
+
+/* Keep login/register buttons on a single line and aligned */
+.navbar .nav-item > .btn, .navbar .nav-item > a.btn {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+/* Slightly smaller text for compactness in the navbar */
+.navbar .btn-sm { font-size: .92rem; padding:6px 10px; }
+
+/* If the navbar is narrow, allow the buttons to remain visible by preventing overflow wrap */
+.navbar .navbar-collapse { overflow: visible; }
+
+/* Buttons (minimal) */
+.btn{
+  display:inline-block;
+  padding: .45rem .75rem;
+  border-radius:6px;
+  border:1px solid rgba(16,24,40,0.08);
+  background: #fff;
+  color:#222;
+  text-decoration:none;
+}
+.btn-primary{
+  background: var(--brand);
+  color: white;
+  border-color: rgba(0,0,0,0.06);
+}
+
+/* Hero header for pages */
+.page-hero{
+  background: linear-gradient(90deg, rgba(255,159,28,0.06), rgba(255,159,28,0.02));
+  padding: 26px 0 22px 0;
+  margin-bottom: 18px;
+  border-radius: 8px;
+}
+.page-hero .title{ font-size:1.6rem; margin:0; color: #172554; }
+.page-hero .subtitle{ color: var(--muted); margin-top:6px; }
+
+/* Legal bases grid */
+.legal-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+.legal-card{
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  padding: 16px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.legal-card:hover{ transform: translateY(-4px); box-shadow: 0 12px 30px rgba(16,24,40,0.08); }
+.legal-card-header{ font-weight:700; color:#111827; margin-bottom:8px; }
+.legal-card-body{ color:#283044; line-height:1.45; }
+.legal-card-footer{ margin-top:12px; color:var(--muted); font-size:.9rem; }
+.legal-card a{ color:var(--brand); text-decoration: none; }
+.legal-card a:hover{ text-decoration: underline; }
+
+/* Footer tweaks to match new theme */
+footer{ background:#0f1724; color:#e6eef8; }
+footer a{ color: #cfe8ff; }
+
+/* Responsive small tweaks */
+@media (max-width:640px){
+  .navbar .nav-link{ padding:8px; font-size:.95rem; }
+  .container{ padding:12px; }
+  .page-hero{ padding:18px; }
+}
+
+/* Tiny helper for badges */
+.badge-pill{ display:inline-block; min-width:24px; padding:4px 8px; border-radius:999px; font-size:0.78rem; }
+
+/* Accessibility focus outlines */
+a:focus, button:focus { outline: 3px solid rgba(99,102,241,0.18); outline-offset: 2px; }
+
+/* Make images responsive if any documents include thumbnails */
+img{ max-width:100%; height:auto; }

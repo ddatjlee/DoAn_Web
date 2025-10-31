@@ -7,6 +7,8 @@
 
     <!-- File CSS chính của site -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Theme overrides and enhancements -->
+    <link rel="stylesheet" href="~/css/site-theme.css" asp-append-version="true" />
     <!-- Bootstrap removed: using minimal fallback styles (loaded after to allow overrides) -->
     <link rel="stylesheet" href="~/css/site-no-bootstrap.css" asp-append-version="true" />
     <!-- Icon pass -->
@@ -29,7 +31,7 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">DoAn_Web</a>
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index" aria-label="Go to home">Internship <span style="color:var(--brand)">Management</span></a>
             <!-- Removed Bootstrap toggler button (no Bootstrap JS). Keep collapse area always visible via CSS fallback -->
             <div class="navbar-collapse fw-bold" id="navbarNav">
                 <ul class="navbar-nav me-auto fw-bold">
@@ -38,6 +40,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Jobs" asp-action="Index">Việc làm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="LegalBases" asp-action="Index">Cơ sở pháp lý</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Admin" asp-action="About">Giới thiệu</a>
@@ -171,20 +176,17 @@
                     else
                     {
                             <li class="nav-item dropdown">
-                                <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" aria-expanded="false">
-                                        Đăng nhập
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <li><a class="dropdown-item" href="@Url.Action("LoginStudent", "Home")"><i class="fas fa-user-graduate" style="margin-right:8px"></i> Sinh viên</a></li>
-                                        <li><a class="dropdown-item" href="@Url.Action("LoginCompany", "Home")"><i class="fas fa-building" style="margin-right:8px"></i> Công ty</a></li>
-                                        <li><a class="dropdown-item" href="@Url.Action("LoginSupervisor", "Home")"><i class="fas fa-chalkboard-teacher" style="margin-right:8px"></i> Giảng viên</a></li>
-                                        <li><a class="dropdown-item" href="@Url.Action("LoginAdmin", "Home")"><i class="fas fa-user-shield" style="margin-right:8px"></i> Admin</a></li>
-                                    </ul>
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" aria-expanded="false">Đăng nhập</button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <li><a class="dropdown-item" href="@Url.Action("LoginStudent", "Home")"><i class="fas fa-user-graduate" style="margin-right:8px"></i> Sinh viên</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("LoginCompany", "Home")"><i class="fas fa-building" style="margin-right:8px"></i> Công ty</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("LoginSupervisor", "Home")"><i class="fas fa-chalkboard-teacher" style="margin-right:8px"></i> Giảng viên</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("LoginAdmin", "Home")"><i class="fas fa-user-shield" style="margin-right:8px"></i> Admin</a></li>
+                                </ul>
                             </li>
+
                             <li class="nav-item dropdown">
-                                <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuRegister" aria-expanded="false">
-                                    Đăng ký
-                                </button>
+                                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuRegister" aria-expanded="false">Đăng ký</button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuRegister">
                                     <li><a class="dropdown-item" href="@Url.Action("RegisterStudent", "Home")"><i class="fas fa-user-graduate" style="margin-right:8px"></i> Sinh viên</a></li>
                                     <li><a class="dropdown-item" href="@Url.Action("RegisterCompany", "Home")"><i class="fas fa-building" style="margin-right:8px"></i> Công ty</a></li>

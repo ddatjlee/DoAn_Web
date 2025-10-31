@@ -48,6 +48,7 @@ public partial class RecruitmentSystemContext : DbContext
     public virtual DbSet<CompanyEvaluation> CompanyEvaluations { get; set; }
 
     public virtual DbSet<SupervisorEvaluation> SupervisorEvaluations { get; set; }
+    public virtual DbSet<LegalBase> LegalBases { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Supervisor>(entity =>

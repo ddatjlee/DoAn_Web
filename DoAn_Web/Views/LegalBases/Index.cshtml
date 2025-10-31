@@ -1,0 +1,45 @@
+@model IEnumerable<DoAn_Web.Models.LegalBase>
+
+@{
+    ViewData["Title"] = "Cơ sở pháp lý";
+}
+
+@section Header {
+    <div class="page-hero">
+        <div class="container">
+            <h1 class="title">@ViewData["Title"]</h1>
+            <p class="subtitle">Tập hợp các văn bản pháp lý, nghị định, thông tư liên quan đến tuyển dụng và thực tập.</p>
+        </div>
+    </div>
+}
+
+<div class="container">
+    @if (!Model?.Any() ?? true)
+    {
+        <p>Chưa có cơ sở pháp lý nào.</p>
+    }
+    else
+    {
+        <div class="legal-grid">
+            @foreach (var lb in Model)
+            {
+                <article class="legal-card" aria-labelledby="lb-@lb.LegalID">
+                    <header class="legal-card-header" id="lb-@lb.LegalID">
+                        <strong>@lb.ReferenceCode</strong>
+                        <div style="font-weight:600; margin-top:6px;">@lb.Title</div>
+                    </header>
+                    <div class="legal-card-body">
+                        <p>@(lb.Description?.Length > 300 ? lb.Description.Substring(0, 300) + "..." : lb.Description)</p>
+                        @if (!string.IsNullOrEmpty(lb.DocumentUrl))
+                        {
+                            <p><a href="@lb.DocumentUrl" target="_blank" rel="noopener">Xem tài liệu</a></p>
+                        }
+                    </div>
+                    <div class="legal-card-footer">
+                        <small>Ngày ban hành: @(lb.IssuedDate?.ToString("yyyy-MM-dd") ?? "-" ) | Cơ quan: @(lb.IssuedBy ?? "-")</small>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>

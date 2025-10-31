@@ -1,67 +1,52 @@
 @model IEnumerable<DoAn_Web.Models.Internship>
 
-@{
-    ViewData["Title"] = "Danh sách sinh viên thực tập";
-}
-
-<div class="container mt-4">
-    <h2>Danh sách sinh viên thực tập</h2>
+<div class="container mt-4 admin-container">
+    <h2 style="margin-bottom:1rem;">Danh sách sinh viên thực tập</h2>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            Hiện tại chưa có sinh viên thực tập tại công ty.
-        </div>
+        <div class="evaluation-empty">Hiện tại chưa có sinh viên thực tập tại công ty.</div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Sinh viên</th>
-                        <th>Thời gian</th>
-                        <th>Số báo cáo</th>
-                        <th>Đánh giá của công ty</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var internship in Model)
-                    {
-                        <tr>
-                            <td>@internship.Student.FullName</td>
-                            <td>
-                                @internship.StartDate.ToString("dd/MM/yyyy") - 
-                                @(internship.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")
-                            </td>
-                            <td>@internship.WeeklyReports.Count báo cáo</td>
-                            <td>
-                                @if (internship.CompanyEvaluation != null)
-                                {
-                                    <span class="badge bg-success">@internship.CompanyEvaluation.Score/10</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">Chưa đánh giá</span>
-                                }
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="@Url.Action("ViewStudentReports", "Internship", new { internshipId = internship.InternshipId })" 
-                                       class="btn btn-sm btn-primary">
-                                        <i class="fas fa-file-alt"></i> Xem báo cáo
-                                    </a>
-                                    <a asp-action="CompanyEvaluation" asp-route-internshipId="@internship.InternshipId" 
-                                       class="btn btn-sm btn-success">
-                                        <i class="fas fa-star"></i> Đánh giá
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div style="display:flex; flex-direction:column; gap:.8rem;">
+            @foreach (var internship in Model)
+            {
+                <div class="report-card" style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+                    <div style="display:flex; gap:1rem; align-items:center; min-width:0;">
+                        <div style="width:64px; height:64px; border-radius:8px; overflow:hidden; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            @if (!string.IsNullOrEmpty(internship.Student.AvatarUrl))
+                            {
+                                <img src="@internship.Student.AvatarUrl" alt="avatar" style="width:64px; height:64px; object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div style="font-weight:700; color:#6c757d;">@internship.Student.FullName?.Split(' ').LastOrDefault()?.Substring(0,1)</div>
+                            }
+                        </div>
+
+                        <div style="min-width:0;">
+                            <div style="font-weight:700; color:#343a40;">@internship.Student.FullName</div>
+                            <div style="color:#6c757d; font-size:.92rem; margin-top:.2rem;">Mã SV: @internship.Student.StudentCode</div>
+                            <div style="color:#6c757d; font-size:.9rem; margin-top:.18rem;">@internship.StartDate.ToString("dd/MM/yyyy") - @(internship.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:.8rem; align-items:center;">
+                        <div style="text-align:right; min-width:140px;">
+                            <div style="margin-bottom:.4rem;">Báo cáo: <strong>@internship.WeeklyReports.Count</strong></div>
+                            <div>
+                                <span class="status-pill @(internship.Status?.ToLower() == "hoàn thành" || internship.Status?.ToLower() == "completed" ? "submitted" : "pending")">@internship.Status</span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:.5rem; align-items:center;">
+                            <a href="@Url.Action("ViewStudentReports", "Internship", new { internshipId = internship.InternshipId })" class="uniform-btn">Xem báo cáo</a>
+                            <a asp-action="CompanyEvaluation" asp-route-internshipId="@internship.InternshipId" class="uniform-btn btn-primary">Đánh giá</a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
 </div>

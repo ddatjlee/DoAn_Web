@@ -302,3 +302,104 @@ SET Score = CASE
     WHEN Score > 10 THEN ROUND(Score / 10.0, 0)
     ELSE Score 
 END;
+
+-- ============================
+-- Thêm phần mẫu: bảng Cơ sở pháp lý và liên kết (theo yêu cầu người dùng)
+-- ============================
+
+-- Bảng cơ sở pháp lý để hiển thị thông tin tham khảo
+CREATE TABLE LegalBases (
+	LegalID INT PRIMARY KEY IDENTITY(1,1),
+	Title NVARCHAR(255) NOT NULL,            -- Tên văn bản pháp lý
+	ReferenceCode NVARCHAR(50),              -- Số hiệu văn bản (VD: 34/2018/QH14)
+	IssuedDate DATE,                         -- Ngày ban hành
+	IssuedBy NVARCHAR(255),                  -- Cơ quan ban hành (VD: Bộ GD&ĐT)
+	Category NVARCHAR(50),                   -- Loại: 'company', 'internship', 'recruitment'
+	Description NVARCHAR(MAX),               -- Tóm tắt nội dung liên quan
+	DocumentUrl NVARCHAR(500)                -- Link PDF/drive nếu có
+);
+
+-- Bảng liên kết công ty với cơ sở pháp lý
+CREATE TABLE CompanyLegalBases (
+	CompanyID INT NOT NULL,
+	LegalID INT NOT NULL,
+	ComplianceStatus NVARCHAR(20) DEFAULT 'unknown', -- 'compliant', 'non-compliant', 'unknown'
+	VerifiedDate DATE,
+	Notes NVARCHAR(MAX),
+    
+	PRIMARY KEY (CompanyID, LegalID),
+	FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID),
+	FOREIGN KEY (LegalID) REFERENCES LegalBases(LegalID)
+);
+
+-- Bảng liên kết tin tuyển dụng với cơ sở pháp lý
+CREATE TABLE JobPostingLegalBases (
+	JobID INT NOT NULL,
+	LegalID INT NOT NULL,
+	ComplianceStatus NVARCHAR(20) DEFAULT 'unknown',
+	CheckedDate DATE,
+	Notes NVARCHAR(MAX),
+    
+	PRIMARY KEY (JobID, LegalID),
+	FOREIGN KEY (JobID) REFERENCES JobPostings(JobID),
+	FOREIGN KEY (LegalID) REFERENCES LegalBases(LegalID)
+);
+
+-- Bảng liên kết thực tập với cơ sở pháp lý
+CREATE TABLE InternshipLegalBases (
+	InternshipID INT NOT NULL,
+	LegalID INT NOT NULL,
+	ComplianceStatus NVARCHAR(20) DEFAULT 'compliant',
+	AppliedDate DATE DEFAULT GETDATE(),
+	Notes NVARCHAR(MAX),
+    
+	PRIMARY KEY (InternshipID, LegalID),
+	FOREIGN KEY (InternshipID) REFERENCES Internships(InternshipID),
+	FOREIGN KEY (LegalID) REFERENCES LegalBases(LegalID)
+);
+
+-- Thêm indexes cho Legal Compliance
+CREATE INDEX IX_LegalBases_Category ON LegalBases(Category);
+CREATE INDEX IX_CompanyLegalBases_CompanyID ON CompanyLegalBases(CompanyID);
+CREATE INDEX IX_JobPostingLegalBases_JobID ON JobPostingLegalBases(JobID);
+CREATE INDEX IX_InternshipLegalBases_InternshipID ON InternshipLegalBases(InternshipID);
+
+-- Insert dữ liệu mẫu cho Supervisors (nếu chưa có)
+INSERT INTO Supervisors (Name, Email, Phone, Password, Position, Department) VALUES
+(N'TS. Nguyễn Văn Hùng', N'hungnv@xyz.edu.vn', N'0912345678', N'supervisor123', N'Giảng viên chính', N'Khoa Công nghệ thông tin'),
+(N'ThS. Trần Thị Lan', N'lantt@xyz.edu.vn', N'0987654321', N'supervisor456', N'Giảng viên', N'Khoa Công nghệ thông tin'),
+(N'PGS.TS. Lê Văn Nam', N'namlv@xyz.edu.vn', N'0934567890', N'supervisor789', N'Phó Giáo sư', N'Khoa Công nghệ thông tin');
+
+-- Insert dữ liệu mẫu cho LegalBases
+INSERT INTO LegalBases (Title, ReferenceCode, IssuedDate, IssuedBy, Category, Description, DocumentUrl) VALUES
+(N'Luật Doanh nghiệp 2020', N'59/2020/QH14', '2020-06-17', N'Quốc hội', N'company', N'Doanh nghiệp phải có giấy phép kinh doanh hợp lệ, đăng ký thuế đầy đủ, địa chỉ kinh doanh rõ ràng.', N'https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-2020-445015.aspx'),
+
+(N'Nghị định về thực tập sinh', N'143/2018/NĐ-CP', '2018-10-15', N'Chính phủ', N'internship', N'Quy định về quản lý thực tập sinh tại doanh nghiệp. Đánh giá theo 3 tiêu chí: Tuân thủ quy định nội bộ, Hiệu suất thực hiện nhiệm vụ, Quan hệ giao tiếp với đồng nghiệp.', N''),
+
+(N'Thông tư hướng dẫn tuyển dụng', N'15/2021/TT-BLĐTBXH', '2021-03-20', N'Bộ Lao động - Thương binh và Xã hội', N'recruitment', N'Hướng dẫn quy trình tuyển dụng hợp pháp: Mức lương không thấp hơn tối thiểu vùng, mô tả công việc trung thực, không phân biệt đối xử.', N''),
+
+(N'Bộ luật Lao động 2019', N'45/2019/QH14', '2019-11-20', N'Quốc hội', N'recruitment', N'Quy định về thời gian làm việc tối đa 48h/tuần, quyền lợi người lao động, an toàn lao động, bảo hiểm xã hội.', N'https://thuvienphapluat.vn/van-ban/Lao-dong-Tien-luong/Bo-luat-lao-dong-2012-133234.aspx'),
+
+(N'Thông tư về đánh giá thực tập', N'08/2020/TT-BGDĐT', '2020-05-15', N'Bộ Giáo dục và Đào tạo', N'internship', N'Hướng dẫn đánh giá kết quả thực tập: Đánh giá định kỳ, báo cáo tuần/tháng, tiêu chí đánh giá rõ ràng.', N'');
+
+-- Insert dữ liệu mẫu cho CompanyLegalBases (tất cả công ty đều tuân thủ luật doanh nghiệp)
+INSERT INTO CompanyLegalBases (CompanyID, LegalID, ComplianceStatus, VerifiedDate, Notes) VALUES
+(1, 1, 'compliant', '2024-01-15', N'FPT Software đã được xác minh đầy đủ giấy tờ pháp lý'),
+(2, 1, 'compliant', '2024-01-16', N'TMA Solutions có đầy đủ giấy phép kinh doanh'),
+(3, 1, 'compliant', '2024-01-17', N'Axon Active đã xác minh thông tin doanh nghiệp'),
+(4, 1, 'compliant', '2024-01-18', N'Techcombank là ngân hàng được cấp phép hoạt động'),
+(5, 1, 'compliant', '2024-01-19', N'VNG Corporation có đầy đủ giấy tờ pháp lý'),
+(6, 1, 'compliant', '2024-01-20', N'Viettel Group là doanh nghiệp nhà nước hợp pháp'),
+(7, 1, 'compliant', '2024-01-21', N'CMC Corporation đã được kiểm định'),
+(8, 1, 'compliant', '2024-01-22', N'Zalo Group thuộc VNG Corporation');
+
+-- Insert dữ liệu mẫu cho JobPostingLegalBases
+INSERT INTO JobPostingLegalBases (JobID, LegalID, ComplianceStatus, CheckedDate, Notes) VALUES
+(1, 3, 'compliant', '2025-03-10', N'Mức lương và mô tả công việc phù hợp quy định'),
+(1, 4, 'compliant', '2025-03-10', N'Thời gian làm việc tuân thủ Bộ luật Lao động'),
+(2, 3, 'compliant', '2025-03-11', N'Vị trí thực tập có mức hỗ trợ hợp lý'),
+(2, 4, 'compliant', '2025-03-11', N'Không yêu cầu làm thêm giờ'),
+(3, 3, 'compliant', '2025-03-12', N'Mức lương cạnh tranh cho vị trí kỹ sư'),
+(3, 4, 'compliant', '2025-03-12', N'Môi trường làm việc quốc tế tuân thủ quy định'),
+(4, 3, 'compliant', '2025-03-13', N'Mức lương ngân hàng tuân thủ quy định'),
+(4, 4, 'compliant', '2025-03-13', N'Thời gian làm việc hành chính chuẩn');

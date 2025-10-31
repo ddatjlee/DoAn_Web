@@ -4,44 +4,79 @@
     ViewData["Title"] = "Tạo đơn phỏng vấn";
 }
 
-<h2>Tạo đơn phỏng vấn cho ứng viên: @Model.Student.FullName</h2>
+<div class="interview-schedule-container">
+    <h2 class="interview-schedule-title">Tạo đơn phỏng vấn cho ứng viên: @Model.Student.FullName</h2>
 
-<form asp-action="CreateInterview" method="post" class="mt-4">
-    <input type="hidden" name="applicationId" value="@Model.ApplicationId" />
+    <form asp-action="CreateInterview" method="post">
+        <input type="hidden" name="applicationId" value="@Model.ApplicationId" />
 
-    <div class="form-group">
-        <label for="startTime">Thời gian bắt đầu</label>
-        <input type="datetime-local" class="form-control" id="startTime" name="startTime" required />
-    </div>
+        <div class="interview-time-row">
+            <div class="time-col">
+                <div class="form-group">
+                    <label for="startTime">Thời gian bắt đầu</label>
+                    <input type="datetime-local" class="form-control" id="startTime" name="startTime" required />
+                </div>
+            </div>
+            <div class="time-col">
+                <div class="form-group">
+                    <label for="endTime">Thời gian kết thúc</label>
+                    <input type="datetime-local" class="form-control" id="endTime" name="endTime" required />
+                </div>
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label for="endTime">Thời gian kết thúc</label>
-        <input type="datetime-local" class="form-control" id="endTime" name="endTime" required />
-    </div>
+        <div class="form-group">
+            <label for="interviewType">Loại phỏng vấn</label>
+            <select class="form-control" id="interviewType" name="interviewType" required>
+                <option value="online">Online</option>
+                <option value="in-person">Trực tiếp</option>
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label for="interviewType">Loại phỏng vấn</label>
-        <select class="form-control" id="interviewType" name="interviewType" required>
-            <option value="online">Online</option>
-            <option value="in-person">Trực tiếp</option>
-        </select>
-    </div>
+        <div class="form-group">
+            <label for="location">Địa điểm</label>
+            <input type="text" class="form-control" id="location" name="location" />
+        </div>
 
-    <div class="form-group">
-        <label for="location">Địa điểm</label>
-        <input type="text" class="form-control" id="location" name="location" />
-    </div>
+        <div class="form-group online-link-collapsed" id="onlineLinkGroup">
+            <label for="onlineLink">Link phỏng vấn (nếu online)</label>
+            <input type="text" class="form-control" id="onlineLink" name="onlineLink" />
+        </div>
 
-    <div class="form-group">
-        <label for="onlineLink">Link phỏng vấn (nếu online)</label>
-        <input type="text" class="form-control" id="onlineLink" name="onlineLink" />
-    </div>
+        <div class="form-group">
+            <label for="notes">Ghi chú</label>
+            <textarea class="form-control" id="notes" name="notes"></textarea>
+        </div>
 
-    <div class="form-group">
-        <label for="notes">Ghi chú</label>
-        <textarea class="form-control" id="notes" name="notes"></textarea>
-    </div>
+        <div class="form-actions">
+            <button type="submit" class="uniform-btn btn-primary">Gửi đơn phỏng vấn</button>
+            <a href="@Url.Action("Index", "Jobs")" class="uniform-btn btn-secondary ms-2">Quay lại</a>
+        </div>
+    </form>
+</div>
 
-    <button type="submit" class="btn btn-primary">Gửi đơn phỏng vấn</button>
-    <a href="@Url.Action("Index", "Jobs")" class="btn btn-secondary ms-2">Quay lại</a>
-</form>
+@section Scripts {
+    <script>
+        (function() {
+            var typeSelect = document.getElementById('interviewType');
+            var linkGroup = document.getElementById('onlineLinkGroup');
+
+            function updateLinkVisibility() {
+                if (!typeSelect || !linkGroup) return;
+                var val = typeSelect.value;
+                if (val === 'online') {
+                    linkGroup.classList.remove('online-link-collapsed');
+                    linkGroup.classList.add('online-link-expanded');
+                } else {
+                    linkGroup.classList.remove('online-link-expanded');
+                    linkGroup.classList.add('online-link-collapsed');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                updateLinkVisibility();
+                if (typeSelect) typeSelect.addEventListener('change', updateLinkVisibility);
+            });
+        })();
+    </script>
+}

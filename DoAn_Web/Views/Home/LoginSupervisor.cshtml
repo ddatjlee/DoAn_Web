@@ -1,37 +1,65 @@
 @{
-    ViewData["Title"] = "Đăng nhập giảng viên";
+    ViewData["Title"] = "Đăng nhập Giảng viên";
 }
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-floating" role="alert">@TempData["ErrorMessage"]</div>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="text-center">@ViewData["Title"]</h2>
-                </div>
-                <div class="card-body">
-                    <form asp-action="LoginSupervisor" method="post">
-                        <div class="text-danger">@TempData["ErrorMessage"]</div>
-
-                        <div class="form-group mb-3">
-                            <label for="Email" class="control-label">Email</label>
-                            <input type="email" name="Email" class="form-control" required />
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Password" class="control-label">Mật khẩu</label>
-                            <input type="password" name="Password" class="form-control" required />
-                        </div>
-
-                        <div class="form-group text-center">
-                            <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                        </div>
-                    </form>
-                </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-floating" role="alert">@TempData["SuccessMessage"]</div>
+}
+<script>
+    // Chờ 5 giây (5000ms) rồi ẩn thông báo
+    setTimeout(function(){
+        var alertElem = document.querySelector('.alert-floating');
+        if(alertElem) {
+            alertElem.style.display = 'none';
+        }
+    }, 5000);
+</script>
+<div class="auth-container">
+    <div class="auth-form">
+        <h3>Đăng nhập Giảng viên</h3>
+        <form method="post" asp-controller="Home" asp-action="LoginSupervisor">
+            <div class="form-group">
+                <label for="supervisorEmail">Email Giảng viên</label>
+                <input type="email" id="supervisorEmail" name="email" class="form-control" placeholder="Nhập email giảng viên" required />
+                <i class="fas fa-envelope"></i>
             </div>
-            <div class="text-center mt-3">
-                <p>Chưa có tài khoản? <a asp-action="RegisterSupervisor">Đăng ký</a></p>
+
+            <div class="form-group position-relative">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
+                <span class="toggle-password" onclick="togglePassword('password')">
+                    <i class="fas fa-eye" id="toggleIconSupervisor"></i>
+                </span>
             </div>
-        </div>
+
+            <button type="submit" class="btn-submit" onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Đang xử lý...';">Đăng nhập</button>
+        </form>
+
+        <p class="auth-links">
+            Chưa có tài khoản? <a asp-controller="Home" asp-action="RegisterSupervisor">Đăng ký</a>
+        </p>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function togglePassword(inputId) {
+            var passwordInput = document.getElementById(inputId);
+            var toggleIcon = document.getElementById("toggleIconSupervisor");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+}

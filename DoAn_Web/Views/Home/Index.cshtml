@@ -41,9 +41,15 @@
 }
    <hr class="divider">
 <!-- Nội dung chính -->
+<!-- Latest jobs section -->
 <div class="row">
-    <h2 class="latest-jobs-title">Việc làm mới nhất</h2>
-    <div class="d-flex align-items-center">
+    <div class="col-12">
+        <h2 class="latest-jobs-title">Việc làm mới nhất</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex align-items-center">
         <!-- Nút mũi tên trái -->
         <button class="btn btn-outline-secondary me-3 @(ViewBag.CurrentPage > 1 ? "" : "disabled")" id="prev-btn">
             <
@@ -60,6 +66,7 @@
         <button class="btn btn-outline-secondary ms-3 @(ViewBag.CurrentPage < ViewBag.TotalPages ? "" : "disabled")" id="next-btn">
             >
         </button>
+        </div>
     </div>
 </div>
 

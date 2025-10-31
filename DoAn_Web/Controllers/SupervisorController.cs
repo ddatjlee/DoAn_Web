@@ -218,5 +218,38 @@ namespace DoAn_Web.Controllers
 
             return View(internship);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkInternshipComplete(int internshipId)
+        {
+            var supervisorId = HttpContext.Session.GetInt32("SupervisorId");
+            if (!supervisorId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập để thực hiện hành động.";
+                return RedirectToAction("LoginSupervisor", "Home");
+            }
+
+            var internship = await _context.Internships
+                .FirstOrDefaultAsync(i => i.InternshipId == internshipId && i.SupervisorId == supervisorId.Value);
+
+            if (internship == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy bản ghi thực tập hoặc bạn không có quyền thực hiện.";
+                return RedirectToAction("StudentList");
+            }
+
+            internship.Status = "Hoàn thành";
+            if (!internship.EndDate.HasValue)
+            {
+                internship.EndDate = DateTime.Now;
+            }
+
+            _context.Internships.Update(internship);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã cập nhật trạng thái thực tập: Hoàn thành.";
+            return RedirectToAction("StudentList");
+        }
     }
 }

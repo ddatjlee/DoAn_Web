@@ -29,16 +29,21 @@
             <span asp-validation-for="InterviewType" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
-            <label asp-for="StartTime">Thời gian bắt đầu</label>
-            <input asp-for="StartTime" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" required />
-            <span asp-validation-for="StartTime" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="EndTime">Thời gian kết thúc</label>
-            <input asp-for="EndTime" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")" required />
-            <span asp-validation-for="EndTime" class="text-danger"></span>
+        <div class="interview-time-row">
+            <div class="time-col">
+                <div class="form-group">
+                    <label asp-for="StartTime">Thời gian bắt đầu</label>
+                    <input asp-for="StartTime" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" required />
+                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="time-col">
+                <div class="form-group">
+                    <label asp-for="EndTime">Thời gian kết thúc</label>
+                    <input asp-for="EndTime" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")" required />
+                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
@@ -47,7 +52,7 @@
             <span asp-validation-for="Location" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
+        <div class="form-group online-link-collapsed" id="onlineLinkGroup">
             <label asp-for="OnlineLink">Link online (nếu online)</label>
             <input asp-for="OnlineLink" class="form-control" placeholder="Nhập link họp online" />
             <span asp-validation-for="OnlineLink" class="text-danger"></span>
@@ -78,5 +83,30 @@
                     }
                 });
             });
+        </script>
+        <script>
+            (function() {
+                var select = document.querySelector('[asp-for="InterviewType"]') || document.querySelector('#InterviewType');
+                // fallback to select by name if asp-for selector not resolved
+                if (!select) select = document.querySelector('select[name="InterviewType"]');
+                var linkGroup = document.getElementById('onlineLinkGroup');
+
+                function update() {
+                    if (!select || !linkGroup) return;
+                    var v = select.value;
+                    if (v === 'online') {
+                        linkGroup.classList.remove('online-link-collapsed');
+                        linkGroup.classList.add('online-link-expanded');
+                    } else {
+                        linkGroup.classList.remove('online-link-expanded');
+                        linkGroup.classList.add('online-link-collapsed');
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    update();
+                    if (select) select.addEventListener('change', update);
+                });
+            })();
         </script>
 }

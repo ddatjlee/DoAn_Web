@@ -15,15 +15,18 @@
     }
     else
     {
-        <div class="list-group">
+        <div class="reports-list">
             @foreach (var report in Model.WeeklyReports.OrderByDescending(r => r.WeekNumber))
             {
-                <div class="list-group-item">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Tuần @report.WeekNumber</h5>
-                        <small>@report.ReportDate.ToString("dd/MM/yyyy")</small>
+                <div class="report-card">
+                    <div class="report-header">
+                        <div>
+                            <div class="report-week">Tuần @report.WeekNumber</div>
+                            <div class="report-company text-muted">@Model.Student?.FullName</div>
+                        </div>
+                        <div class="report-date">@report.ReportDate.ToString("dd/MM/yyyy")</div>
                     </div>
-                    <p class="mb-1">@report.Content</p>
+                    <div class="report-content">@Html.Raw(report.Content?.Replace("\n", "<br/>"))</div>
                 </div>
             }
         </div>

@@ -55,6 +55,7 @@ namespace DoAn_Web.Controllers
         {
             var userId = HttpContext.Session.GetInt32("StudentId") ??
                          HttpContext.Session.GetInt32("CompanyId") ??
+                         HttpContext.Session.GetInt32("SupervisorId") ??
                          HttpContext.Session.GetInt32("AdminId");
 
             if (userId == null)
@@ -66,6 +67,10 @@ namespace DoAn_Web.Controllers
             if (HttpContext.Session.GetInt32("CompanyId") != null)
             {
                 userType = "company";
+            }
+            else if (HttpContext.Session.GetInt32("SupervisorId") != null)
+            {
+                userType = "supervisor";
             }
             else if (HttpContext.Session.GetInt32("AdminId") != null)
             {

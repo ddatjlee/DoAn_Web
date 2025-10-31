@@ -7,43 +7,83 @@
 <div class="container mt-4">
     <h2>Đánh giá thực tập của bạn</h2>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Đánh giá từ công ty</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.CompanyEvaluation != null)
-                    {
-                        <p><strong>Điểm số:</strong> @Model.CompanyEvaluation.Score/10</p>
-                        <p><strong>Nhận xét:</strong> @Model.CompanyEvaluation.Comments</p>
-                        <p><small>Đánh giá ngày: @Model.CompanyEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</small></p>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Chưa có đánh giá từ công ty.</p>
-                    }
-                </div>
-            </div>
-        </div>
+    @{
+        // Scores are on a 0-10 scale now. Map to 0-5 stars by dividing by 2.
+        var compScore = Model.CompanyEvaluation != null ? Model.CompanyEvaluation.Score : (int?)null;
+        var compStars = compScore.HasValue ? (int)Math.Round(compScore.Value / 2.0) : 0;
+        var supScore = Model.SupervisorEvaluation != null ? Model.SupervisorEvaluation.Score : (int?)null;
+        var supStars = supScore.HasValue ? (int)Math.Round(supScore.Value / 2.0) : 0;
+    }
 
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Đánh giá từ giảng viên</h5>
+    <div style="margin-top:1rem;">
+        <div class="evaluation-grid" style="gap:1.5rem;">
+            <div class="evaluation-main">
+                <div class="evaluation-card" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1;">
+                        <h5>Đánh giá từ công ty</h5>
+                        @if (Model.CompanyEvaluation != null)
+                        {
+                            <div class="evaluation-comment"> 
+                                <p style="margin:0 0 .5rem 0;"><strong>Nhận xét:</strong></p>
+                                <p style="margin:0 0 .5rem 0;">@Model.CompanyEvaluation.Comments</p>
+                                <div class="evaluation-meta">Đánh giá ngày: @Model.CompanyEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="evaluation-empty">Chưa có đánh giá từ công ty.</p>
+                        }
+                    </div>
+
+                    <div style="width:140px; text-align:center; margin-left:1rem;">
+                        <div class="score-circle @(Model.CompanyEvaluation == null ? string.Empty : "") @(Model.CompanyEvaluation != null && Model.CompanyEvaluation.Score < 5 ? "rejected" : "")">
+                            <div class="value">@(Model.CompanyEvaluation != null ? Model.CompanyEvaluation.Score.ToString() : "--")</div>
+                        </div>
+                        <div class="stars" style="justify-content:center;">
+                            @for (int i = 1; i <= 5; i++) {
+                                if (i <= compStars) {
+                                    <i class="fas fa-star"></i>
+                                } else {
+                                    <i class="fas fa-star empty"></i>
+                                }
+                            }
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    @if (Model.SupervisorEvaluation != null)
-                    {
-                        <p><strong>Điểm số:</strong> @Model.SupervisorEvaluation.Score/10</p>
-                        <p><strong>Nhận xét:</strong> @Model.SupervisorEvaluation.Comments</p>
-                        <p><small>Đánh giá ngày: @Model.SupervisorEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</small></p>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Chưa có đánh giá từ giảng viên.</p>
-                    }
+
+                <div style="height:1rem"></div>
+
+                <div class="evaluation-card" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1;">
+                        <h5>Đánh giá từ giảng viên</h5>
+                        @if (Model.SupervisorEvaluation != null)
+                        {
+                            <div class="evaluation-comment">
+                                <p style="margin:0 0 .5rem 0;"><strong>Nhận xét:</strong></p>
+                                <p style="margin:0 0 .5rem 0;">@Model.SupervisorEvaluation.Comments</p>
+                                <div class="evaluation-meta">Đánh giá ngày: @Model.SupervisorEvaluation.EvaluationDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="evaluation-empty">Chưa có đánh giá từ giảng viên.</p>
+                        }
+                    </div>
+
+                    <div style="width:140px; text-align:center; margin-left:1rem;">
+                        <div class="score-circle @(Model.SupervisorEvaluation == null ? string.Empty : "") @(Model.SupervisorEvaluation != null && Model.SupervisorEvaluation.Score < 5 ? "rejected" : "")">
+                            <div class="value">@(Model.SupervisorEvaluation != null ? Model.SupervisorEvaluation.Score.ToString() : "--")</div>
+                        </div>
+                        <div class="stars" style="justify-content:center;">
+                            @for (int i = 1; i <= 5; i++) {
+                                if (i <= supStars) {
+                                    <i class="fas fa-star"></i>
+                                } else {
+                                    <i class="fas fa-star empty"></i>
+                                }
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

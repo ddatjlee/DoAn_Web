@@ -9,9 +9,18 @@
 
     <div class="card">
         <div class="card-header">
-            <h4>Danh sách đơn được chấp nhận</h4>
+            <h4 class="mb-0">Danh sách đơn được chấp nhận</h4>
         </div>
         <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            else if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
             @if (!Model.Any())
             {
                 <div class="alert alert-info">
@@ -21,15 +30,15 @@
             else
             {
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Sinh viên</th>
                                 <th>Công ty</th>
                                 <th>Vị trí thực tập</th>
                                 <th>Ngày ứng tuyển</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,16 +52,23 @@
                                     <td>@application.Job.Company.Name</td>
                                     <td>@application.Job.Title</td>
                                     <td>@application.AppliedAt?.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        <span class="badge bg-success">@application.Status</span>
+                                    @{ 
+                                        var statusLower = (application.Status ?? "").ToLower();
+                                        var badgeClass = statusLower.Contains("approved") ? "bg-success" :
+                                                         statusLower.Contains("accepted") ? "bg-warning text-dark" :
+                                                         statusLower.Contains("assigned") ? "bg-primary" : "bg-secondary";
+                                    }
+                                    <td class="text-center">
+                                        <span class="badge @badgeClass">@application.Status</span>
                                     </td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary btn-sm" 
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#assignModal"
                                                 data-application-id="@application.ApplicationId"
                                                 data-student-name="@application.Student.FullName"
-                                                data-company-name="@application.Job.Company.Name">
+                                                data-company-name="@application.Job.Company.Name"
+                                                aria-label="Phân công @application.Student.FullName">
                                             Phân công
                                         </button>
                                     </td>
@@ -68,33 +84,38 @@
 
 <!-- Modal phân công -->
 <div class="modal fade" id="assignModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Phân công thực tập</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form asp-action="AssignInternship" method="post">
+            <form id="assignForm" asp-controller="Admin" asp-action="AssignInternship" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <input type="hidden" name="applicationId" id="applicationId" />
-                    
-                    <p>Phân công thực tập cho sinh viên <strong id="studentName"></strong> 
-                       tại công ty <strong id="companyName"></strong></p>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12">
+                            <p class="mb-2">Phân công thực tập cho sinh viên <strong id="studentName"></strong> tại công ty <strong id="companyName"></strong></p>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="supervisorId" class="form-label">Giảng viên hướng dẫn</label>
-                        <select class="form-select" id="supervisorId" name="supervisorId" required>
-                            <option value="">Chọn giảng viên...</option>
-                            @foreach (var supervisor in ViewBag.Supervisors)
-                            {
-                                <option value="@supervisor.SupervisorId">@supervisor.Name</option>
-                            }
-                        </select>
-                    </div>
+                        <div class="col-md-7">
+                            <label for="supervisorId" class="form-label">Giảng viên hướng dẫn</label>
+                            <select class="form-select" id="supervisorId" name="supervisorId" required>
+                                <option value="">Chọn giảng viên...</option>
+                                @foreach (var supervisor in ViewBag.Supervisors)
+                                {
+                                    <option value="@supervisor.SupervisorId">@supervisor.Name</option>
+                                }
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn giảng viên hướng dẫn.</div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="startDate" class="form-label">Ngày bắt đầu</label>
-                        <input type="date" class="form-control" id="startDate" name="startDate" required />
+                        <div class="col-md-5">
+                            <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" required />
+                            <div class="invalid-feedback">Vui lòng chọn ngày bắt đầu.</div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -108,18 +129,87 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            $('#assignModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var applicationId = button.data('application-id');
-                var studentName = button.data('student-name');
-                var companyName = button.data('company-name');
-                
-                var modal = $(this);
-                modal.find('#applicationId').val(applicationId);
-                modal.find('#studentName').text(studentName);
-                modal.find('#companyName').text(companyName);
+        // Use vanilla JS to avoid dependency on jQuery.
+        document.addEventListener('DOMContentLoaded', function () {
+            var assignModal = document.getElementById('assignModal');
+            if (!assignModal) return;
+
+            assignModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                if (!button) return;
+
+                var applicationId = button.getAttribute('data-application-id');
+                var studentName = button.getAttribute('data-student-name');
+                var companyName = button.getAttribute('data-company-name');
+
+                var inputAppId = assignModal.querySelector('#applicationId');
+                var elStudent = assignModal.querySelector('#studentName');
+                var elCompany = assignModal.querySelector('#companyName');
+
+                if (inputAppId) inputAppId.value = applicationId || '';
+                if (elStudent) elStudent.textContent = studentName || '';
+                if (elCompany) elCompany.textContent = companyName || '';
             });
+
+            // Fallback: if for some reason show.bs.modal.relatedTarget is not present,
+            // populate modal fields on button click. This handles cases where extensions
+            // or custom code programmatically open the modal without the relatedTarget.
+            var triggers = document.querySelectorAll('button[data-bs-target="#assignModal"]');
+            triggers.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    try {
+                        var applicationId = btn.getAttribute('data-application-id') || btn.dataset.applicationId || '';
+                        var studentName = btn.getAttribute('data-student-name') || btn.dataset.studentName || '';
+                        var companyName = btn.getAttribute('data-company-name') || btn.dataset.companyName || '';
+                        var inputAppId = assignModal.querySelector('#applicationId');
+                        var elStudent = assignModal.querySelector('#studentName');
+                        var elCompany = assignModal.querySelector('#companyName');
+                        if (inputAppId) inputAppId.value = applicationId || '';
+                        if (elStudent) elStudent.textContent = studentName || '';
+                        if (elCompany) elCompany.textContent = companyName || '';
+                        console.log('Assign button click populated modal', { applicationId, studentName, companyName });
+                    } catch (err) {
+                        console.error('Error populating assign modal on click', err);
+                    }
+                });
+            });
+            // Debug & guard: log form values on submit and prevent empty applicationId submission
+            var assignForm = document.getElementById('assignForm');
+            if (assignForm) {
+                assignForm.addEventListener('submit', function (e) {
+                    var appId = assignForm.querySelector('#applicationId')?.value || '';
+                    var sup = assignForm.querySelector('#supervisorId')?.value || '';
+                    var start = assignForm.querySelector('#startDate')?.value || '';
+                    console.log('AssignInternship submit', { applicationId: appId, supervisorId: sup, startDate: start });
+
+                    // Prevent submit if applicationId empty (guard)
+                    if (!appId) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.error('Prevented submit: applicationId is empty');
+                        var existing = assignModal.querySelector('.assign-error');
+                        if (!existing) {
+                            var alert = document.createElement('div');
+                            alert.className = 'alert alert-danger assign-error mt-2';
+                            alert.textContent = 'Không thể gửi: mã đơn trống. Vui lòng đóng modal và thử lại.';
+                            var body = assignModal.querySelector('.modal-body');
+                            if (body) body.prepend(alert);
+                        }
+                        return false;
+                    }
+
+                    // Standard Bootstrap validation
+                    if (!assignForm.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        assignForm.classList.add('was-validated');
+                        return false;
+                    }
+
+                    // allow submit
+                    return true;
+                }, false);
+            }
         });
     </script>
 }

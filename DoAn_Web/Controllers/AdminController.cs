@@ -34,7 +34,9 @@ namespace DoAn_Web.Controllers
                 .Include(a => a.Student)
                 .Include(a => a.Job)
                     .ThenInclude(j => j.Company)
-                .Where(a => a.Status == "Accepted" && 
+                // Một số nơi trạng thái được lưu là 'accepted' hoặc 'approved' (khác nhau giữa scripts/flow),
+                // vì vậy kiểm tra cả hai để đảm bảo không bỏ sót.
+                .Where(a => (a.Status == "accepted" || a.Status == "approved") &&
                        !_context.Internships.Any(i => i.StudentId == a.StudentId))
                 .ToListAsync();
 
@@ -45,7 +47,8 @@ namespace DoAn_Web.Controllers
 
         // Xử lý phân công thực tập
         [HttpPost]
-        public async Task<IActionResult> AssignInternship(int applicationId, int supervisorId, DateTime startDate)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignInternship(int applicationId, int supervisorId, string startDate)
         {
             // Kiểm tra đăng nhập admin
             if (HttpContext.Session.GetInt32("AdminId") == null)
@@ -75,32 +78,42 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction(nameof(AssignInternships));
             }
 
-            // Tạo bản ghi thực tập mới
-            var newInternship = new Internship
+            // Parse và validate startDate nhận từ client (dạng string từ <input type="date">)
+            if (string.IsNullOrEmpty(startDate) || !DateTime.TryParse(startDate, out var parsedStart))
             {
-                StudentId = application.StudentId,
-                CompanyId = application.Job.CompanyId,
-                SupervisorId = supervisorId,
-                StartDate = startDate,
-                EndDate = startDate.AddMonths(3), // Thêm EndDate mặc định là 3 tháng
-                Status = "Đang thực tập"
-            };
+                TempData["ErrorMessage"] = "Ngày bắt đầu không hợp lệ. Vui lòng nhập ngày hợp lệ.";
+                return RedirectToAction(nameof(AssignInternships));
+            }
 
-            _context.Internships.Add(newInternship);
+            try
+            {
+                // Tạo bản ghi thực tập mới
+                var newInternship = new Internship
+                {
+                    StudentId = application.StudentId,
+                    CompanyId = application.Job.CompanyId,
+                    SupervisorId = supervisorId,
+                    StartDate = parsedStart,
+                    EndDate = parsedStart.AddMonths(3), // Thêm EndDate mặc định là 3 tháng
+                    Status = "Đang thực tập"
+                };
 
-            // Cập nhật trạng thái đơn
-            application.Status = "assigned"; // Hoặc trạng thái phù hợp khác
+                _context.Internships.Add(newInternship);
 
-            await _context.SaveChangesAsync();
+                // Cập nhật trạng thái đơn (dùng chữ thường để thống nhất với các nơi khác)
+                application.Status = "assigned";
 
-            TempData["SuccessMessage"] = "Đã phân công giảng viên hướng dẫn thành công.";
-            return RedirectToAction(nameof(AssignInternships));
-            application.Status = "Completed";
+                await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Phân công thực tập thành công!";
-            return RedirectToAction("AssignInternships");
+                TempData["SuccessMessage"] = "Đã phân công giảng viên hướng dẫn thành công.";
+                return RedirectToAction(nameof(AssignInternships));
+            }
+            catch (Exception ex)
+            {
+                // Ghi nhận lỗi và trả về thông báo để admin biết
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi phân công: " + ex.Message;
+                return RedirectToAction(nameof(AssignInternships));
+            }
         }
 
         public async Task<IActionResult> Dashboard()

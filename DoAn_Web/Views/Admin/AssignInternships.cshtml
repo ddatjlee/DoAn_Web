@@ -6,19 +6,22 @@
 
 <div class="container mt-4">
     <h2>Phân công sinh viên thực tập</h2>
+    <link rel="stylesheet" href="~/css/assign-custom.css" asp-append-version="true" />
+    <!-- Flatpickr date picker (lightweight, no Bootstrap) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-    <div class="card">
-        <div class="card-header">
+    <div class="assign-card">
+        <div class="assign-card-header">
             <h4 class="mb-0">Danh sách đơn được chấp nhận</h4>
         </div>
-        <div class="card-body">
+        <div class="assign-card-body">
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success">@TempData["SuccessMessage"]</div>
             }
             else if (TempData["ErrorMessage"] != null)
             {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                <div class="alert alert-error">@TempData["ErrorMessage"]</div>
             }
 
             @if (!Model.Any())
@@ -30,7 +33,7 @@
             else
             {
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="assign-table">
                         <thead>
                             <tr>
                                 <th>Sinh viên</th>
@@ -54,17 +57,16 @@
                                     <td>@application.AppliedAt?.ToString("dd/MM/yyyy")</td>
                                     @{ 
                                         var statusLower = (application.Status ?? "").ToLower();
-                                        var badgeClass = statusLower.Contains("approved") ? "bg-success" :
-                                                         statusLower.Contains("accepted") ? "bg-warning text-dark" :
-                                                         statusLower.Contains("assigned") ? "bg-primary" : "bg-secondary";
+                                        var badgeClass = statusLower.Contains("approved") ? "success" :
+                                                         statusLower.Contains("accepted") ? "warning" :
+                                                         statusLower.Contains("assigned") ? "primary" : "secondary";
                                     }
-                                    <td class="text-center">
-                                        <span class="badge @badgeClass">@application.Status</span>
+                                    <td style="text-align:center">
+                                        <span class="assign-badge @badgeClass">@application.Status</span>
                                     </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#assignModal"
+                                    <td style="text-align:center">
+                                        <button type="button" class="btn-custom" 
+                                                data-modal-open="assignModalBackdrop"
                                                 data-application-id="@application.ApplicationId"
                                                 data-student-name="@application.Student.FullName"
                                                 data-company-name="@application.Job.Company.Name"
@@ -82,99 +84,114 @@
     </div>
 </div>
 
-<!-- Modal phân công -->
-<div class="modal fade" id="assignModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Phân công thực tập</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="assignForm" asp-controller="Admin" asp-action="AssignInternship" method="post">
-                @Html.AntiForgeryToken()
-                <div class="modal-body">
-                    <input type="hidden" name="applicationId" id="applicationId" />
-                    <div class="row g-3 align-items-center">
-                        <div class="col-12">
-                            <p class="mb-2">Phân công thực tập cho sinh viên <strong id="studentName"></strong> tại công ty <strong id="companyName"></strong></p>
-                        </div>
-
-                        <div class="col-md-7">
-                            <label for="supervisorId" class="form-label">Giảng viên hướng dẫn</label>
-                            <select class="form-select" id="supervisorId" name="supervisorId" required>
-                                <option value="">Chọn giảng viên...</option>
-                                @foreach (var supervisor in ViewBag.Supervisors)
-                                {
-                                    <option value="@supervisor.SupervisorId">@supervisor.Name</option>
-                                }
-                            </select>
-                            <div class="invalid-feedback">Vui lòng chọn giảng viên hướng dẫn.</div>
-                        </div>
-
-                        <div class="col-md-5">
-                            <label for="startDate" class="form-label">Ngày bắt đầu</label>
-                            <input type="date" class="form-control" id="startDate" name="startDate" required />
-                            <div class="invalid-feedback">Vui lòng chọn ngày bắt đầu.</div>
-                        </div>
+<!-- Custom modal phân công (no Bootstrap) -->
+<div id="assignModalBackdrop" class="modal-custom-backdrop" aria-hidden="true">
+    <div class="modal-custom" role="dialog" aria-modal="true" aria-labelledby="assignModalTitle">
+        <div class="modal-header-custom">
+            <h5 id="assignModalTitle">Phân công thực tập</h5>
+            <button class="modal-close" data-modal-close="assignModalBackdrop" aria-label="Đóng">✕</button>
+        </div>
+        <form id="assignForm" asp-controller="Admin" asp-action="AssignInternship" method="post">
+            @Html.AntiForgeryToken()
+            <div class="modal-body-custom">
+                <input type="hidden" name="applicationId" id="applicationId" />
+                <p class="mb-2">Phân công thực tập cho sinh viên <strong id="studentName"></strong> tại công ty <strong id="companyName"></strong></p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="supervisorInput">Giảng viên hướng dẫn</label>
+                        <!-- searchable input using datalist; hidden input holds the selected supervisorId -->
+                        <input id="supervisorInput" name="supervisorInput" list="supervisorList" class="form-input" placeholder="Gõ tên giảng viên..." autocomplete="off" required />
+                        <datalist id="supervisorList">
+                            @foreach (var supervisor in ViewBag.Supervisors)
+                            {
+                                <option value="@supervisor.Name"></option>
+                            }
+                        </datalist>
+                        <input type="hidden" id="supervisorIdHidden" name="supervisorId" />
+                        <div class="form-help">Gõ để tìm và chọn giảng viên. Nếu không tồn tại, vui lòng liên hệ quản trị.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="startDate">Ngày bắt đầu</label>
+                        <input id="startDate" name="startDate" type="text" class="form-input" placeholder="Chọn ngày" required />
+                        <div class="form-help">Chọn ngày bắt đầu (ngày phải từ hôm nay trở đi).</div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary">Xác nhận</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button type="button" class="btn-custom" data-modal-close="assignModalBackdrop">Đóng</button>
+                <button type="submit" class="btn-custom filled">Xác nhận</button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Use vanilla JS to avoid dependency on jQuery.
+        // Custom modal & form JS (no Bootstrap)
         document.addEventListener('DOMContentLoaded', function () {
-            var assignModal = document.getElementById('assignModal');
-            if (!assignModal) return;
+            var backdrop = document.getElementById('assignModalBackdrop');
+            var assignForm = document.getElementById('assignForm');
 
-            assignModal.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget; // Button that triggered the modal
-                if (!button) return;
+            function openModal() {
+                if (!backdrop) return;
+                backdrop.style.display = 'flex';
+                backdrop.setAttribute('aria-hidden', 'false');
+            }
+            function closeModal() {
+                if (!backdrop) return;
+                backdrop.style.display = 'none';
+                backdrop.setAttribute('aria-hidden', 'true');
+                // clear inline validation state
+                if (assignForm) assignForm.classList.remove('was-validated');
+                var err = backdrop.querySelector('.assign-error');
+                if (err) err.remove();
+            }
 
-                var applicationId = button.getAttribute('data-application-id');
-                var studentName = button.getAttribute('data-student-name');
-                var companyName = button.getAttribute('data-company-name');
-
-                var inputAppId = assignModal.querySelector('#applicationId');
-                var elStudent = assignModal.querySelector('#studentName');
-                var elCompany = assignModal.querySelector('#companyName');
-
-                if (inputAppId) inputAppId.value = applicationId || '';
-                if (elStudent) elStudent.textContent = studentName || '';
-                if (elCompany) elCompany.textContent = companyName || '';
-            });
-
-            // Fallback: if for some reason show.bs.modal.relatedTarget is not present,
-            // populate modal fields on button click. This handles cases where extensions
-            // or custom code programmatically open the modal without the relatedTarget.
-            var triggers = document.querySelectorAll('button[data-bs-target="#assignModal"]');
-            triggers.forEach(function (btn) {
+            // Open modal buttons
+            var openers = document.querySelectorAll('[data-modal-open]');
+            openers.forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     try {
-                        var applicationId = btn.getAttribute('data-application-id') || btn.dataset.applicationId || '';
-                        var studentName = btn.getAttribute('data-student-name') || btn.dataset.studentName || '';
-                        var companyName = btn.getAttribute('data-company-name') || btn.dataset.companyName || '';
-                        var inputAppId = assignModal.querySelector('#applicationId');
-                        var elStudent = assignModal.querySelector('#studentName');
-                        var elCompany = assignModal.querySelector('#companyName');
-                        if (inputAppId) inputAppId.value = applicationId || '';
-                        if (elStudent) elStudent.textContent = studentName || '';
-                        if (elCompany) elCompany.textContent = companyName || '';
+                        var target = btn.getAttribute('data-modal-open');
+                        if (!target || !backdrop || backdrop.id !== target) {
+                            // if target mismatches, find by id
+                        }
+                        var applicationId = btn.getAttribute('data-application-id') || '';
+                        var studentName = btn.getAttribute('data-student-name') || '';
+                        var companyName = btn.getAttribute('data-company-name') || '';
+
+                        // populate
+                        var inputAppId = document.querySelector('#applicationId');
+                        var elStudent = document.querySelector('#studentName');
+                        var elCompany = document.querySelector('#companyName');
+                        if (inputAppId) inputAppId.value = applicationId;
+                        if (elStudent) elStudent.textContent = studentName;
+                        if (elCompany) elCompany.textContent = companyName;
                         console.log('Assign button click populated modal', { applicationId, studentName, companyName });
+                        openModal();
                     } catch (err) {
-                        console.error('Error populating assign modal on click', err);
+                        console.error('Error opening assign modal', err);
                     }
                 });
             });
-            // Debug & guard: log form values on submit and prevent empty applicationId submission
-            var assignForm = document.getElementById('assignForm');
+
+            // Close buttons
+            var closers = document.querySelectorAll('[data-modal-close]');
+            closers.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    closeModal();
+                });
+            });
+
+            // click outside to close
+            if (backdrop) {
+                backdrop.addEventListener('click', function (e) {
+                    if (e.target === backdrop) closeModal();
+                });
+            }
+
+            // Form submit guard & client validation
             if (assignForm) {
                 assignForm.addEventListener('submit', function (e) {
                     var appId = assignForm.querySelector('#applicationId')?.value || '';
@@ -182,34 +199,99 @@
                     var start = assignForm.querySelector('#startDate')?.value || '';
                     console.log('AssignInternship submit', { applicationId: appId, supervisorId: sup, startDate: start });
 
-                    // Prevent submit if applicationId empty (guard)
                     if (!appId) {
                         e.preventDefault();
                         e.stopPropagation();
                         console.error('Prevented submit: applicationId is empty');
-                        var existing = assignModal.querySelector('.assign-error');
+                        var existing = backdrop.querySelector('.assign-error');
                         if (!existing) {
                             var alert = document.createElement('div');
-                            alert.className = 'alert alert-danger assign-error mt-2';
+                            alert.className = 'alert alert-error assign-error';
                             alert.textContent = 'Không thể gửi: mã đơn trống. Vui lòng đóng modal và thử lại.';
-                            var body = assignModal.querySelector('.modal-body');
+                            var body = backdrop.querySelector('.modal-body-custom');
                             if (body) body.prepend(alert);
                         }
                         return false;
                     }
 
-                    // Standard Bootstrap validation
+                    // native form validation
                     if (!assignForm.checkValidity()) {
                         e.preventDefault();
                         e.stopPropagation();
                         assignForm.classList.add('was-validated');
+                        // highlight invalid fields
+                        var elems = assignForm.querySelectorAll('[required]');
+                        elems.forEach(function (el) {
+                            if (!el.checkValidity()) el.classList.add('invalid');
+                            else el.classList.remove('invalid');
+                        });
                         return false;
                     }
 
-                    // allow submit
+                    // allow submit; modal will be closed on server redirect
                     return true;
                 }, false);
             }
+
+            // --- Supervisor searchable input handling ---
+            // Build a name->id map from server data
+            var supervisorMap = {};
+            (function () {
+                try {
+                    // populate map using server-side rendered options
+                    var opts = document.querySelectorAll('#supervisorList option');
+                    opts.forEach(function (opt) {
+                        var name = opt.value || opt.textContent || '';
+                        // Attempt to find matching supervisor element in the table of options via server-side loop
+                        // We can't get id from datalist options, so build map from ViewBag by embedding JSON-free structure
+                    });
+                } catch (err) {
+                    // ignore
+                }
+            })();
+
+            // Instead of relying on datalist for id, build map from a JSON blob rendered server-side
+            (function () {
+                var raw = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Supervisors ?? new List<object>()));
+                try {
+                    raw.forEach(function (s) {
+                        if (s && s.Name) supervisorMap[s.Name] = s.SupervisorId;
+                    });
+                } catch (err) {
+                    // If JSON parsing fails, fallback to empty map
+                    supervisorMap = {};
+                }
+
+                var supInput = document.getElementById('supervisorInput');
+                var supHidden = document.getElementById('supervisorIdHidden');
+                if (supInput) {
+                    supInput.addEventListener('input', function () {
+                        var v = supInput.value || '';
+                        if (supervisorMap[v]) {
+                            supHidden.value = supervisorMap[v];
+                            supInput.classList.remove('invalid');
+                        } else {
+                            supHidden.value = '';
+                        }
+                    });
+                }
+            })();
+
+            // --- Initialize flatpickr on startDate ---
+            (function () {
+                try {
+                    if (typeof flatpickr === 'function') {
+                        flatpickr('#startDate', {
+                            dateFormat: 'Y-m-d',
+                            minDate: 'today',
+                            altInput: true,
+                            altFormat: 'd/m/Y'
+                        });
+                    }
+                } catch (err) {
+                    // ignore
+                }
+            })();
         });
     </script>
 }

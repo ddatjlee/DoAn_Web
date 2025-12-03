@@ -6,14 +6,31 @@ body {
     font-weight: 400;
 }
 
+.btn-color {
+    background: green !important;
+}
+
+.no-padding {
+    padding: 0!important;
+    
+}
+.icon-back{
+    margin-right: 10px;
+}
 /* Class chung để đồng bộ kích thước nút */
 .uniform-btn {
-    padding: 8px 15px; /* Kích thước padding cố định */
-    font-size: 0.9rem; /* Kích thước chữ cố định */
-    line-height: 1.5; /* Đảm bảo chiều cao dòng đồng đều */
-    min-width: 100px; /* Chiều rộng tối thiểu để các nút bằng nhau */
-    text-align: center; /* Căn giữa nội dung */
-    border-radius: 5px; /* Bo tròn đồng đều */
+    padding: 8px 15px;
+    /* Kích thước padding cố định */
+    font-size: 0.9rem;
+    /* Kích thước chữ cố định */
+    line-height: 1.5;
+    /* Đảm bảo chiều cao dòng đồng đều */
+    min-width: 100px;
+    /* Chiều rộng tối thiểu để các nút bằng nhau */
+    text-align: center;
+    /* Căn giữa nội dung */
+    border-radius: 5px;
+    /* Bo tròn đồng đều */
 }
 
 /* Navbar (Menu) */
@@ -84,55 +101,67 @@ body {
     transition: all 0.3s ease;
 }
 
-    .nav-link:hover {
-        color: #ff6f61 !important;
-        background-color: rgba(0, 0, 0, 0.05);
-        border-radius: 5px;
-    }
+.nav-link:hover {
+    color: #ff6f61 !important;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+}
 
-    /* Prevent navigation items from wrapping on the header when names are long.
+/* Prevent navigation items from wrapping on the header when names are long.
        Use ellipsis for overflow and keep layout responsive without Bootstrap JS. */
+.navbar .navbar-nav {
+    display: flex;
+    /* align nav items horizontally */
+    gap: 12px;
+    /* spacing between items */
+    align-items: center;
+    flex-wrap: nowrap;
+    /* do not wrap to next line */
+    /* allow dropdown menus to overflow the nav container so they are visible */
+    overflow: visible;
+}
+
+.navbar .nav-link {
+    white-space: nowrap;
+    /* prevent internal wrapping */
+    overflow: hidden;
+    /* hide overflowed text for long items */
+    text-overflow: ellipsis;
+    /* show ... when truncated */
+    display: inline-block;
+    /* allow width limits to apply */
+    max-width: 160px;
+    /* reasonable max width for menu items */
+}
+
+/* Don't truncate dropdown toggle links or auth buttons (so '+' and caret remain visible) */
+.navbar .nav-item.dropdown .nav-link,
+.navbar .nav-link.auth-link,
+.navbar .nav-item .btn,
+.navbar .nav-item .dropdown-toggle {
+    max-width: none;
+    overflow: visible;
+}
+
+.navbar .navbar-brand {
+    flex: 0 0 auto;
+    /* do not shrink the brand */
+    margin-right: 18px;
+}
+
+/* On smaller screens allow wrapping and reset ellipsis so items remain accessible */
+@media (max-width: 768px) {
     .navbar .navbar-nav {
-        display: flex;            /* align nav items horizontally */
-        gap: 12px;               /* spacing between items */
-        align-items: center;
-        flex-wrap: nowrap;       /* do not wrap to next line */
-        /* allow dropdown menus to overflow the nav container so they are visible */
-        overflow: visible;
+        flex-wrap: wrap;
+        /* allow wrapping on very small screens */
     }
 
     .navbar .nav-link {
-        white-space: nowrap;     /* prevent internal wrapping */
-        overflow: hidden;        /* hide overflowed text for long items */
-        text-overflow: ellipsis; /* show ... when truncated */
-        display: inline-block;   /* allow width limits to apply */
-        max-width: 160px;        /* reasonable max width for menu items */
-    }
-
-    /* Don't truncate dropdown toggle links or auth buttons (so '+' and caret remain visible) */
-    .navbar .nav-item.dropdown .nav-link,
-    .navbar .nav-link.auth-link,
-    .navbar .nav-item .btn,
-    .navbar .nav-item .dropdown-toggle {
         max-width: none;
-        overflow: visible;
+        /* allow full width on small screens */
+        padding: 8px 10px !important;
     }
-
-    .navbar .navbar-brand {
-        flex: 0 0 auto;          /* do not shrink the brand */
-        margin-right: 18px;
-    }
-
-    /* On smaller screens allow wrapping and reset ellipsis so items remain accessible */
-    @media (max-width: 768px) {
-        .navbar .navbar-nav {
-            flex-wrap: wrap;      /* allow wrapping on very small screens */
-        }
-        .navbar .nav-link {
-            max-width: none;      /* allow full width on small screens */
-            padding: 8px 10px !important;
-        }
-    }
+}
 
 /* Tùy chỉnh dropdown */
 .dropdown-menu {
@@ -146,10 +175,10 @@ body {
     transition: all 0.3s ease;
 }
 
-    .dropdown-item:hover {
-        background-color: #d3d3d3;
-        color: #ff6f61 !important;
-    }
+.dropdown-item:hover {
+    background-color: #d3d3d3;
+    color: #ff6f61 !important;
+}
 
 /* Tùy chỉnh nút Đăng nhập/Đăng ký */
 .btn-custom {
@@ -162,10 +191,10 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
 }
 
-    .btn-custom.uniform-btn:hover {
-        background: linear-gradient(45deg, #e65b50, #ff6f61);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
+.btn-custom.uniform-btn:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
 /* Tùy chỉnh nút trong bảng (Danh sách việc làm) và thông báo */
 .btn-primary {
@@ -174,30 +203,38 @@ body {
     transition: all 0.3s ease;
 }
 
-    .btn-primary.uniform-btn:hover {
-        background: linear-gradient(45deg, #e65b50, #ff6f61);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
+.btn-primary.uniform-btn:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
 
 /* Tùy chỉnh nút trong card (Việc làm mới nhất) */
 .job-btn {
     font-size: 0.9rem;
     border-radius: 5px;
 }
+
 .job-card {
-    border: 2px solid #ff6f61; /* Viền đậm hơn và màu nổi bật */
+    border: 2px solid #ff6f61;
+    /* Viền đậm hơn và màu nổi bật */
     border-radius: 10px;
-    padding: 20px; /* Tăng padding cho rộng rãi */
+    padding: 20px;
+    /* Tăng padding cho rộng rãi */
     transition: all 0.3s ease;
     background: #fff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Bóng đổ nhẹ */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Bóng đổ nhẹ */
 }
 
-    .job-card:hover {
-        transform: translateY(-10px); /* Nâng cao hơn khi hover */
-        box-shadow: 0 8px 20px rgba(255, 111, 97, 0.3); /* Bóng đổ lớn hơn */
-        border-color: #f1c40f; /* Đổi màu viền khi hover */
-    }
+.job-card:hover {
+    transform: translateY(-10px);
+    /* Nâng cao hơn khi hover */
+    box-shadow: 0 8px 20px rgba(255, 111, 97, 0.3);
+    /* Bóng đổ lớn hơn */
+    border-color: #f1c40f;
+    /* Đổi màu viền khi hover */
+}
+
 /* Tùy chỉnh badge thông báo */
 .badge {
     background-color: #ff6f61 !important;
@@ -221,119 +258,138 @@ body {
     color: #333 !important;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 12px 40px 12px 40px; /* Padding trái và phải đều 40px để chừa chỗ cho biểu tượng */
-    height: 48px; /* Tăng chiều cao để phù hợp với thiết kế */
+    padding: 12px 40px 12px 40px;
+    /* Padding trái và phải đều 40px để chừa chỗ cho biểu tượng */
+    height: 48px;
+    /* Tăng chiều cao để phù hợp với thiết kế */
     transition: all 0.3s ease;
-    box-sizing: border-box; /* Đảm bảo padding và border không làm tăng kích thước */
+    box-sizing: border-box;
+    /* Đảm bảo padding và border không làm tăng kích thước */
     width: 100%;
 }
+
 .toggle-password {
     position: absolute;
     right: 0px;
-    top: calc(50% + 0px); /* Điều chỉnh top tương tự như .form-group i */
+    top: calc(50% + 0px);
+    /* Điều chỉnh top tương tự như .form-group i */
     transform: translateY(-50%);
     cursor: pointer;
     color: #666;
 
 }
 
-    .toggle-password i {
-        font-size: 16px;
-    }
-    .form-control:focus {
-        background-color: #ffffff;
-        border-color: #ff6f61;
-        box-shadow: 0 0 5px rgba(255, 111, 97, 0.3);
-        outline: none;
-    }
+.toggle-password i {
+    font-size: 16px;
+}
+
+.form-control:focus {
+    background-color: #ffffff;
+    border-color: #ff6f61;
+    box-shadow: 0 0 5px rgba(255, 111, 97, 0.3);
+    outline: none;
+}
 
 /* Footer */
 footer {
-    background-color: #343a40; /* Màu nền tối */
-    color: #fff; /* Màu chữ sáng */
-    padding: 50px 0; /* Khoảng cách trên và dưới */
+    background-color: #343a40;
+    /* Màu nền tối */
+    color: #fff;
+    /* Màu chữ sáng */
+    padding: 50px 0;
+    /* Khoảng cách trên và dưới */
     margin-top: 50px;
 }
 
-    footer .container {
-        max-width: 1200px; /* Giới hạn chiều rộng của footer */
-        margin: 0 auto; /* Căn giữa toàn bộ footer */
-    }
+footer .container {
+    max-width: 1200px;
+    /* Giới hạn chiều rộng của footer */
+    margin: 0 auto;
+    /* Căn giữa toàn bộ footer */
+}
 
-    footer h4 {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
+footer h4 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
 
-    footer .list-unstyled {
-        padding-left: 0;
-        list-style: none;
-    }
+footer .list-unstyled {
+    padding-left: 0;
+    list-style: none;
+}
 
-        footer .list-unstyled li {
-            margin-bottom: 10px;
-        }
+footer .list-unstyled li {
+    margin-bottom: 10px;
+}
 
-        footer .list-unstyled a {
-            text-decoration: none;
-            color: #fff;
-            transition: color 0.3s ease;
-        }
+footer .list-unstyled a {
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.3s ease;
+}
 
-            footer .list-unstyled a:hover {
-                color: #f1c40f; /* Màu vàng khi hover */
-            }
+footer .list-unstyled a:hover {
+    color: #f1c40f;
+    /* Màu vàng khi hover */
+}
 
-    footer .fab {
-        font-size: 1.5rem;
-        transition: transform 0.3s ease;
-        margin: 0 5px;
-    }
+footer .fab {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+    margin: 0 5px;
+}
 
-        footer .fab:hover {
-            transform: scale(1.2); /* Phóng to icon khi hover */
-        }
+footer .fab:hover {
+    transform: scale(1.2);
+    /* Phóng to icon khi hover */
+}
 
-    footer iframe {
-        border-radius: 10px; /* Làm tròn góc của iframe */
-    }
+footer iframe {
+    border-radius: 10px;
+    /* Làm tròn góc của iframe */
+}
 
-    footer .mt-4 {
-        text-align: center;
-        font-size: 0.9rem;
-    }
+footer .mt-4 {
+    text-align: center;
+    font-size: 0.9rem;
+}
 
-        footer .mt-4 a {
-            text-decoration: none;
-            color: #fff;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
+footer .mt-4 a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
 
-            footer .mt-4 a:hover {
-                color: #f1c40f; /* Màu vàng khi hover */
-            }
+footer .mt-4 a:hover {
+    color: #f1c40f;
+    /* Màu vàng khi hover */
+}
 
-    footer .row {
-        display: flex;
-        justify-content: space-between;
-        text-align: center;
-    }
+footer .row {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
 
-    footer .col-lg-4 {
-        text-align: left; /* Căn trái cho phần thông tin công ty */
-    }
+footer .col-lg-4 {
+    text-align: left;
+    /* Căn trái cho phần thông tin công ty */
+}
 
-    footer .col-md-6 {
-        text-align: center; /* Căn giữa cho phần liên kết nhanh và mạng xã hội */
-    }
+footer .col-md-6 {
+    text-align: center;
+    /* Căn giữa cho phần liên kết nhanh và mạng xã hội */
+}
 
-    footer .d-flex {
-        gap: 15px;
-        justify-content: center; /* Căn giữa các icon */
-        flex-wrap: wrap; /* Cho phép các icon xuống dòng khi không đủ không gian */
-    }
+footer .d-flex {
+    gap: 15px;
+    justify-content: center;
+    /* Căn giữa các icon */
+    flex-wrap: wrap;
+    /* Cho phép các icon xuống dòng khi không đủ không gian */
+}
 
 @media (max-width: 992px) {
     footer .row {
@@ -346,7 +402,8 @@ footer {
     }
 
     footer iframe {
-        height: 200px; /* Giảm chiều cao iframe trên màn hình nhỏ */
+        height: 200px;
+        /* Giảm chiều cao iframe trên màn hình nhỏ */
     }
 }
 
@@ -375,48 +432,51 @@ footer {
     background: #fff;
 }
 
-    .job-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        border-color: #ff6f61;
-    }
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: #ff6f61;
+}
 
-    .job-card .salary {
-        color: #ff6f61;
-        font-weight: 600;
-    }
+.job-card .salary {
+    color: #ff6f61;
+    font-weight: 600;
+}
 
-    .job-card .location::before {
-        content: '\f3c5';
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900;
-        margin-right: 5px;
-        color: #666;
-    }
+.job-card .location::before {
+    content: '\f3c5';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 5px;
+    color: #666;
+}
 
-    .job-card .view-details {
-        display: inline-block;
-        margin-top: 10px;
-        background: #ff6f61;
-        color: #fff;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
+.job-card .view-details {
+    display: inline-block;
+    margin-top: 10px;
+    background: #ff6f61;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
 
-        .job-card .view-details:hover {
-            background: #e65b50;
-        }
+.job-card .view-details:hover {
+    background: #e65b50;
+}
 
 /* Tùy chỉnh thẻ công ty */
 .company-section {
-    border: 3px solid #28a745; /* Viền màu xanh lá cây */
+    border: 3px solid #28a745;
+    /* Viền màu xanh lá cây */
     border-radius: 10px;
     padding: 20px;
-    background-color: #f8f9fa; /* Nền nhạt để nổi bật viền */
+    background-color: #f8f9fa;
+    /* Nền nhạt để nổi bật viền */
 }
 
 .company-card {
-    border: 3px solid #28a745; /* Viền xanh lá đậm hơn */
+    border: 3px solid #28a745;
+    /* Viền xanh lá đậm hơn */
     border-radius: 10px;
     padding: 20px;
     transition: all 0.3s ease;
@@ -426,25 +486,30 @@ footer {
 
 .company-details {
     background-color: #fff;
-    border-left: 4px solid #28a745; /* Viền trái màu xanh */
+    border-left: 4px solid #28a745;
+    /* Viền trái màu xanh */
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-    .company-details h3 {
-        color: #007bff;
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 5px;
-    }
+.company-details h3 {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
 
-    .company-details p {
-        margin-bottom: 10px;
-    }
+.company-details p {
+    margin-bottom: 10px;
+}
+
 /* Tiêu đề Công ty nổi bật */
 .featured-companies-title {
-    font-size: 2rem; /* Tăng kích thước chữ */
-    font-weight: 700; /* Đậm hơn */
-    color: #000; /* Đặt màu chữ thành đen */
+    font-size: 2rem;
+    /* Tăng kích thước chữ */
+    font-weight: 700;
+    /* Đậm hơn */
+    color: #000;
+    /* Đặt màu chữ thành đen */
     text-align: center;
     margin-bottom: 30px;
     position: relative;
@@ -452,23 +517,26 @@ footer {
     animation: fadeIn 1s ease-in;
 }
 
-    /* Viền động bên dưới tiêu đề */
-    .featured-companies-title::after {
-        content: '';
-        position: absolute;
-        width: 100px;
-        height: 4px;
-        background: #28a745; /* Màu viền xanh lá */
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-radius: 2px;
-        transition: width 0.3s ease;
-    }
+/* Viền động bên dưới tiêu đề */
+.featured-companies-title::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 4px;
+    background: #28a745;
+    /* Màu viền xanh lá */
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
 
-    .featured-companies-title:hover::after {
-        width: 200px; /* Mở rộng viền khi hover */
-    }
+.featured-companies-title:hover::after {
+    width: 200px;
+    /* Mở rộng viền khi hover */
+}
+
 /* Đảm bảo layout xen kẽ trông gọn gàng */
 .company-list .row {
     align-items: center;
@@ -535,28 +603,32 @@ footer {
     background-size: 120%;
     background-position: center;
     padding: 70px 0;
-    min-height: 400px; /* Đặt chiều cao tối thiểu */
+    min-height: 400px;
+    /* Đặt chiều cao tối thiểu */
     color: white;
     text-align: center;
     position: relative;
-    display: flex; /* Sử dụng flexbox */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
+    display: flex;
+    /* Sử dụng flexbox */
+    justify-content: center;
+    /* Căn giữa theo chiều ngang */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
 }
 
-    .header-section.gradient-bg {
-        background: linear-gradient(90deg, #1a3c34 0%, #2e6a5c 100%);
-    }
+.header-section.gradient-bg {
+    background: linear-gradient(90deg, #1a3c34 0%, #2e6a5c 100%);
+}
 
-    .header-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-    }
+.header-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
 
 .header-content {
     position: relative;
@@ -564,12 +636,12 @@ footer {
     text-align: center;
 }
 
-    .header-content h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-        animation: fadeIn 1s ease-in;
-    }
+.header-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease-in;
+}
 
 @keyframes fadeIn {
     0% {
@@ -582,9 +654,11 @@ footer {
         transform: translateY(0);
     }
 }
+
 /*Đánh dấu đã đọc*/
 .badge-read {
-    background-color: #28a745 !important; /* Màu xanh lá cây */
+    background-color: #28a745 !important;
+    /* Màu xanh lá cây */
     color: white !important;
 }
 
@@ -598,27 +672,27 @@ footer {
     overflow: hidden;
 }
 
-    .search-bar input {
-        padding: 12px 20px;
-        border: none;
-        flex: 1;
-        border-radius: 25px 0 0 25px;
-        outline: none;
-    }
+.search-bar input {
+    padding: 12px 20px;
+    border: none;
+    flex: 1;
+    border-radius: 25px 0 0 25px;
+    outline: none;
+}
 
-    .search-bar button {
-        padding: 12px 25px;
-        border-radius: 0 25px 25px 0;
-        background: linear-gradient(45deg, #ff6f61, #e65b50);
-        color: #fff;
-        border: none;
-        transition: all 0.3s ease;
-    }
+.search-bar button {
+    padding: 12px 25px;
+    border-radius: 0 25px 25px 0;
+    background: linear-gradient(45deg, #ff6f61, #e65b50);
+    color: #fff;
+    border: none;
+    transition: all 0.3s ease;
+}
 
-        .search-bar button:hover {
-            background: linear-gradient(45deg, #e65b50, #ff6f61);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
+.search-bar button:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
 
 /* Tùy chỉnh form đăng nhập/đăng ký */
 .auth-container {
@@ -640,54 +714,56 @@ footer {
     transition: transform 0.3s ease;
 }
 
-    .auth-form:hover {
-        transform: translateY(-5px);
-    }
+.auth-form:hover {
+    transform: translateY(-5px);
+}
 
-    .auth-form h3 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #2c3e50;
-        text-align: center;
-        margin-bottom: 20px;
-    }
+.auth-form h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 20px;
+}
 
 .form-group {
     position: relative;
     margin-bottom: 20px;
 }
 
-    .form-group label {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 5px;
-        display: block;
-    }
+.form-group label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+}
 
-    .form-group input {
-        width: 100%;
-        padding: 12px 40px 12px 15px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
+.form-group input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
 
-        .form-group input:focus {
-            border-color: #ff6f61;
-            box-shadow: 0 0 5px rgba(255, 111, 97, 0.3);
-            outline: none;
-        }
+.form-group input:focus {
+    border-color: #ff6f61;
+    box-shadow: 0 0 5px rgba(255, 111, 97, 0.3);
+    outline: none;
+}
 
-    .form-group i {
-        position: absolute;
-        right: 15px;
-        top: calc(50% + 15px); /* Điều chỉnh top để căn giữa, cộng thêm 10px để bù cho chiều cao của label */
-        transform: translateY(-50%);
-        color: #999;
-        font-size: 1.1rem;
-        line-height: 1; /* Đảm bảo biểu tượng không bị lệch do line-height */
-    }
+.form-group i {
+    position: absolute;
+    right: 15px;
+    top: calc(50% + 15px);
+    /* Điều chỉnh top để căn giữa, cộng thêm 10px để bù cho chiều cao của label */
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 1.1rem;
+    line-height: 1;
+    /* Đảm bảo biểu tượng không bị lệch do line-height */
+}
 
 .alert {
     border-radius: 8px;
@@ -707,10 +783,10 @@ footer {
     transition: all 0.3s ease;
 }
 
-    .btn-submit:hover {
-        background: linear-gradient(45deg, #e65b50, #ff6f61);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
+.btn-submit:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
 
 .auth-links {
     text-align: center;
@@ -718,15 +794,16 @@ footer {
     font-size: 0.9rem;
 }
 
-    .auth-links a {
-        color: #ff6f61;
-        text-decoration: none;
-        font-weight: 500;
-    }
+.auth-links a {
+    color: #ff6f61;
+    text-decoration: none;
+    font-weight: 500;
+}
 
-        .auth-links a:hover {
-            text-decoration: underline;
-        }
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
 /*Màu thanh ngang*/
 .divider {
     border: 0;
@@ -735,13 +812,17 @@ footer {
     margin: 20px 0;
     border-radius: 10px;
 }
+
 /* Kiểu dáng của thông báo */
 .alert-floating {
     position: fixed;
-    top: 20px; /* Vị trí từ trên cùng */
+    top: 20px;
+    /* Vị trí từ trên cùng */
     left: 50%;
-    transform: translateX(-50%); /* Căn giữa theo chiều ngang */
-    z-index: 1050; /* Đảm bảo thông báo luôn nổi trên các phần tử khác */
+    transform: translateX(-50%);
+    /* Căn giữa theo chiều ngang */
+    z-index: 1050;
+    /* Đảm bảo thông báo luôn nổi trên các phần tử khác */
     padding: 15px;
     border-radius: 5px;
     background-color: #f8d7da;
@@ -752,12 +833,12 @@ footer {
     transition: opacity 0.5s ease-out;
 }
 
-    /* Hiệu ứng khi thông báo biến mất */
-    .alert-floating.hidden {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.5s ease-in;
-    }
+/* Hiệu ứng khi thông báo biến mất */
+.alert-floating.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in;
+}
 
 /* Responsive cho form */
 @media (max-width: 576px) {
@@ -766,73 +847,96 @@ footer {
         max-width: 90%;
     }
 
-        .auth-form h3 {
-            font-size: 1.5rem;
-        }
+    .auth-form h3 {
+        font-size: 1.5rem;
+    }
 }
 
 /* Thêm khoảng cách giữa các nav-item trong navbar */
 .nav-item.dropdown {
-    margin-right: 10px; /* Thêm khoảng cách 10px giữa các nav-item */
+    margin-right: 10px;
+    /* Thêm khoảng cách 10px giữa các nav-item */
 }
 
-    /* Đảm bảo nút dropdown không bị ảnh hưởng bởi margin */
-    .nav-item.dropdown:last-child {
-        margin-right: 0; /* Bỏ margin cho nav-item cuối cùng để tránh khoảng trống thừa */
-    }
+/* Đảm bảo nút dropdown không bị ảnh hưởng bởi margin */
+.nav-item.dropdown:last-child {
+    margin-right: 0;
+    /* Bỏ margin cho nav-item cuối cùng để tránh khoảng trống thừa */
+}
 
 /* Tùy chỉnh nút dropdown để đồng bộ với thiết kế */
 .btn-outline-dark.btn-sm.dropdown-toggle {
-    padding: 6px 12px; /* Điều chỉnh padding để nút trông gọn gàng */
-    font-size: 0.9rem; /* Kích thước chữ nhỏ hơn một chút */
-    border-radius: 5px; /* Bo tròn nút */
+    padding: 6px 12px;
+    /* Điều chỉnh padding để nút trông gọn gàng */
+    font-size: 0.9rem;
+    /* Kích thước chữ nhỏ hơn một chút */
+    border-radius: 5px;
+    /* Bo tròn nút */
     transition: all 0.3s ease;
 }
 
-    /* Hiệu ứng hover cho nút dropdown */
-    .btn-outline-dark.btn-sm.dropdown-toggle:hover {
-        background-color: #ff6f61;
-        color: #fff !important;
-        border-color: #ff6f61;
-    }
+/* Hiệu ứng hover cho nút dropdown */
+.btn-outline-dark.btn-sm.dropdown-toggle:hover {
+    background-color: #ff6f61;
+    color: #fff !important;
+    border-color: #ff6f61;
+}
 
 /* Tiêu đề Việc làm mới nhất */
 .latest-jobs-title {
-    font-size: 2rem; /* Tăng kích thước chữ */
-    font-weight: 700; /* Đậm hơn */
-    color: #000; /* Đặt màu chữ thành đen */
-    text-align: center; /* Căn giữa */
-    margin-bottom: 30px; /* Khoảng cách dưới */
+    font-size: 2rem;
+    /* Tăng kích thước chữ */
+    font-weight: 700;
+    /* Đậm hơn */
+    color: #000;
+    /* Đặt màu chữ thành đen */
+    text-align: center;
+    /* Căn giữa */
+    margin-bottom: 30px;
+    /* Khoảng cách dưới */
     position: relative;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Bóng đổ nhẹ */
-    animation: fadeIn 1s ease-in; /* Hiệu ứng xuất hiện */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    /* Bóng đổ nhẹ */
+    animation: fadeIn 1s ease-in;
+    /* Hiệu ứng xuất hiện */
 }
 
-    /* Viền động bên dưới tiêu đề */
-    .latest-jobs-title::after {
-        content: '';
-        position: absolute;
-        width: 100px; /* Độ dài viền */
-        height: 4px; /* Độ dày viền */
-        background: #ff6f61; /* Màu viền */
-        bottom: -10px; /* Khoảng cách từ chữ */
-        left: 50%; /* Căn giữa */
-        transform: translateX(-50%); /* Dịch chuyển để căn giữa */
-        border-radius: 2px;
-        transition: width 0.3s ease; /* Hiệu ứng mở rộng */
-    }
+/* Viền động bên dưới tiêu đề */
+.latest-jobs-title::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    /* Độ dài viền */
+    height: 4px;
+    /* Độ dày viền */
+    background: #ff6f61;
+    /* Màu viền */
+    bottom: -10px;
+    /* Khoảng cách từ chữ */
+    left: 50%;
+    /* Căn giữa */
+    transform: translateX(-50%);
+    /* Dịch chuyển để căn giữa */
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    /* Hiệu ứng mở rộng */
+}
 
-    .latest-jobs-title:hover::after {
-        width: 200px; /* Mở rộng viền khi hover */
-    }
+.latest-jobs-title:hover::after {
+    width: 200px;
+    /* Mở rộng viền khi hover */
+}
+
 /* Info Section Box */
 .info-box {
     background-color: #ffffff;
     padding: 40px 30px;
     border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Đổ bóng rõ hơn với độ mờ thấp và kích thước lớn hơn */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    /* Đổ bóng rõ hơn với độ mờ thấp và kích thước lớn hơn */
     margin-top: 50px;
-    border-left: 5px solid #ff6f61; /* Thêm đường viền màu cho phần khung */
+    border-left: 5px solid #ff6f61;
+    /* Thêm đường viền màu cho phần khung */
 }
 
 /* Title of the Section */
@@ -843,7 +947,8 @@ footer {
     margin-bottom: 20px;
     color: #333;
     text-transform: uppercase;
-    border-bottom: 3px solid #ff6f61; /* Hiệu ứng gạch chân */
+    border-bottom: 3px solid #ff6f61;
+    /* Hiệu ứng gạch chân */
     padding-bottom: 10px;
 }
 
@@ -884,6 +989,7 @@ footer {
         font-size: 1rem;
     }
 }
+
 /* Khung bao quanh chi tiết công việc */
 .job-detail-container {
     max-width: 900px;
@@ -893,20 +999,23 @@ footer {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     padding: 30px;
     animation: fadeIn 0.5s ease-out;
-    border: 3px solid #28a745; /* Thêm viền màu xanh lá */
+    border: 3px solid #28a745;
+    /* Thêm viền màu xanh lá */
 }
 
 
 /* Tiêu đề công việc và tên công ty */
 .job-detail-header {
-    text-align: center; /* Căn giữa nội dung */
+    text-align: center;
+    /* Căn giữa nội dung */
     margin-bottom: 20px;
 }
 
 .job-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #ff6f61; /* Màu chủ đạo (cam/hồng) */
+    color: #ff6f61;
+    /* Màu chủ đạo (cam/hồng) */
     margin-bottom: 5px;
 }
 
@@ -929,7 +1038,8 @@ footer {
 .detail-label {
     font-weight: 600;
     color: #333;
-    width: 150px; /* Chiều rộng cột nhãn */
+    width: 150px;
+    /* Chiều rộng cột nhãn */
 }
 
 .detail-value {
@@ -943,9 +1053,10 @@ footer {
     margin-top: 30px;
 }
 
-    .job-detail-actions .btn {
-        margin: 0 10px; /* Khoảng cách giữa các nút */
-    }
+.job-detail-actions .btn {
+    margin: 0 10px;
+    /* Khoảng cách giữa các nút */
+}
 
 /* Hiệu ứng fadeIn */
 @keyframes fadeIn {
@@ -975,6 +1086,7 @@ footer {
         width: 120px;
     }
 }
+
 /* Khung bao quanh form ứng tuyển */
 .job-application-container {
     max-width: 800px;
@@ -982,7 +1094,8 @@ footer {
     background-color: #ffffff;
     padding: 30px;
     border-radius: 10px;
-    border: 2px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 2px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1017,9 +1130,9 @@ footer {
     margin-top: 30px;
 }
 
-    .application-actions .btn {
-        margin: 0 10px;
-    }
+.application-actions .btn {
+    margin: 0 10px;
+}
 
 /* Hiệu ứng fadeIn */
 @keyframes fadeIn {
@@ -1045,6 +1158,7 @@ footer {
         font-size: 1.5rem;
     }
 }
+
 /* Khung bao quanh trang Profile */
 .profile-container {
     max-width: 800px;
@@ -1052,7 +1166,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1074,12 +1189,12 @@ footer {
     margin-bottom: 20px;
 }
 
-    .profile-container .form-group label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 5px;
-        display: block;
-    }
+.profile-container .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
 
 .profile-container .form-control,
 .profile-container .form-control-file {
@@ -1093,12 +1208,12 @@ footer {
     margin-top: 10px;
 }
 
-    .avatar-preview img {
-        max-width: 200px;
-        max-height: 200px;
-        border-radius: 5px;
-        border: 1px solid #e0e0e0;
-    }
+.avatar-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+}
 
 /* Nút cập nhật */
 .btn.uniform-btn {
@@ -1113,10 +1228,10 @@ footer {
     transition: all 0.3s ease;
 }
 
-    .btn.uniform-btn:hover {
-        background: linear-gradient(45deg, #e65b50, #ff6f61);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
+.btn.uniform-btn:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
 
 /* Hiệu ứng fadeIn */
 @keyframes fadeIn {
@@ -1142,6 +1257,7 @@ footer {
         font-size: 1.5rem;
     }
 }
+
 /* Khung bao quanh hồ sơ công ty */
 .company-profile-container {
     max-width: 800px;
@@ -1149,7 +1265,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1171,12 +1288,12 @@ footer {
     margin-bottom: 20px;
 }
 
-    .company-profile-container .form-group label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 5px;
-        display: block;
-    }
+.company-profile-container .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
 
 .company-profile-container .form-control,
 .company-profile-container .form-control-file {
@@ -1190,12 +1307,12 @@ footer {
     margin-top: 10px;
 }
 
-    .logo-preview img {
-        max-width: 200px;
-        max-height: 200px;
-        border-radius: 5px;
-        border: 1px solid #e0e0e0;
-    }
+.logo-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+}
 
 /* Nút cập nhật thông tin */
 .btn.uniform-btn {
@@ -1210,10 +1327,10 @@ footer {
     transition: all 0.3s ease;
 }
 
-    .btn.uniform-btn:hover {
-        background: linear-gradient(45deg, #e65b50, #ff6f61);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
+.btn.uniform-btn:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
 
 /* Hiệu ứng fadeIn */
 @keyframes fadeIn {
@@ -1239,6 +1356,7 @@ footer {
         font-size: 1.5rem;
     }
 }
+
 /* Khung bao quanh trang lịch phỏng vấn */
 .interview-container {
     max-width: 800px;
@@ -1246,7 +1364,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1268,10 +1387,10 @@ footer {
     margin-top: 20px;
 }
 
-    .table th,
-    .table td {
-        vertical-align: middle;
-    }
+.table th,
+.table td {
+    vertical-align: middle;
+}
 
 /* Responsive cho màn hình nhỏ */
 @media (max-width: 576px) {
@@ -1292,7 +1411,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1341,26 +1461,26 @@ footer {
     min-width: 120px;
 }
 
-    .uniform-btn.btn-primary {
-        background: linear-gradient(45deg, #ff6f61, #e65b50);
-        border: none;
-        color: #fff;
-    }
+.uniform-btn.btn-primary {
+    background: linear-gradient(45deg, #ff6f61, #e65b50);
+    border: none;
+    color: #fff;
+}
 
-        .uniform-btn.btn-primary:hover {
-            background: linear-gradient(45deg, #e65b50, #ff6f61);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-        }
+.uniform-btn.btn-primary:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
 
-    .uniform-btn.btn-secondary {
-        background: #6c757d;
-        border: none;
-        color: #fff;
-    }
+.uniform-btn.btn-secondary {
+    background: #6c757d;
+    border: none;
+    color: #fff;
+}
 
-        .uniform-btn.btn-secondary:hover {
-            background: #5a6268;
-        }
+.uniform-btn.btn-secondary:hover {
+    background: #5a6268;
+}
 
 /* Hiệu ứng fadeIn */
 @keyframes fadeIn {
@@ -1386,6 +1506,7 @@ footer {
         font-size: 1.5rem;
     }
 }
+
 /* Khung bao quanh trang chọn công việc */
 .job-selection-container {
     max-width: 800px;
@@ -1393,7 +1514,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1463,7 +1585,7 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; 
+    border: 3px solid #28a745;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1509,6 +1631,7 @@ footer {
         transform: translateY(0);
     }
 }
+
 /* Khung bao quanh trang danh sách ứng viên */
 .application-list-container {
     max-width: 800px;
@@ -1516,7 +1639,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1562,6 +1686,7 @@ footer {
         font-size: 1.5rem;
     }
 }
+
 /* Khung bao quanh trang lên lịch phỏng vấn */
 .interview-schedule-container {
     max-width: 800px;
@@ -1569,7 +1694,8 @@ footer {
     background-color: #ffffff;
     padding: 30px 40px;
     border-radius: 10px;
-    border: 3px solid #28a745; /* Viền ngoài cùng màu xanh lá */
+    border: 3px solid #28a745;
+    /* Viền ngoài cùng màu xanh lá */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.5s ease-out;
 }
@@ -1591,12 +1717,12 @@ footer {
     margin-bottom: 20px;
 }
 
-    .interview-schedule-container .form-group label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 5px;
-        display: block;
-    }
+.interview-schedule-container .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
 
 .interview-schedule-container .form-control {
     border: 1px solid #e0e0e0;
@@ -1620,26 +1746,26 @@ footer {
     min-width: 120px;
 }
 
-    .uniform-btn.btn-primary {
-        background: linear-gradient(45deg, #ff6f61, #e65b50);
-        border: none;
-        color: #fff;
-    }
+.uniform-btn.btn-primary {
+    background: linear-gradient(45deg, #ff6f61, #e65b50);
+    border: none;
+    color: #fff;
+}
 
-        .uniform-btn.btn-primary:hover {
-            background: linear-gradient(45deg, #e65b50, #ff6f61);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-        }
+.uniform-btn.btn-primary:hover {
+    background: linear-gradient(45deg, #e65b50, #ff6f61);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
 
-    .uniform-btn.btn-secondary {
-        background: #6c757d;
-        border: none;
-        color: #fff;
-    }
+.uniform-btn.btn-secondary {
+    background: #6c757d;
+    border: none;
+    color: #fff;
+}
 
-        .uniform-btn.btn-secondary:hover {
-            background: #5a6268;
-        }
+.uniform-btn.btn-secondary:hover {
+    background: #5a6268;
+}
 
 /* Hiệu ứng fadeIn */
 @keyframes fadeIn {

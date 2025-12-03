@@ -53,7 +53,7 @@ namespace DoAn_Web.Controllers
                 }
                 await _context.SaveChangesAsync();
             }
-            int pageSize = 3; // Số lượng công việc hiển thị mỗi trang
+            int pageSize = 4; // Số lượng công việc hiển thị mỗi trang
             var totalJobs = await _context.JobPostings
                 .Where(j => j.IsActive == true && j.IsApproved == true)
                 .CountAsync(); // Đếm tổng số công việc

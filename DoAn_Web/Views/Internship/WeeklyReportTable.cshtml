@@ -4,13 +4,11 @@
     ViewData["Title"] = "Báo cáo thực tập hàng tuần";
 }
 
-<div class="container mt-4">
-    <h2>Báo cáo thực tập hàng tuần</h2>
+<div class="application-list-container">
+    <h2 class="company-profile-title">Báo cáo thực tập hàng tuần</h2>
 
     <div class="card mb-4">
-        <div class="card-header">
-            <h4>Thông tin thực tập</h4>
-        </div>
+
         <div class="card-body">
             <p><strong>Sinh viên:</strong> @Model.Student.FullName</p>
             <p><strong>Công ty:</strong> @Model.Company.Name</p>

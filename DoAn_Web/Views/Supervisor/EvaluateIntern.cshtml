@@ -1,78 +1,77 @@
 @model DoAn_Web.Models.SupervisorEvaluation
 
-<div class="container mt-4 admin-container">
+<div class="application-list-container">
     <div style="background:#fff; border-radius:14px; padding:24px; box-shadow:0 12px 30px rgba(0,0,0,0.06);">
         <div style="display:flex; gap:1.25rem; align-items:flex-start;">
             <div style="flex:1;">
-                <h3 style="margin:0 0 .5rem 0;">Đánh giá sinh viên thực tập</h3>
-                <div style="color:#6b7280; margin-bottom:1rem;">Điền thông tin đánh giá cho sinh viên, điểm từ 0 (kém) đến 100 (xuất sắc).</div>
+                <h3 class="company-profile-title"">Đánh giá sinh viên thực tập</h3>
+                <h5 style=" margin:0 0 .5rem 0;">Thông tin sinh viên</h5>
+                    <div
+                        style="background:#fbfbfd; padding:12px; border-radius:10px; border:1px solid #eef2f6; margin-bottom:1rem;">
 
-                <div style="background:#fbfbfd; padding:12px; border-radius:10px; border:1px solid #eef2f6; margin-bottom:1rem;">
-                    <h5 style="margin:0 0 .5rem 0;">Thông tin sinh viên</h5>
-                    <div style="display:flex; gap:1rem;">
-                        <div style="flex:1; color:#374151;">
-                            <div><strong>Họ tên:</strong> @ViewBag.StudentName</div>
-                            <div><strong>MSSV:</strong> @ViewBag.StudentCode</div>
-                        </div>
-                        <div style="flex:1; color:#374151;">
-                            <div><strong>Công ty:</strong> @ViewBag.CompanyName</div>
-                            <div><strong>Thời gian thực tập:</strong> @ViewBag.Duration</div>
-                        </div>
-                    </div>
-                </div>
-
-                <form asp-action="EvaluateIntern" method="post" id="evalForm">
-                    <input type="hidden" name="internshipId" value="@ViewBag.InternshipId" />
-
-                    <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
-                        <div style="flex:1;">
-                            <label class="form-label" style="font-weight:600;">Điểm đánh giá (0-10)</label>
-                            <input type="number" id="scoreInput" name="score" class="form-control" min="0" max="10" step="1" required />
-                        </div>
-                        <div style="width:180px; text-align:center;">
-                            <div id="scoreCircle" class="score-circle" style="margin:0 auto 0.5rem auto;">
-                                <div class="value">--</div>
+                        <div style="display:flex;flex-direction: column;">
+                            <div style="flex:1; color:#374151;font-size:1.2rem;">
+                                <div><strong>Họ tên:</strong> @ViewBag.StudentName</div>
+                                <div><strong>MSSV:</strong> @ViewBag.StudentCode</div>
+                                <div><strong>Công ty:</strong> @ViewBag.CompanyName</div>
+                                <div><strong>Thời gian thực tập:</strong> @ViewBag.Duration</div>
                             </div>
-                            <div class="stars" id="scoreStars" style="justify-content:center;"></div>
                         </div>
                     </div>
 
-                    <div style="margin-bottom:1rem;">
-                        <label class="form-label" style="font-weight:600;">Nhận xét chi tiết</label>
-                        <textarea id="comments" name="comments" class="form-control" rows="6" required></textarea>
-                    </div>
+                    <form asp-action="EvaluateIntern" method="post" id="evalForm">
+                        <input type="hidden" name="internshipId" value="@ViewBag.InternshipId" />
 
-                    <div style="display:flex; justify-content:space-between; gap:1rem;">
-                        <a href="@Url.Action("StudentList")" class="btn btn-outline-dark uniform-btn">
-                            <i class="fas fa-arrow-left"></i> Quay lại
-                        </a>
-                        <button type="submit" class="btn btn-primary uniform-btn">
-                            <i class="fas fa-save"></i> Lưu đánh giá
-                        </button>
-                    </div>
-                </form>
+                        <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
+                            <div style="flex:1;">
+                                <label class="form-label" style="font-weight:600;">Điểm đánh giá (0-10)</label>
+                                <input type="number" id="scoreInput" name="score" class="form-control" min="0" max="10"
+                                    step="1" required />
+                            </div>
+                            <div style="width:180px; text-align:center;">
+                                <div id="scoreCircle" class="score-circle" style="margin:0 auto 0.5rem auto;">
+                                    <div class="value">--</div>
+                                </div>
+                                <div class="stars" id="scoreStars" style="justify-content:center;"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:1rem;">
+                            <label class="form-label" style="font-weight:600;">Nhận xét chi tiết</label>
+                            <textarea id="comments" name="comments" class="form-control" rows="6" required></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; gap:1rem;">
+                            <a href="@Url.Action("StudentList")" class="btn btn-outline-dark uniform-btn">
+                                <i class="fas fa-arrow-left icon-back "></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary uniform-btn">
+                                <i class="fas fa-save icon-back"></i> Lưu đánh giá
+                            </button>
+                        </div>
+                    </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    (function(){
+    (function () {
         const scoreInput = document.getElementById('scoreInput');
         const scoreCircle = document.getElementById('scoreCircle');
         const starsWrap = document.getElementById('scoreStars');
 
-        function renderStars(score){
-            const stars = Math.round((score||0)/2);
+        function renderStars(score) {
+            const stars = Math.round((score || 0) / 2);
             starsWrap.innerHTML = '';
-            for(let i=1;i<=5;i++){
+            for (let i = 1; i <= 5; i++) {
                 const iEl = document.createElement('i');
-                iEl.className = 'fas fa-star' + (i<=stars ? '' : ' empty');
+                iEl.className = 'fas fa-star' + (i <= stars ? '' : ' empty');
                 starsWrap.appendChild(iEl);
             }
         }
 
-        function renderScore(val){
+        function renderScore(val) {
             const v = parseInt(val);
             const valueEl = scoreCircle.querySelector('.value');
             if (isNaN(v)) { valueEl.textContent = '--'; scoreCircle.classList.remove('rejected'); }
@@ -80,7 +79,7 @@
             renderStars(v);
         }
 
-        scoreInput && scoreInput.addEventListener('input', (e)=> renderScore(e.target.value));
+        scoreInput && scoreInput.addEventListener('input', (e) => renderScore(e.target.value));
         // initialize if prefilled
         renderScore(scoreInput && scoreInput.value);
     })();
@@ -88,12 +87,50 @@
 
 <style>
     /* small page-scoped tweaks */
-    .form-control { padding:.6rem; border-radius:8px; border:1px solid #e6e9eb; }
-    .score-circle { width:92px; height:92px; border-radius:50%; background:linear-gradient(180deg,#ffffff,#f1fbf6); display:flex; align-items:center; justify-content:center; border:2px solid #e6f3ea; box-shadow:0 6px 18px rgba(0,0,0,0.03); margin:0 auto; }
-    .score-circle .value { font-size:1.25rem; font-weight:800; color:#157347; }
-    .score-circle.rejected { background: linear-gradient(180deg,#fff7f7,#fff1f1); border:2px solid #f5c6cb; }
-    .score-circle.rejected .value { color:#c82333; }
-    .stars i { color:#ffd166; margin:0 .12rem; }
-    .stars .empty { color:#e6e6e6; }
-    .uniform-btn { min-width:120px; }
+    .form-control {
+        padding: .6rem;
+        border-radius: 8px;
+        border: 1px solid #e6e9eb;
+    }
+
+    .score-circle {
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #ffffff, #f1fbf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #e6f3ea;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+        margin: 0 auto;
+    }
+
+    .score-circle .value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #157347;
+    }
+
+    .score-circle.rejected {
+        background: linear-gradient(180deg, #fff7f7, #fff1f1);
+        border: 2px solid #f5c6cb;
+    }
+
+    .score-circle.rejected .value {
+        color: #c82333;
+    }
+
+    .stars i {
+        color: #ffd166;
+        margin: 0 .12rem;
+    }
+
+    .stars .empty {
+        color: #e6e6e6;
+    }
+
+    .uniform-btn {
+        min-width: 120px;
+    }
 </style>

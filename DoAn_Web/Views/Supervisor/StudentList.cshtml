@@ -1,7 +1,7 @@
 @model List<DoAn_Web.Models.Internship>
 
-<div class="container mt-4 admin-container">
-    <h2 style="margin-bottom:1rem;">Danh sách sinh viên thực tập</h2>
+<div class="application-list-container">
+    <h2 class="company-profile-title">Danh sách sinh viên thực tập</h2>
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -43,7 +43,7 @@
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:.4rem;">
+                    <div style="display:flex; align-items: center; justify-content: center; ; gap:.4rem;">
                         <a href="@Url.Action("ViewStudentReports", "Supervisor", new { studentId = internship.StudentId })" class="btn btn-outline-dark btn-sm uniform-btn">Xem báo cáo</a>
                         @{
                             var hasEvaluation = internship.SupervisorEvaluation != null;
@@ -51,7 +51,7 @@
                         }
                         @if (!hasEvaluation)
                         {
-                            <a href="@Url.Action("EvaluateIntern", "Supervisor", new { internshipId = internship.InternshipId })" class="btn btn-primary btn-sm uniform-btn">Đánh giá</a>
+                            <a href="@Url.Action("EvaluateIntern", "Supervisor", new { internshipId = internship.InternshipId })" class="btn btn-primary btn-sm uniform-btn no-padding">Đánh giá</a>
                         }
                         else
                         {
@@ -59,7 +59,7 @@
                                 <div class="score-circle" style="width:44px; height:44px; border-width:2px;">
                                     <div class="value" style="font-size:.95rem;">@internship.SupervisorEvaluation.Score</div>
                                 </div>
-                                <div style="font-size:.9rem; color:#157347;">Đã đánh giá (@internship.SupervisorEvaluation.Score/10)</div>
+                                <div style="no-padding;font-size:.9rem; color:#157347;">Đã đánh giá (@internship.SupervisorEvaluation.Score/10)</div>
                             </div>
                         }
                         @if (hasCompanyEvaluation)
@@ -73,7 +73,7 @@
                             <form asp-action="MarkInternshipComplete" asp-controller="Supervisor" method="post" style="display:inline;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="internshipId" value="@internship.InternshipId" />
-                                <button type="submit" class="btn btn-outline-dark btn-sm uniform-btn" title="Đánh dấu hoàn thành" onclick="return confirm('Bạn có chắc muốn đánh dấu thực tập này là Hoàn thành? Hành động này sẽ cập nhật trạng thái và có thể thiết lập ngày kết thúc.')">Hoàn thành</button>
+                                <button type="submit" class="btn btn-outline-dark btn-sm uniform-btn btn-color" title="Đánh dấu hoàn thành" onclick="return confirm('Bạn có chắc muốn đánh dấu thực tập này là Hoàn thành? Hành động này sẽ cập nhật trạng thái và có thể thiết lập ngày kết thúc.')">Hoàn thành</button>
                             </form>
                         }
                     </div>

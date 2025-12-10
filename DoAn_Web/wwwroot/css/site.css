@@ -564,13 +564,24 @@ footer .d-flex {
     overflow: hidden;
     width: 100%;
     padding: 10px;
+    flex: 1;
 }
 
 .job-list-inner {
     transition: transform 0.5s ease-in-out;
     width: 100%;
-    min-height: 350px;
+    min-height: 400px;
     position: relative;
+}
+
+.job-list-inner .row {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.job-list-inner .col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
 }
 
 /* Hiệu ứng trượt khi vào */

@@ -35,9 +35,7 @@
                         @if (history == null)
                         {
                             <span class="badge bg-warning"><i class="fas fa-hourglass-half"></i> Chưa duyệt</span>
-                            <form method="post" asp-action="ApproveJob" asp-route-jobId="@job.JobId" style="display:inline;">
-                                <button type="submit" class="btn-approve btn-sm">Duyệt</button>
-                            </form>
+                                <button type="button" class="btn-approve btn-sm" onclick="showLegalBasisModal(@job.JobId, '@job.Title.Replace("'", "\\'")  ', '@(job.Company?.Name.Replace("'", "\\'") ?? "")')">Duyệt</button>
                             <form method="post" asp-action="RejectJob" asp-route-jobId="@job.JobId" style="display:inline;">
                                 <button type="submit" class="btn-reject btn-sm">Từ chối</button>
                             </form>
@@ -60,8 +58,350 @@
     }
 </div>
 
+<!-- Modal Cơ sở pháp lý -->
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.6);
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @@keyframes slideDown {
+        from { 
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .modal.show {
+        display: block !important;
+    }
+    
+    .modal-dialog {
+        position: relative;
+        width: auto;
+        max-width: 900px;
+        margin: 3rem auto;
+        animation: slideDown 0.4s ease;
+    }
+    
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        border: none;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        padding: 0.65rem 1.25rem;
+        border-bottom: none;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+    
+    .modal-header .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    
+    .modal-header .modal-title i {
+        font-size: 1.1rem;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #28a745;
+        border-radius: 10px;
+    }
+    
+    .modal-body .card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .modal-body .card:hover {
+        border-color: #28a745;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+        transform: translateX(5px);
+    }
+    
+    .modal-body .card-body {
+        padding: 1.25rem;
+    }
+    
+    .modal-body .card-title {
+        color: #28a745;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .modal-body .card-title i {
+        margin-right: 0.5rem;
+    }
+    
+    .modal-body .alert-info {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border: 2px solid #17a2b8;
+        border-radius: 10px;
+        padding: 1.25rem;
+        font-size: 0.95rem;
+    }
+    
+    .modal-body .alert-info i {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+        color: #17a2b8;
+    }
+    
+    #jobTitleInModal {
+        color: #28a745;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .modal-footer {
+        padding: 1.5rem 2rem;
+        border-top: 2px solid #e9ecef;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .modal-footer .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .modal-footer .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    }
+    
+    .modal-footer .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+    
+    .modal-footer .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+        opacity: 0.5;
+    }
+    
+    .btn-close {
+        background: transparent;
+        border: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        opacity: .8;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+    
+    .btn-close:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+    
+    #legalBasisContent .text-center {
+        padding: 2rem;
+        color: #28a745;
+    }
+    
+    #legalBasisContent .spinner-icon {
+        animation: spin 1s linear infinite;
+    }
+    
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="modal fade" id="legalBasisModal" tabindex="-1" aria-labelledby="legalBasisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #28a745; color: white;">
+                <h5 class="modal-title" id="legalBasisModalLabel"><i class="fas fa-gavel"></i> Cơ sở pháp lý về duyệt bài tuyển dụng</h5>
+            </div>
+            <div class="modal-body">
+                <div style="background: white; padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid #28a745;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #6c757d;"><i class="fas fa-briefcase" style="margin-right: 0.5rem;"></i> <strong>Bài đăng:</strong></p>
+                    <p style="margin: 0.5rem 0 0 0; font-weight: 600; color: #212529;"><span id="jobTitleInModal"></span></p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.95rem; color: #28a745;"><i class="fas fa-building" style="margin-right: 0.5rem;"></i><span id="companyNameInModal"></span></p>
+                </div>
+                
+                <h6 class="mb-3" style="font-size: 1.2rem; font-weight: 600; color: #495057;">
+                    <i class="fas fa-book" style="color: #28a745; margin-right: 0.5rem;"></i> Các quy định pháp lý liên quan
+                </h6>
+                
+                <div id="legalBasisContent">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-2x spinner-icon"></i>
+                        <p style="margin-top: 1rem; color: #6c757d;">Đang tải cơ sở pháp lý...</p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Lưu ý:</strong> Bằng việc duyệt bài đăng này, bạn xác nhận rằng nội dung tuân thủ các quy định pháp luật hiện hành về tuyển dụng và lao động.
+                </div>
+            </div>
+            <div class="modal-footer" style="flex-direction: column; align-items: flex-start; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="legalConfirmCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="legalConfirmCheckbox" style="margin: 0; cursor: pointer;">Tôi xác nhận đã đọc và đồng ý với các cơ sở pháp lý nêu trên</label>
+                </div>
+                <div style="display: flex; width: 100%; justify-content: flex-end; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
+                    <form method="post" id="approveJobForm" style="display:inline;">
+                        <button type="submit" id="approveSubmitBtn" class="btn btn-success" disabled><i class="fas fa-check"></i> Xác nhận duyệt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        function showLegalBasisModal(jobId, jobTitle, companyName) {
+            console.log('showLegalBasisModal called with:', jobId, jobTitle, companyName);
+            const modal = document.getElementById('legalBasisModal');
+            document.getElementById('jobTitleInModal').textContent = jobTitle;
+            document.getElementById('companyNameInModal').textContent = companyName || 'Không rõ';
+            document.getElementById('approveJobForm').action = '@Url.Action("ApproveJob", "Admin")' + '?jobId=' + jobId;
+            const approveBtn = document.getElementById('approveSubmitBtn');
+            const confirmCheckbox = document.getElementById('legalConfirmCheckbox');
+            if (approveBtn) approveBtn.disabled = true;
+            if (confirmCheckbox) confirmCheckbox.checked = false;
+            
+            // Reset content
+            document.getElementById('legalBasisContent').innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x spinner-icon"></i><p>Đang tải cơ sở pháp lý...</p></div>';
+            
+            // Load legal basis
+            fetch('@Url.Action("GetLegalBasisForApproval", "Admin")')
+                .then(response => response.json())
+                .then(data => {
+                    let html = '';
+                    if (data.length === 0) {
+                        html = '<p class="text-muted">Không có cơ sở pháp lý nào được tìm thấy.</p>';
+                    } else {
+                        data.forEach((item, index) => {
+                            html += `
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <h6 class="card-title"><i class="fas fa-balance-scale"></i> ${item.title}</h6>
+                                        ${item.referenceCode ? `<p class="mb-1"><strong>Mã tham chiếu:</strong> ${item.referenceCode}</p>` : ''}
+                                        ${item.description ? `<p class="text-muted mb-2">${item.description}</p>` : ''}
+                                        ${item.documentUrl ? `<a href="${item.documentUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-external-link-alt"></i> Xem chi tiết</a>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    document.getElementById('legalBasisContent').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading legal basis:', error);
+                    document.getElementById('legalBasisContent').innerHTML = '<p class="text-danger">Lỗi khi tải cơ sở pháp lý.</p>';
+                });
+            
+            // Show modal using vanilla JS
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+            
+            // Add backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.id = 'modalBackdrop';
+            document.body.appendChild(backdrop);
+        }
+        
+        // Close modal function
+        function closeModal() {
+            const modal = document.getElementById('legalBasisModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            const backdrop = document.getElementById('modalBackdrop');
+            if (backdrop) backdrop.remove();
+        }
+        
+        // Close button handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+        });
+
         // Thêm hiệu ứng loading cho các nút chỉ trong dashboard
         document.querySelectorAll('#admin-dashboard form').forEach(form => {
             form.addEventListener('submit', function () {
@@ -72,5 +412,27 @@
                 }
             });
         });
+        
+        // Form approve trong modal
+        document.getElementById('approveJobForm').addEventListener('submit', function(e) {
+            const button = this.querySelector("button[type='submit']");
+            const confirmCheckbox = document.getElementById('legalConfirmCheckbox');
+            if (confirmCheckbox && !confirmCheckbox.checked) {
+                e.preventDefault();
+                alert('Vui lòng tick xác nhận đã đọc cơ sở pháp lý trước khi duyệt.');
+                return;
+            }
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang duyệt...';
+            button.disabled = true;
+        });
+
+        // Enable submit when checkbox checked
+        const confirmCheckbox = document.getElementById('legalConfirmCheckbox');
+        if (confirmCheckbox) {
+            confirmCheckbox.addEventListener('change', function() {
+                const approveBtn = document.getElementById('approveSubmitBtn');
+                if (approveBtn) approveBtn.disabled = !this.checked;
+            });
+        }
     </script>
 }

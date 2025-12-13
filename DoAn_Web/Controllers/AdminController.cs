@@ -137,6 +137,24 @@ namespace DoAn_Web.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetLegalBasisForApproval()
+        {
+            var legalBases = await _context.LegalBases
+                .Where(l => l.Category == "Tuyển dụng" || l.Category == "Xác minh doanh nghiệp" || l.Category == "Chống lừa đảo")
+                .OrderByDescending(l => l.IssuedDate)
+                .Take(5)
+                .Select(l => new {
+                    l.Title,
+                    l.ReferenceCode,
+                    l.Description,
+                    l.DocumentUrl
+                })
+                .ToListAsync();
+            
+            return Json(legalBases);
+        }
+
         [HttpPost]
         public async Task<IActionResult> ApproveJob(int jobId)
         {

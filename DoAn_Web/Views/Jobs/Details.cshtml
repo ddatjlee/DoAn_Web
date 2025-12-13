@@ -4,26 +4,570 @@
     ViewData["Title"] = "Chi tiết công việc";
 }
 
-<h2>@Model.Title</h2>
+<div class="account-management-container">
+    <div class="account-management-title">
+        <div>
+            <h2 class="job-title">@Model.Title</h2>
+            <p class="job-company"><i class="fas fa-building"></i> @Model.Company.Name</p>
+        </div>
+        <div class="job-deadline">
+            <span class="label">Hạn nộp</span>
+            <span class="value">@Model.ApplicationDeadline.ToString("dd/MM/yyyy")</span>
+        </div>
+    </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h5 class="card-title">@Model.Company.Name</h5>
-        <p class="card-text"><strong>Mức lương:</strong> @Model.SalaryRange</p>
-        <p class="card-text"><strong>Địa điểm:</strong> @(Model.Location != null ? $"{Model.Location.City}, {Model.Location.Country}" : "Không xác định")</p>
-        <p class="card-text"><strong>Loại công việc:</strong> @Model.JobType.Name</p>
-        <p class="card-text"><strong>Mức độ kinh nghiệm:</strong> @Model.Level.Name</p>
-        <p class="card-text"><strong>Mô tả:</strong> @Model.Description</p>
-        <p class="card-text"><strong>Yêu cầu:</strong> @Model.Requirements</p>
-        <p class="card-text"><strong>Lợi ích:</strong> @Model.Benefits</p>
-        <p class="card-text"><strong>Hạn nộp:</strong> @Model.ApplicationDeadline.ToString("dd/MM/yyyy")</p>
-        <p class="card-text"><strong>Số lượng tuyển:</strong> @Model.Vacancies</p>
+    <div class="job-info-grid">
+        <div class="info-row">
+            <span class="label">Mức lương</span>
+            <span class="value">@Model.SalaryRange</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Địa điểm</span>
+            <span class="value">@(Model.Location != null ? $"{Model.Location.City}, {Model.Location.Country}" : "Không xác định")</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Loại công việc</span>
+            <span class="value">@Model.JobType.Name</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Kinh nghiệm</span>
+            <span class="value">@Model.Level.Name</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Số lượng tuyển</span>
+            <span class="value">@Model.Vacancies</span>
+        </div>
+    </div>
 
-        <a asp-controller="Jobs" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <div class="job-section">
+        <h5><i class="fas fa-info-circle"></i> Mô tả công việc</h5>
+        <p>@Model.Description</p>
+    </div>
+
+    <div class="job-section">
+        <h5><i class="fas fa-tasks"></i> Yêu cầu</h5>
+        <p>@Model.Requirements</p>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Benefits))
+    {
+        <div class="job-section">
+            <h5><i class="fas fa-gift"></i> Lợi ích</h5>
+            <p>@Model.Benefits</p>
+        </div>
+    }
+
+    <div class="job-actions">
+        @if (Context.Session.GetInt32("AdminId") != null)
+        {
+            <button type="button"
+                    class="btn btn-success"
+                    onclick="showLegalBasisModal(@Model.JobId, '@Model.Title.Replace("'", "\\'")', '@(Model.Company?.Name?.Replace("'", "\\'") ?? "")')"
+                    @(Model.IsApproved == true ? "disabled" : "")>
+                @(Model.IsApproved == true ? "Đã duyệt" : "Duyệt")
+            </button>
+        }
+
+        <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
 
         @if (Context.Session.GetString("StudentCode") != null)
         {
-                <a asp-controller="Applications" asp-action="Create" asp-route-jobId="@Model.JobId" class="btn btn-primary">Ứng tuyển ngay</a>
+            <a asp-controller="Applications" asp-action="Create" asp-route-jobId="@Model.JobId" class="btn btn-success">Ứng tuyển ngay</a>
         }
     </div>
 </div>
+
+@if (Context.Session.GetInt32("AdminId") != null)
+{
+    <div class="modal legal-modal fade" id="legalBasisModal" tabindex="-1" aria-labelledby="legalBasisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="legalBasisModalLabel"><i class="fas fa-gavel"></i> Cơ sở pháp lý về duyệt bài tuyển dụng</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="legal-modal-job">
+                        <p class="label"><i class="fas fa-briefcase"></i> Bài đăng</p>
+                        <p class="title" id="jobTitleInModal"></p>
+                        <p class="company"><i class="fas fa-building"></i><span id="companyNameInModal"></span></p>
+                    </div>
+
+                    <h6 class="legal-heading"><i class="fas fa-book"></i> Các quy định pháp lý liên quan</h6>
+
+                    <div id="legalBasisContent" class="legal-basis-content">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin fa-2x spinner-icon"></i>
+                            <p>Đang tải cơ sở pháp lý...</p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info legal-note">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Lưu ý:</strong> Duyệt bài đồng nghĩa bạn xác nhận nội dung tuân thủ quy định pháp luật hiện hành.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer legal-footer">
+                    <div class="legal-checkbox">
+                        <input type="checkbox" id="legalConfirmCheckbox">
+                        <label for="legalConfirmCheckbox">Tôi xác nhận đã đọc và đồng ý với các cơ sở pháp lý nêu trên</label>
+                    </div>
+                    <div class="legal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
+                        <form method="post" id="approveJobForm" style="display:inline;">
+                            <button type="submit" id="approveSubmitBtn" class="btn btn-success" disabled><i class="fas fa-check"></i> Xác nhận duyệt</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .job-detail-wrapper {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        max-width: 900px;
+    }
+
+    .job-detail-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .job-title {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #ff6f61;
+    }
+
+    .job-company {
+        margin: 6px 0 0 0;
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .job-company i {
+        margin-right: 6px;
+    }
+
+    .job-deadline {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        min-width: 160px;
+        text-align: center;
+    }
+
+    .job-deadline .label {
+        display: block;
+        color: #6c757d;
+        font-size: 0.75rem;
+    }
+
+    .job-deadline .value {
+        display: block;
+        font-weight: 600;
+        color: #212529;
+        margin-top: 4px;
+        font-size: 0.95rem;
+    }
+
+    .job-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .info-row {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px;
+        background: #fdfefe;
+    }
+
+    .info-row .label {
+        display: block;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .info-row .value {
+        display: block;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .job-section {
+        margin-top: 16px;
+        padding: 14px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .job-section h5 {
+        margin: 0 0 8px 0;
+        font-size: 1.05rem;
+        color: #28a745;
+        font-weight: 700;
+    }
+
+    .job-section h5 i {
+        margin-right: 6px;
+    }
+
+    .job-section p {
+        margin: 0;
+        color: #343a40;
+        line-height: 1.5;
+    }
+
+    .job-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: nowrap;
+    }
+
+    .job-actions .btn {
+        white-space: nowrap;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+    }
+
+    .btn-success:hover {
+        filter: brightness(0.95);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+    }
+
+    .legal-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background-color: rgba(0,0,0,0.6);
+        overflow-y: auto;
+        padding: 2rem 1rem;
+        animation: legalFadeIn 0.3s ease;
+    }
+
+    @@keyframes legalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes legalSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .legal-modal.show {
+        display: block !important;
+    }
+
+    .legal-modal .modal-dialog {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .legal-modal .modal-content {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        overflow: hidden;
+    }
+
+    .legal-modal .modal-header {
+        padding: 0.65rem 1.25rem;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .legal-modal .modal-title {
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .legal-modal .modal-body {
+        padding: 1.75rem;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+
+    .legal-modal .legal-modal-job {
+        background: #fff;
+        padding: 1.1rem 1.25rem;
+        border-radius: 12px;
+        border-left: 4px solid #28a745;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .legal-modal .legal-modal-job .label {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .legal-modal .legal-modal-job .title {
+        margin: 0.4rem 0 0 0;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .legal-modal .legal-modal-job .company {
+        margin: 0.2rem 0 0 0;
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .legal-modal .legal-modal-job .company i {
+        margin-right: 0.5rem;
+    }
+
+    .legal-modal .legal-heading {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #495057;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legal-modal .legal-heading i {
+        color: #28a745;
+    }
+
+    .legal-modal .legal-basis-content .card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .legal-modal .legal-basis-content .card:hover {
+        border-color: #28a745;
+        box-shadow: 0 4px 12px rgba(40,167,69,0.15);
+        transform: translateX(4px);
+    }
+
+    .legal-modal .legal-basis-content .card-body {
+        padding: 1.1rem 1.25rem;
+    }
+
+    .legal-modal .legal-basis-content .card-title {
+        color: #28a745;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .legal-modal .legal-basis-content .card-title i {
+        margin-right: 0.5rem;
+    }
+
+    .legal-modal .legal-note {
+        margin-top: 1.25rem;
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+    }
+
+    .legal-modal .legal-note i {
+        color: #17a2b8;
+        margin-top: 0.15rem;
+    }
+
+    .legal-modal .spinner-icon {
+        animation: legalSpin 1s linear infinite;
+        color: #28a745;
+    }
+
+    .legal-modal .legal-footer {
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .legal-modal .legal-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legal-modal .legal-actions {
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .legal-modal button.btn-secondary {
+        background: #6c757d;
+        border: none;
+    }
+
+    .legal-modal button.btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    .legal-modal button.btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+    }
+
+    @@media (max-width: 576px) {
+        .job-detail-header {
+            flex-direction: column;
+        }
+        .job-deadline {
+            width: 100%;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function showLegalBasisModal(jobId, jobTitle, companyName) {
+            const modal = document.getElementById('legalBasisModal');
+            const jobTitleInModal = document.getElementById('jobTitleInModal');
+            const companyNameInModal = document.getElementById('companyNameInModal');
+            const approveForm = document.getElementById('approveJobForm');
+            const approveBtn = document.getElementById('approveSubmitBtn');
+            const confirmCheckbox = document.getElementById('legalConfirmCheckbox');
+
+            if (jobTitleInModal) jobTitleInModal.textContent = jobTitle;
+            if (companyNameInModal) companyNameInModal.textContent = companyName || 'Không rõ';
+            if (approveForm) approveForm.action = '@Url.Action("ApproveJob", "Admin")' + '?jobId=' + jobId;
+            if (approveBtn) approveBtn.disabled = true;
+            if (confirmCheckbox) confirmCheckbox.checked = false;
+
+            const content = document.getElementById('legalBasisContent');
+            if (content) {
+                content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x spinner-icon"></i><p>Đang tải cơ sở pháp lý...</p></div>';
+            }
+
+            fetch('@Url.Action("GetLegalBasisForApproval", "Admin")')
+                .then(response => response.json())
+                .then(data => {
+                    if (!content) return;
+                    if (!data || data.length === 0) {
+                        content.innerHTML = '<p class="text-muted">Không có cơ sở pháp lý nào được tìm thấy.</p>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.forEach(item => {
+                        html += `
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="fas fa-balance-scale"></i> ${item.title}</h6>
+                                    ${item.referenceCode ? `<p class="mb-1"><strong>Mã tham chiếu:</strong> ${item.referenceCode}</p>` : ''}
+                                    ${item.description ? `<p class="text-muted mb-2">${item.description}</p>` : ''}
+                                    ${item.documentUrl ? `<a href="${item.documentUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-external-link-alt"></i> Xem chi tiết</a>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    content.innerHTML = html;
+                })
+                .catch(() => {
+                    if (content) content.innerHTML = '<p class="text-danger">Lỗi khi tải cơ sở pháp lý.</p>';
+                });
+
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+            document.body.classList.add('modal-open');
+
+            if (!document.getElementById('modalBackdrop')) {
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.id = 'modalBackdrop';
+                document.body.appendChild(backdrop);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('legalBasisModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+            document.body.classList.remove('modal-open');
+            const backdrop = document.getElementById('modalBackdrop');
+            if (backdrop) backdrop.remove();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const confirmCheckbox = document.getElementById('legalConfirmCheckbox');
+            const approveBtn = document.getElementById('approveSubmitBtn');
+            if (confirmCheckbox && approveBtn) {
+                confirmCheckbox.addEventListener('change', function () {
+                    approveBtn.disabled = !this.checked;
+                });
+            }
+
+            const approveForm = document.getElementById('approveJobForm');
+            if (approveForm) {
+                approveForm.addEventListener('submit', function (e) {
+                    const checkbox = document.getElementById('legalConfirmCheckbox');
+                    const submitButton = document.getElementById('approveSubmitBtn');
+                    if (checkbox && !checkbox.checked) {
+                        e.preventDefault();
+                        alert('Vui lòng tick xác nhận đã đọc cơ sở pháp lý trước khi duyệt.');
+                        return;
+                    }
+                    if (submitButton) {
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang duyệt...';
+                        submitButton.disabled = true;
+                    }
+                });
+            }
+        });
+    </script>
+}

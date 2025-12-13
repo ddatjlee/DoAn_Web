@@ -359,6 +359,8 @@ namespace DoAn_Web.Controllers
             var report = await _context.WeeklyReports
                 .Include(r => r.Internship)
                 .ThenInclude(i => i.Student)
+                .Include(r => r.Internship)
+                .ThenInclude(i => i.Company)
                 .FirstOrDefaultAsync(r => r.ReportId == reportId);
 
             if (report == null)

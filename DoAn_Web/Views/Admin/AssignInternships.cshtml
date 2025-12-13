@@ -4,84 +4,76 @@
     ViewData["Title"] = "Phân công thực tập";
 }
 
-<div class="container mt-4">
-    <h2>Phân công sinh viên thực tập</h2>
-    <link rel="stylesheet" href="~/css/assign-custom.css" asp-append-version="true" />
-    <!-- Flatpickr date picker (lightweight, no Bootstrap) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="~/css/assign-custom.css" asp-append-version="true" />
 
-    <div class="assign-card">
-        <div class="assign-card-header">
-            <h4 class="mb-0">Danh sách đơn được chấp nhận</h4>
+<div class="account-management-container">
+    <h2 class="account-management-title">Phân công sinh viên thực tập</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="alert">@TempData["SuccessMessage"]</div>
+    }
+    else if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Không có đơn ứng tuyển nào được chấp nhận đang chờ phân công.
         </div>
-        <div class="assign-card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-            else if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-error">@TempData["ErrorMessage"]</div>
-            }
-
-            @if (!Model.Any())
-            {
-                <div class="alert alert-info">
-                    Không có đơn ứng tuyển nào được chấp nhận đang chờ phân công.
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="assign-table">
-                        <thead>
-                            <tr>
-                                <th>Sinh viên</th>
-                                <th>Công ty</th>
-                                <th>Vị trí thực tập</th>
-                                <th>Ngày ứng tuyển</th>
-                                <th class="text-center">Trạng thái</th>
-                                <th class="text-center">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var application in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        @application.Student.FullName<br/>
-                                        <small class="text-muted">@application.Student.StudentCode</small>
-                                    </td>
-                                    <td>@application.Job.Company.Name</td>
-                                    <td>@application.Job.Title</td>
-                                    <td>@application.AppliedAt?.ToString("dd/MM/yyyy")</td>
-                                    @{ 
-                                        var statusLower = (application.Status ?? "").ToLower();
-                                        var badgeClass = statusLower.Contains("approved") ? "success" :
-                                                         statusLower.Contains("accepted") ? "warning" :
-                                                         statusLower.Contains("assigned") ? "primary" : "secondary";
-                                    }
-                                    <td style="text-align:center">
-                                        <span class="assign-badge @badgeClass">@application.Status</span>
-                                    </td>
-                                    <td style="text-align:center">
-                                        <button type="button" class="btn-custom" 
-                                                data-modal-open="assignModalBackdrop"
-                                                data-application-id="@application.ApplicationId"
-                                                data-student-name="@application.Student.FullName"
-                                                data-company-name="@application.Job.Company.Name"
-                                                aria-label="Phân công @application.Student.FullName">
-                                            Phân công
-                                        </button>
-                                    </td>
-                                </tr>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Sinh viên</th>
+                        <th>Công ty</th>
+                        <th>Vị trí thực tập</th>
+                        <th>Ngày ứng tuyển</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var application in Model)
+                    {
+                        <tr>
+                            <td>
+                                @application.Student.FullName<br/>
+                                <small class="text-muted">@application.Student.StudentCode</small>
+                            </td>
+                            <td>@application.Job.Company.Name</td>
+                            <td>@application.Job.Title</td>
+                            <td>@application.AppliedAt?.ToString("dd/MM/yyyy")</td>
+                            @{ 
+                                var statusLower = (application.Status ?? "").ToLower();
+                                var badgeClass = statusLower.Contains("approved") ? "success" :
+                                                 statusLower.Contains("accepted") ? "warning" :
+                                                 statusLower.Contains("assigned") ? "primary" : "secondary";
                             }
-                        </tbody>
-                    </table>
-                </div>
-            }
+                            <td>
+                                <span class="badge bg-@(badgeClass == "warning" ? "warning" : badgeClass == "primary" ? "info" : badgeClass)">@application.Status</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-info uniform-btn" 
+                                        data-modal-open="assignModalBackdrop"
+                                        data-application-id="@application.ApplicationId"
+                                        data-student-name="@application.Student.FullName"
+                                        data-company-name="@application.Job.Company.Name"
+                                        aria-label="Phân công @application.Student.FullName">
+                                    Phân công
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </div>
+    }
 </div>
 
 <!-- Custom modal phân công (no Bootstrap) -->

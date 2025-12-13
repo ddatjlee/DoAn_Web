@@ -1,59 +1,118 @@
 @model List<DoAn_Web.Models.WeeklyReport>
 
-<div class="container mt-4 admin-container">
-    <h2 style="margin-bottom:1rem;">Báo cáo thực tập của sinh viên: <span style="color:#2c3e50;">@ViewBag.StudentName</span></h2>
+<div class="account-management-container">
+    <h2 class="account-management-title">Báo cáo thực tập: @ViewBag.StudentName</h2>
 
     @if (Model != null && Model.Any())
     {
-        <div class="weekly-report-list">
-            @foreach (var report in Model.OrderBy(r => r.WeekNumber))
-            {
-                <div class="weekly-row">
-                    <div class="week-col">
-                        <strong>Tuần @report.WeekNumber</strong>
-                        <small>@report.ReportDate.ToString("dd/MM/yyyy HH:mm")</small>
-                    </div>
-
-                    <div class="content-col">
-                        <div style="font-weight:700; color:#343a40; margin-bottom:.25rem;">Tóm tắt báo cáo</div>
-                        <div style="color:#495057;">@((report.Content?.Length > 220) ? report.Content.Substring(0,220) + "..." : report.Content)</div>
-                    </div>
-
-                    <div class="status-col">
-                        @switch (report.Status?.ToLower())
-                        {
-                            case "pending":
-                                <span class="status-pill pending">Chờ duyệt</span>
-                                break;
-                            case "approved":
-                                <span class="status-pill submitted">Đã duyệt</span>
-                                break;
-                            case "rejected":
-                                <span class="status-pill rejected">Từ chối</span>
-                                break;
-                            default:
-                                <span class="status-pill">@report.Status</span>
-                                break;
-                        }
-                        <div style="margin-top:.6rem;">
-                            <a href="@Url.Action("ReviewReport", "Supervisor", new { reportId = report.ReportId })" class="btn btn-primary btn-sm uniform-btn">
-                                <i class="fas fa-eye"></i> Xem chi tiết
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Tuần</th>
+                        <th>Ngày báo cáo</th>
+                        <th>Nội dung (tóm tắt)</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model.OrderBy(r => r.WeekNumber))
+                    {
+                        <tr>
+                            <td>
+                                <strong>Tuần @report.WeekNumber</strong>
+                            </td>
+                            <td>@report.ReportDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="report-summary">@((report.Content?.Length > 100) ? report.Content.Substring(0, 100) + "..." : report.Content)</span>
+                            </td>
+                            <td>
+                                @switch (report.Status?.ToLower())
+                                {
+                                    case "pending":
+                                        <span class="status-text pending">Chờ duyệt</span>
+                                        break;
+                                    case "approved":
+                                        <span class="status-text approved">Đã duyệt</span>
+                                        break;
+                                    case "rejected":
+                                        <span class="status-text rejected">Từ chối</span>
+                                        break;
+                                    default:
+                                        <span class="status-text">@report.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("ReviewReport", "Supervisor", new { reportId = report.ReportId })" class="btn btn-info uniform-btn btn-sm">
+                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
     else
     {
-        <div class="evaluation-empty">Sinh viên chưa có báo cáo nào.</div>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Sinh viên chưa có báo cáo nào.
+        </div>
     }
 </div>
 
 <style>
-    /* small scoped tweaks for this page */
-    .weekly-report-list { margin-top:.5rem; }
-    .weekly-row { align-items:center; }
-    .week-col small { display:block; color:#6c757d; margin-top:.25rem; }
+    .report-summary {
+        color: #495057;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .account-management-container .table {
+        table-layout: auto;
+        width: 100%;
+    }
+
+    .account-management-container .table th:nth-child(1) {
+        width: 12%;
+    }
+
+    .account-management-container .table th:nth-child(2) {
+        width: 12%;
+    }
+
+    .account-management-container .table th:nth-child(3) {
+        width: 40%;
+    }
+
+    .account-management-container .table th:nth-child(4) {
+        width: 12%;
+    }
+
+    .account-management-container .table th:nth-child(5) {
+        width: 24%;
+    }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
+
+    .status-text {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .status-text.pending {
+        color: #ff9800;
+    }
+
+    .status-text.approved {
+        color: #28a745;
+    }
+
+    .status-text.rejected {
+        color: #dc3545;
+    }
 </style>

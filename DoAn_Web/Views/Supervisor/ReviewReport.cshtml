@@ -1,106 +1,272 @@
 @model DoAn_Web.Models.WeeklyReport
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <!-- Thông tin báo cáo -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Chi tiết báo cáo tuần @Model.WeekNumber</h4>
-                    <a href="@Url.Action("ViewStudentReports", new { studentId = Model.Internship.StudentId })" class="btn btn-light btn-sm">
-                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Sinh viên:</strong> @Model.Internship.Student.FullName (@Model.Internship.Student.StudentCode)</p>
-                            <p><strong>Công ty:</strong> @Model.Internship.Company.Name</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Ngày báo cáo:</strong> @Model.ReportDate.ToString("dd/MM/yyyy HH:mm")</p>
-                            <p><strong>Trạng thái hiện tại:</strong> 
-                                @switch (Model.Status?.ToLower())
-                                {
-                                    case "pending":
-                                        <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                                        break;
-                                    case "approved":
-                                        <span class="badge bg-success">Đã duyệt</span>
-                                        break;
-                                    case "rejected":
-                                        <span class="badge bg-danger">Đã từ chối</span>
-                                        break;
-                                    default:
-                                        <span class="badge bg-secondary">@Model.Status</span>
-                                        break;
-                                }
-                            </p>
-                        </div>
-                    </div>
+<div class="account-management-container">
+    <a href="@Url.Action("ViewStudentReports", new { studentId = Model.Internship.StudentId })" style="margin-bottom: 20px; display: inline-block; color: #28a745; text-decoration: none; font-weight: 600;">
+        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+    </a>
 
-                    <div class="mb-4">
-                        <h5 class="text-primary">Nội dung báo cáo:</h5>
-                        <div class="p-3 bg-light border rounded" style="min-height: 200px;">
-                            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">@Model.Content</pre>
-                        </div>
-                    </div>
+    <h2 class="account-management-title">Chi tiết báo cáo tuần @Model.WeekNumber</h2>
 
-                    @if (!string.IsNullOrEmpty(Model.SupervisorComment))
-                    {
-                        <div class="mb-4">
-                            <h5 class="text-success">Nhận xét đã có:</h5>
-                            <div class="p-3 border rounded @(Model.Status?.ToLower() == "approved" ? "bg-success-subtle border-success" : "bg-danger-subtle border-danger")">
-                                <p class="mb-1">@Model.SupervisorComment</p>
-                                <small class="text-muted">Đánh giá lúc: @Model.ReviewedAt?.ToString("dd/MM/yyyy HH:mm")</small>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Khu vực duyệt báo cáo (chỉ hiện khi chưa duyệt) -->
-            @if (string.IsNullOrEmpty(Model.Status) || Model.Status?.ToLower() == "pending" || Model.Status?.ToLower() != "approved" && Model.Status?.ToLower() != "rejected")
-            {
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0"><i class="fas fa-tasks"></i> Duyệt báo cáo</h5>
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="ReviewReport" method="post">
-                            <input type="hidden" name="reportId" value="@Model.ReportId" />
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nhận xét của giảng viên: <span class="text-danger">*</span></label>
-                                <textarea name="comment" class="form-control" rows="4" 
-                                          placeholder="Nhập nhận xét về báo cáo của sinh viên..." required></textarea>
-                                <div class="form-text">Vui lòng nhập nhận xét chi tiết để sinh viên hiểu rõ đánh giá của bạn.</div>
-                            </div>
-                            
-                            <div class="d-flex gap-3 justify-content-center">
-                                <button type="submit" name="decision" value="approve" class="btn btn-success btn-lg">
-                                    <i class="fas fa-check-circle"></i> Duyệt báo cáo
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            }
+    <div class="report-info-grid">
+        <div class="info-row">
+            <span class="label">Sinh viên</span>
+            <span class="value">@Model.Internship.Student.FullName<br><small style="color: #6c757d;">@Model.Internship.Student.StudentCode</small></span>
+        </div>
+        <div class="info-row">
+            <span class="label">Công ty</span>
+            <span class="value">@Model.Internship.Company.Name</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Ngày báo cáo</span>
+            <span class="value">@Model.ReportDate.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Trạng thái</span>
+            <span class="value">
+                @switch (Model.Status?.ToLower())
+                {
+                    case "pending":
+                        <span class="status-badge pending">Chờ duyệt</span>
+                        break;
+                    case "approved":
+                        <span class="status-badge approved">Đã duyệt</span>
+                        break;
+                    case "rejected":
+                        <span class="status-badge rejected">Đã từ chối</span>
+                        break;
+                    default:
+                        <span class="status-badge">@Model.Status</span>
+                        break;
+                }
+            </span>
         </div>
     </div>
+
+    <div class="report-section">
+        <h5><i class="fas fa-file-alt"></i> Nội dung báo cáo</h5>
+        <div class="report-content">
+            <pre>@Model.Content</pre>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SupervisorComment))
+    {
+        <div class="report-section feedback-section">
+            <h5><i class="fas fa-comment-dots"></i> Nhận xét từ giảng viên</h5>
+            <div class="feedback-box">
+                <p>@Model.SupervisorComment</p>
+                <small>Đánh giá lúc: @Model.ReviewedAt?.ToString("dd/MM/yyyy HH:mm")</small>
+            </div>
+        </div>
+    }
+
+    @if (string.IsNullOrEmpty(Model.Status) || Model.Status?.ToLower() == "pending")
+    {
+        <div class="report-section review-section">
+            <h5><i class="fas fa-tasks"></i> Duyệt báo cáo</h5>
+            <form asp-action="ReviewReport" method="post" class="review-form">
+                <input type="hidden" name="reportId" value="@Model.ReportId" />
+                
+                <div class="form-group-custom">
+                    <label for="comment">Nhận xét của giảng viên: <span class="text-danger">*</span></label>
+                    <textarea id="comment" name="comment" class="form-control-custom" rows="5" 
+                              placeholder="Nhập nhận xét chi tiết về báo cáo..." required></textarea>
+                    <small class="form-help-text">Nhập nhận xét để sinh viên hiểu rõ đánh giá của bạn.</small>
+                </div>
+                
+                <div class="review-actions">
+                    <button type="submit" name="decision" value="approve" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i> Duyệt báo cáo
+                    </button>
+                </div>
+            </form>
+        </div>
+    }
 </div>
 
 <style>
-    .bg-success-subtle {
-        background-color: #d1f2d1;
+    .report-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
     }
-    .bg-danger-subtle {
-        background-color: #f8d7da;
+
+    .info-row {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px;
+        background: #fdfefe;
     }
-    .border-success {
-        border-color: #198754 !important;
+
+    .info-row .label {
+        display: block;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
     }
-    .border-danger {
-        border-color: #dc3545 !important;
+
+    .info-row .value {
+        display: block;
+        font-weight: 600;
+        color: #212529;
+        font-size: 0.95rem;
     }
+
+    .report-section {
+        margin-top: 20px;
+        padding: 18px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .report-section h5 {
+        margin: 0 0 12px 0;
+        font-size: 1.1rem;
+        color: #28a745;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .report-section h5 i {
+        font-size: 1.15rem;
+    }
+
+    .report-content {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+    }
+
+    .report-content pre {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: #333;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .feedback-section h5 {
+        color: #20c997;
+    }
+
+    .feedback-box {
+        background: #ecfdf3;
+        border-left-color: #20c997;
+        padding: 16px;
+        border-radius: 8px;
+        border: 2px solid #20c997;
+    }
+
+    .feedback-box p {
+        margin: 0 0 8px 0;
+        color: #065f46;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .feedback-box small {
+        color: #0b5e4e;
+        font-size: 0.85rem;
+    }
+
+    .review-section h5 {
+        color: #ff9800;
+    }
+
+    .form-group-custom {
+        margin-bottom: 18px;
+    }
+
+    .form-group-custom label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #212529;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        resize: vertical;
+    }
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+
+    .form-help-text {
+        display: block;
+        margin-top: 6px;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .review-actions .btn {
+        padding: 12px 30px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .review-actions .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .review-actions .btn-success:hover {
+        filter: brightness(0.95);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    @@media (max-width: 768px) {
+        .report-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .status-badge {
+        display: inline;
+        padding: 0;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+    }
+
+    .status-badge.pending {
+        color: #ff9800;
+    }
+
+    .status-badge.approved {
+        color: #28a745;
+    }
+
+    .status-badge.rejected {
+        color: #dc3545;
+    }
+
 </style>

@@ -2,7 +2,7 @@
 
 <div class="account-management-container">
     <a href="@Url.Action("ViewStudentReports", new { studentId = Model.Internship.StudentId })" style="margin-bottom: 20px; display: inline-block; color: #28a745; text-decoration: none; font-weight: 600;">
-        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        Quay lại danh sách
     </a>
 
     <h2 class="account-management-title">Chi tiết báo cáo tuần @Model.WeekNumber</h2>
@@ -43,7 +43,7 @@
     </div>
 
     <div class="report-section">
-        <h5><i class="fas fa-file-alt"></i> Nội dung báo cáo</h5>
+        <h5>Nội dung báo cáo</h5>
         <div class="report-content">
             <pre>@Model.Content</pre>
         </div>
@@ -52,7 +52,7 @@
     @if (!string.IsNullOrEmpty(Model.SupervisorComment))
     {
         <div class="report-section feedback-section">
-            <h5><i class="fas fa-comment-dots"></i> Nhận xét từ giảng viên</h5>
+            <h5>Nhận xét từ giảng viên</h5>
             <div class="feedback-box">
                 <p>@Model.SupervisorComment</p>
                 <small>Đánh giá lúc: @Model.ReviewedAt?.ToString("dd/MM/yyyy HH:mm")</small>
@@ -60,10 +60,18 @@
         </div>
     }
 
-    @if (string.IsNullOrEmpty(Model.Status) || Model.Status?.ToLower() == "pending")
+    @{
+        var isPending = string.IsNullOrEmpty(Model.Status) || 
+                        Model.Status?.ToLower() == "pending" || 
+                        Model.Status?.ToLower() == "chờ duyệt" ||
+                        Model.Status?.ToLower() == "đã nộp" ||
+                        Model.Status?.ToLower().Contains("chờ") == true ||
+                        Model.Status?.ToLower().Contains("nộp") == true;
+    }
+    @if (isPending)
     {
         <div class="report-section review-section">
-            <h5><i class="fas fa-tasks"></i> Duyệt báo cáo</h5>
+            <h5>Duyệt báo cáo</h5>
             <form asp-action="ReviewReport" method="post" class="review-form">
                 <input type="hidden" name="reportId" value="@Model.ReportId" />
                 
@@ -76,7 +84,10 @@
                 
                 <div class="review-actions">
                     <button type="submit" name="decision" value="approve" class="btn btn-success">
-                        <i class="fas fa-check-circle"></i> Duyệt báo cáo
+                        Duyệt báo cáo
+                    </button>
+                    <button type="submit" name="decision" value="reject" class="btn btn-danger">
+                        Từ chối
                     </button>
                 </div>
             </form>

@@ -91,11 +91,50 @@
             <a href="@Url.Action("InternList")" class="btn btn-outline-secondary uniform-btn">
                 Quay lại
             </a>
-            <button type="submit" class="btn btn-success uniform-btn">
+            <button type="button" class="btn btn-success uniform-btn" onclick="showLegalBasisModal()">
                 @(Model.CompanyEvaluation != null ? "Cập nhật đánh giá" : "Lưu đánh giá")
             </button>
         </div>
     </form>
+</div>
+
+<!-- Legal Basis Modal -->
+<div id="legalBasisModal" class="legal-modal" style="display: none;">
+    <div class="legal-modal-content">
+        <div class="legal-modal-header">
+            <h3>Cơ sở pháp lý cho việc đánh giá thực tập</h3>
+        </div>
+        <div class="legal-modal-body" id="legalBasisContent">
+            <div class="legal-basis-item">
+                <h5>Thông tư 15/2014/TT-BGDĐT</h5>
+                <p class="mb-1"><strong>Mã tham chiếu:</strong> TT15/2014/BGDĐT</p>
+                <p class="text-muted mb-2">Quy định về đánh giá kết quả học tập, rèn luyện của sinh viên hệ chính quy các trình độ đào tạo của giáo dục đại học.</p>
+                <a href="https://thuvienphapluat.vn/van-ban/Giao-duc/Thong-tu-15-2014-TT-BGDDT-danh-gia-ket-qua-hoc-tap-cong-nhan-tot-nghiep-dai-hoc-234145.aspx" target="_blank" class="btn btn-sm btn-outline-success">Xem chi tiết</a>
+            </div>
+            <div class="legal-basis-item">
+                <h5>Quyết định 09/2021/QĐ-BGDĐT</h5>
+                <p class="mb-1"><strong>Mã tham chiếu:</strong> QĐ09/2021/BGDĐT</p>
+                <p class="text-muted mb-2">Ban hành Quy chế thực tập của sinh viên các cơ sở giáo dục đại học.</p>
+                <a href="https://thuvienphapluat.vn/van-ban/Giao-duc/Quyet-dinh-09-2021-QD-BGDDT-Quy-che-dao-tao-trinh-do-dai-hoc-464552.aspx" target="_blank" class="btn btn-sm btn-outline-success">Xem chi tiết</a>
+            </div>
+            <div class="legal-basis-item">
+                <h5>Điều 25 - Đánh giá thực tập</h5>
+                <p class="mb-1"><strong>Mã tham chiếu:</strong> Điều 25/Luật 08/2012/QH13</p>
+                <p class="text-muted mb-2">Việc đánh giá kết quả thực tập của sinh viên phải dựa trên các tiêu chí: Ý thức chấp hành nội quy, quy định của cơ sở thực tập; Kỹ năng thực hiện công việc được giao; Khả năng giao tiếp, làm việc nhóm.</p>
+                <a href="https://thuvienphapluat.vn/van-ban/Giao-duc/Luat-giao-duc-dai-hoc-2012-140444.aspx" target="_blank" class="btn btn-sm btn-outline-success">Xem chi tiết</a>
+            </div>
+        </div>
+        <div class="legal-modal-footer">
+            <div class="legal-checkbox">
+                <input type="checkbox" id="agreeCheckbox" />
+                <label for="agreeCheckbox">Tôi đã đọc và hiểu các cơ sở pháp lý trên, đồng ý thực hiện đánh giá theo đúng quy định.</label>
+            </div>
+            <div class="legal-buttons">
+                <button type="button" class="btn btn-outline-secondary uniform-btn" onclick="closeLegalModal()">Hủy</button>
+                <button type="button" class="btn btn-success uniform-btn" onclick="submitEvaluation()" id="confirmBtn" disabled>Xác nhận đánh giá</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -121,7 +160,31 @@ document.addEventListener('DOMContentLoaded', function() {
     criteriaInputs.forEach(input => input.addEventListener('input', updateFinalScore));
 
     updateFinalScore();
+
+    // Checkbox toggle
+    const agreeCheckbox = document.getElementById('agreeCheckbox');
+    const confirmBtn = document.getElementById('confirmBtn');
+    
+    if (agreeCheckbox && confirmBtn) {
+        agreeCheckbox.addEventListener('change', function() {
+            confirmBtn.disabled = !this.checked;
+        });
+    }
 });
+
+function showLegalBasisModal() {
+    document.getElementById('legalBasisModal').style.display = 'flex';
+    document.getElementById('agreeCheckbox').checked = false;
+    document.getElementById('confirmBtn').disabled = true;
+}
+
+function closeLegalModal() {
+    document.getElementById('legalBasisModal').style.display = 'none';
+}
+
+function submitEvaluation() {
+    document.getElementById('evaluationForm').submit();
+}
 </script>
 
 <style>
@@ -390,4 +453,163 @@ document.addEventListener('DOMContentLoaded', function() {
             width: 100%;
         }
     }
-</style>
+    /* Legal Basis Modal */
+    .legal-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .legal-modal-content {
+        background-color: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 700px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .legal-modal-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .legal-modal-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .legal-modal-body {
+        padding: 25px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .legal-basis-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-left: 4px solid #28a745;
+        border-radius: 6px;
+    }
+
+    .legal-basis-item h5 {
+        color: #28a745;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        font-size: 1rem;
+    }
+
+    .legal-basis-item p {
+        margin: 0;
+        color: #495057;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .legal-basis-item .mb-1 {
+        margin-bottom: 0.25rem;
+    }
+
+    .legal-basis-item .mb-2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .legal-basis-item .text-muted {
+        color: #6c757d !important;
+    }
+
+    .legal-basis-item .btn-outline-success {
+        color: #28a745;
+        border: 1px solid #28a745;
+        background: transparent;
+        padding: 4px 12px;
+        font-size: 0.85rem;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+
+    .legal-basis-item .btn-outline-success:hover {
+        background: #28a745;
+        color: white;
+    }
+
+    .legal-modal-footer {
+        padding: 20px 25px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .legal-checkbox {
+        margin-bottom: 15px;
+    }
+
+    .legal-checkbox input[type="checkbox"] {
+        margin-right: 8px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .legal-checkbox label {
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .legal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .legal-buttons button {
+        padding: 10px 20px !important;
+        font-size: 1rem !important;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        min-width: 150px;
+        flex: 1;
+        max-width: 200px;
+    }
+
+    .legal-buttons .btn-outline-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    .legal-buttons .btn-outline-secondary:hover {
+        background: #5a6268;
+    }
+
+    .legal-buttons .btn-success {
+        background: #28a745;
+        color: white;
+        border: none;
+    }
+
+    .legal-buttons .btn-success:hover {
+        background: #218838;
+    }
+
+    .legal-buttons button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }</style>

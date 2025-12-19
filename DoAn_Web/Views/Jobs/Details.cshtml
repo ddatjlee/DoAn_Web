@@ -58,6 +58,8 @@
     }
 
     <div class="job-actions">
+        <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+
         @if (Context.Session.GetInt32("AdminId") != null)
         {
             <button type="button"
@@ -67,8 +69,6 @@
                 @(Model.IsApproved == true ? "Đã duyệt" : "Duyệt")
             </button>
         }
-
-        <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
 
         @if (Context.Session.GetString("StudentCode") != null)
         {
@@ -257,20 +257,6 @@
 
     .btn-success:hover {
         filter: brightness(0.95);
-    }
-
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        font-size: 0.95rem;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-
-    .btn-danger:hover {
-        background: #c82333;
     }
 
     .legal-modal {

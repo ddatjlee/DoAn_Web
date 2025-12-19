@@ -107,6 +107,11 @@
                         <input id="startDate" name="startDate" type="text" class="form-input" placeholder="Chọn ngày" required />
                         <div class="form-help">Chọn ngày bắt đầu (ngày phải từ hôm nay trở đi).</div>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label" for="endDate">Ngày kết thúc</label>
+                        <input id="endDate" name="endDate" type="text" class="form-input" placeholder="Chọn ngày" />
+                        <div class="form-help">Không bắt buộc. Nếu bỏ trống, hệ thống mặc định 2 tháng kể từ ngày bắt đầu.</div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer-custom">
@@ -187,9 +192,10 @@
             if (assignForm) {
                 assignForm.addEventListener('submit', function (e) {
                     var appId = assignForm.querySelector('#applicationId')?.value || '';
-                    var sup = assignForm.querySelector('#supervisorId')?.value || '';
+                    var sup = assignForm.querySelector('#supervisorIdHidden')?.value || '';
                     var start = assignForm.querySelector('#startDate')?.value || '';
-                    console.log('AssignInternship submit', { applicationId: appId, supervisorId: sup, startDate: start });
+                    var end = assignForm.querySelector('#endDate')?.value || '';
+                    console.log('AssignInternship submit', { applicationId: appId, supervisorId: sup, startDate: start, endDate: end });
 
                     if (!appId) {
                         e.preventDefault();
@@ -218,6 +224,20 @@
                             else el.classList.remove('invalid');
                         });
                         return false;
+                    }
+
+                    // custom validation: if endDate filled, must be >= startDate
+                    if (start && end) {
+                        try {
+                            var s = new Date(start);
+                            var d = new Date(end);
+                            if (d < s) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                alert('Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.');
+                                return false;
+                            }
+                        } catch {}
                     }
 
                     // allow submit; modal will be closed on server redirect
@@ -269,13 +289,31 @@
                 }
             })();
 
-            // --- Initialize flatpickr on startDate ---
+            // --- Initialize flatpickr on startDate & endDate ---
             (function () {
                 try {
                     if (typeof flatpickr === 'function') {
-                        flatpickr('#startDate', {
+                        var endPicker;
+                        var startPicker = flatpickr('#startDate', {
                             dateFormat: 'Y-m-d',
                             minDate: 'today',
+                            altInput: true,
+                            altFormat: 'd/m/Y',
+                            onChange: function(selectedDates) {
+                                try {
+                                    if (endPicker && selectedDates && selectedDates[0]) {
+                                        var s = selectedDates[0];
+                                        endPicker.set('minDate', s);
+                                        // Gợi ý mặc định +2 tháng từ start
+                                        var d = new Date(s.getTime());
+                                        d.setMonth(d.getMonth() + 2);
+                                        endPicker.setDate(d, false);
+                                    }
+                                } catch {}
+                            }
+                        });
+                        endPicker = flatpickr('#endDate', {
+                            dateFormat: 'Y-m-d',
                             altInput: true,
                             altFormat: 'd/m/Y'
                         });

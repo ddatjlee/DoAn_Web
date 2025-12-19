@@ -48,7 +48,7 @@ namespace DoAn_Web.Controllers
         // Xử lý phân công thực tập
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignInternship(int applicationId, int supervisorId, string startDate)
+        public async Task<IActionResult> AssignInternship(int applicationId, int supervisorId, string startDate, string? endDate)
         {
             // Kiểm tra đăng nhập admin
             if (HttpContext.Session.GetInt32("AdminId") == null)
@@ -85,6 +85,23 @@ namespace DoAn_Web.Controllers
                 return RedirectToAction(nameof(AssignInternships));
             }
 
+            // Parse endDate nếu có, ngược lại dùng mặc định 3 tháng kể từ start
+            DateTime parsedEnd;
+            if (!string.IsNullOrWhiteSpace(endDate) && DateTime.TryParse(endDate, out var e))
+            {
+                parsedEnd = e;
+                if (parsedEnd < parsedStart)
+                {
+                    TempData["ErrorMessage"] = "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.";
+                    return RedirectToAction(nameof(AssignInternships));
+                }
+            }
+            else
+            {
+                // Mặc định 2 tháng kể từ ngày bắt đầu nếu admin không nhập
+                parsedEnd = parsedStart.AddMonths(2);
+            }
+
             try
             {
                 // Tạo bản ghi thực tập mới
@@ -94,7 +111,7 @@ namespace DoAn_Web.Controllers
                     CompanyId = application.Job.CompanyId,
                     SupervisorId = supervisorId,
                     StartDate = parsedStart,
-                    EndDate = parsedStart.AddMonths(3), // Thêm EndDate mặc định là 3 tháng
+                    EndDate = parsedEnd,
                     Status = "Đang thực tập"
                 };
 

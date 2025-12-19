@@ -25,7 +25,14 @@
         <div class="card-body">
             <div class="weekly-report-list" id="weeklyReportList">
                 @{
-                    var totalWeeks = 8; // Số tuần thực tập mặc định
+                    // Tính số tuần dựa trên StartDate -> EndDate, nếu không có EndDate thì mặc định 8 tuần
+                    var totalWeeks = 8;
+                    if (Model.EndDate.HasValue && Model.EndDate.Value > Model.StartDate)
+                    {
+                        var totalDays = (Model.EndDate.Value.Date - Model.StartDate.Date).TotalDays + 1; // tính bao gồm cả ngày đầu/cuối
+                        totalWeeks = Math.Max(1, (int)Math.Ceiling(totalDays / 7.0));
+                    }
+
                     for (int i = 1; i <= totalWeeks; i++)
                     {
                         var report = Model.WeeklyReports.FirstOrDefault(r => r.WeekNumber == i);
@@ -33,6 +40,10 @@
                         var submitted = report != null;
                         var startDate = Model.StartDate.AddDays((i-1) * 7);
                         var endDate = startDate.AddDays(6);
+                        if (Model.EndDate.HasValue && endDate > Model.EndDate.Value)
+                        {
+                            endDate = Model.EndDate.Value;
+                        }
 
                         <div class="weekly-row" data-week="@i">
                             <div class="week-col">

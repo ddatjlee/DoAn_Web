@@ -1,48 +1,61 @@
 @model IEnumerable<DoAn_Web.Models.Internship>
 
-<div class="container mt-4 admin-container">
-    <h2 style="margin-bottom:1rem;">Danh sách sinh viên thực tập</h2>
+<div class="account-management-container">
+    <h2 class="account-management-title">Danh sách sinh viên thực tập</h2>
 
     @if (!Model.Any())
     {
-        <div class="evaluation-empty">Hiện tại chưa có sinh viên thực tập tại công ty.</div>
+        <div class="alert alert-info" style="text-align: center; padding: 20px;">
+            Hiện tại chưa có sinh viên thực tập tại công ty.
+        </div>
     }
     else
     {
-        <div style="display:flex; flex-direction:column; gap:.8rem;">
+        <div class="students-list">
             @foreach (var internship in Model)
             {
-                <div class="report-card" style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
-                    <div style="display:flex; gap:1rem; align-items:center; min-width:0;">
-                        <div style="width:64px; height:64px; border-radius:8px; overflow:hidden; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <div class="student-card">
+                    <div class="student-info">
+                        <div class="student-avatar">
                             @if (!string.IsNullOrEmpty(internship.Student.AvatarUrl))
                             {
-                                <img src="@internship.Student.AvatarUrl" alt="avatar" style="width:64px; height:64px; object-fit:cover;" />
+                                <img src="@internship.Student.AvatarUrl" alt="avatar" />
                             }
                             else
                             {
-                                <div style="font-weight:700; color:#6c757d;">@internship.Student.FullName?.Split(' ').LastOrDefault()?.Substring(0,1)</div>
+                                <div class="avatar-initial">@internship.Student.FullName?.Split(' ').LastOrDefault()?.Substring(0,1)</div>
                             }
                         </div>
 
-                        <div style="min-width:0;">
-                            <div style="font-weight:700; color:#343a40;">@internship.Student.FullName</div>
-                            <div style="color:#6c757d; font-size:.92rem; margin-top:.2rem;">Mã SV: @internship.Student.StudentCode</div>
-                            <div style="color:#6c757d; font-size:.9rem; margin-top:.18rem;">@internship.StartDate.ToString("dd/MM/yyyy") - @(internship.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</div>
+                        <div class="student-details">
+                            <div class="student-name">@internship.Student.FullName</div>
+                            <div class="student-code">Mã SV: @internship.Student.StudentCode</div>
+                            <div class="student-duration">@internship.StartDate.ToString("dd/MM/yyyy") - @(internship.EndDate?.ToString("dd/MM/yyyy") ?? "Hiện tại")</div>
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:.8rem; align-items:center;">
-                        <div style="text-align:right; min-width:140px;">
-                            <div style="margin-bottom:.4rem;">Báo cáo: <strong>@internship.WeeklyReports.Count</strong></div>
-                            <div>
-                                <span class="status-pill @(internship.Status?.ToLower() == "hoàn thành" || internship.Status?.ToLower() == "completed" ? "submitted" : "pending")">@internship.Status</span>
+                    <div class="student-stats">
+                        <div class="stats-info">
+                            <div class="report-count">Báo cáo: <strong>@internship.WeeklyReports.Count</strong></div>
+                            <div class="status-badge">
+                                @if (internship.Status?.ToLower() == "hoàn thành" || internship.Status?.ToLower() == "completed")
+                                {
+                                    <span class="status-text approved">Hoàn thành</span>
+                                }
+                                else if (internship.Status?.ToLower() == "đang thực tập" || internship.Status?.ToLower() == "in progress")
+                                {
+                                    <span class="status-text pending">Đang thực tập</span>
+                                }
+                                else
+                                {
+                                    <span class="status-text">@internship.Status</span>
+                                }
                             </div>
                         </div>
 
-                        <div style="display:flex; gap:.5rem; align-items:center;">
-                            <a href="@Url.Action("ViewStudentReports", "Internship", new { internshipId = internship.InternshipId })" class="uniform-btn">Xem báo cáo</a>
-                            <a asp-action="CompanyEvaluation" asp-route-internshipId="@internship.InternshipId" class="uniform-btn btn-primary">Đánh giá</a>
+                        <div class="student-actions">
+                            <a href="@Url.Action("ViewStudentReports", "Internship", new { internshipId = internship.InternshipId })" class="btn btn-info uniform-btn">Xem báo cáo</a>
+                            <a asp-action="CompanyEvaluation" asp-route-internshipId="@internship.InternshipId" class="btn btn-success uniform-btn">Đánh giá</a>
                         </div>
                     </div>
                 </div>
@@ -50,3 +63,186 @@
         </div>
     }
 </div>
+
+<style>
+    .students-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .student-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .student-card:hover {
+        border-color: #28a745;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.1);
+    }
+
+    .student-info {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .student-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .student-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-initial {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .student-details {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .student-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #343a40;
+        margin-bottom: 4px;
+    }
+
+    .student-code {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+
+    .student-duration {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .student-stats {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .stats-info {
+        text-align: right;
+        min-width: 140px;
+    }
+
+    .report-count {
+        margin-bottom: 8px;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+
+    .status-badge {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .status-text {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .status-text.pending {
+        color: #ff9800;
+    }
+
+    .status-text.approved {
+        color: #28a745;
+    }
+
+    .student-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .uniform-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-info {
+        background: #17a2b8;
+        color: white;
+        border: none;
+    }
+
+    .btn-info:hover {
+        background: #138496;
+        color: white;
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+        color: white;
+    }
+
+    @@media (max-width: 768px) {
+        .student-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .student-stats {
+            flex-direction: column;
+            width: 100%;
+            gap: 15px;
+        }
+
+        .stats-info {
+            text-align: left;
+            width: 100%;
+        }
+
+        .status-badge {
+            justify-content: flex-start;
+        }
+
+        .student-actions {
+            width: 100%;
+        }
+
+        .student-actions .uniform-btn {
+            flex: 1;
+        }
+    }
+</style>

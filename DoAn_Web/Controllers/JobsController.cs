@@ -41,19 +41,23 @@ namespace DoAn_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Lấy danh sách công việc đã được duyệt (IsApproved = true) và còn hoạt động (IsActive = true)
-            var jobs = await _context.JobPostings
+            // Lấy danh sách công việc đã được duyệt (IsApproved = true)
+            var allJobs = await _context.JobPostings
                 .Include(j => j.Company) // Include thông tin công ty
-                .Where(j => j.IsApproved == true && j.IsActive == true)
+                .Where(j => j.IsApproved == true)
                 .OrderByDescending(j => j.CreatedAt)
                 .ToListAsync();
 
-            // Nhóm công việc theo công ty
-            var jobsByCompany = jobs
-                .GroupBy(j => j.Company)
-                .OrderBy(g => g.Key.Name);
+            var now = DateTime.Now;
+            
+            // Chia thành 2 nhóm: còn hạn và hết hạn
+            var activeJobs = allJobs.Where(j => j.ApplicationDeadline >= now && j.IsActive == true).ToList();
+            var expiredJobs = allJobs.Where(j => j.ApplicationDeadline < now || j.IsActive == false).ToList();
 
-            return View(jobsByCompany);
+            ViewBag.ActiveJobs = activeJobs;
+            ViewBag.ExpiredJobs = expiredJobs;
+
+            return View();
         }
         [HttpGet]
         public async Task<IActionResult> ViewInterviews(int jobId)

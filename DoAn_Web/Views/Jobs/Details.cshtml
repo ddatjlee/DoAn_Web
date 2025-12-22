@@ -70,9 +70,9 @@
             </button>
         }
 
-        @if (Context.Session.GetString("StudentCode") != null)
+        @if (Context.Session.GetInt32("StudentId") != null)
         {
-            <a asp-controller="Applications" asp-action="Create" asp-route-jobId="@Model.JobId" class="btn btn-success">Ứng tuyển ngay</a>
+            <a asp-controller="Applications" asp-action="ApplyJob" asp-route-jobId="@Model.JobId" class="btn btn-success">Ứng tuyển ngay</a>
         }
     </div>
 </div>

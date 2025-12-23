@@ -157,6 +157,7 @@ namespace DoAn_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetLegalBasisForApproval()
         {
+            // Ưu tiên lọc theo các nhóm liên quan, nhưng nếu không có thì trả về 5 bản ghi mới nhất bất kỳ
             var legalBases = await _context.LegalBases
                 .Where(l => l.Category == "Tuyển dụng" || l.Category == "Xác minh doanh nghiệp" || l.Category == "Chống lừa đảo")
                 .OrderByDescending(l => l.IssuedDate)
@@ -168,6 +169,20 @@ namespace DoAn_Web.Controllers
                     l.DocumentUrl
                 })
                 .ToListAsync();
+
+            if (!legalBases.Any())
+            {
+                legalBases = await _context.LegalBases
+                    .OrderByDescending(l => l.IssuedDate)
+                    .Take(5)
+                    .Select(l => new {
+                        l.Title,
+                        l.ReferenceCode,
+                        l.Description,
+                        l.DocumentUrl
+                    })
+                    .ToListAsync();
+            }
             
             return Json(legalBases);
         }

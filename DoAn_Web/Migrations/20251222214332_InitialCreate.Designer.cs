@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAn_Web.Migrations
 {
     [DbContext(typeof(RecruitmentSystemContext))]
-    [Migration("20251007045922_UpdateWeeklyReports")]
-    partial class UpdateWeeklyReports
+    [Migration("20251222214332_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -239,6 +239,15 @@ namespace DoAn_Web.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<decimal>("CriteriaCompliance")
+                        .HasColumnType("decimal(3,1)");
+
+                    b.Property<decimal>("CriteriaRelationship")
+                        .HasColumnType("decimal(3,1)");
+
+                    b.Property<decimal>("CriteriaTaskPerformance")
+                        .HasColumnType("decimal(3,1)");
+
                     b.Property<DateTime>("EvaluationDate")
                         .HasColumnType("datetime2");
 
@@ -246,20 +255,14 @@ namespace DoAn_Web.Migrations
                         .HasColumnType("int")
                         .HasColumnName("InternshipID");
 
-                    b.Property<int?>("InternshipId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
                     b.HasKey("EvaluationId")
                         .HasName("PK_CompanyEvaluations");
 
-                    b.HasIndex("InternshipId");
-
-                    b.HasIndex("InternshipId1")
-                        .IsUnique()
-                        .HasFilter("[InternshipId1] IS NOT NULL");
+                    b.HasIndex("InternshipId")
+                        .IsUnique();
 
                     b.ToTable("CompanyEvaluations");
                 });
@@ -300,6 +303,9 @@ namespace DoAn_Web.Migrations
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("InternshipReportUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -483,6 +489,41 @@ namespace DoAn_Web.Migrations
                         .IsUnique();
 
                     b.ToTable("JobTypes");
+                });
+
+            modelBuilder.Entity("DoAn_Web.Models.LegalBase", b =>
+                {
+                    b.Property<int>("LegalID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LegalID"));
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DocumentUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IssuedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("LegalID");
+
+                    b.ToTable("LegalBases");
                 });
 
             modelBuilder.Entity("DoAn_Web.Models.Location", b =>
@@ -713,20 +754,14 @@ namespace DoAn_Web.Migrations
                         .HasColumnType("int")
                         .HasColumnName("InternshipID");
 
-                    b.Property<int?>("InternshipId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
                     b.HasKey("EvaluationID")
                         .HasName("PK_SupervisorEvaluations");
 
-                    b.HasIndex("InternshipId");
-
-                    b.HasIndex("InternshipId1")
-                        .IsUnique()
-                        .HasFilter("[InternshipId1] IS NOT NULL");
+                    b.HasIndex("InternshipId")
+                        .IsUnique();
 
                     b.ToTable("SupervisorEvaluations");
                 });
@@ -759,7 +794,8 @@ namespace DoAn_Web.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("SupervisorComment")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("WeekNumber")
                         .HasColumnType("int");
@@ -842,15 +878,11 @@ namespace DoAn_Web.Migrations
             modelBuilder.Entity("DoAn_Web.Models.CompanyEvaluation", b =>
                 {
                     b.HasOne("DoAn_Web.Models.Internship", "Internship")
-                        .WithMany("CompanyEvaluations")
-                        .HasForeignKey("InternshipId")
+                        .WithOne("CompanyEvaluation")
+                        .HasForeignKey("DoAn_Web.Models.CompanyEvaluation", "InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_CompanyEvaluations_Internships");
-
-                    b.HasOne("DoAn_Web.Models.Internship", null)
-                        .WithOne("CompanyEvaluation")
-                        .HasForeignKey("DoAn_Web.Models.CompanyEvaluation", "InternshipId1");
 
                     b.Navigation("Internship");
                 });
@@ -932,15 +964,11 @@ namespace DoAn_Web.Migrations
             modelBuilder.Entity("DoAn_Web.Models.SupervisorEvaluation", b =>
                 {
                     b.HasOne("DoAn_Web.Models.Internship", "Internship")
-                        .WithMany("SupervisorEvaluations")
-                        .HasForeignKey("InternshipId")
+                        .WithOne("SupervisorEvaluation")
+                        .HasForeignKey("DoAn_Web.Models.SupervisorEvaluation", "InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_SupervisorEvaluations_Internships");
-
-                    b.HasOne("DoAn_Web.Models.Internship", null)
-                        .WithOne("SupervisorEvaluation")
-                        .HasForeignKey("DoAn_Web.Models.SupervisorEvaluation", "InternshipId1");
 
                     b.Navigation("Internship");
                 });
@@ -1005,15 +1033,9 @@ namespace DoAn_Web.Migrations
 
             modelBuilder.Entity("DoAn_Web.Models.Internship", b =>
                 {
-                    b.Navigation("CompanyEvaluation")
-                        .IsRequired();
+                    b.Navigation("CompanyEvaluation");
 
-                    b.Navigation("CompanyEvaluations");
-
-                    b.Navigation("SupervisorEvaluation")
-                        .IsRequired();
-
-                    b.Navigation("SupervisorEvaluations");
+                    b.Navigation("SupervisorEvaluation");
 
                     b.Navigation("WeeklyReports");
                 });

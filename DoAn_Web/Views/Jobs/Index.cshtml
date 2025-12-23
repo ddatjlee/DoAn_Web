@@ -120,10 +120,6 @@
 								<td>
 									<div class="action-buttons">
 										<a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-primary uniform-btn">Xem chi tiết</a>
-										@if (Context.Session.GetInt32("StudentId") != null)
-										{
-											<a asp-controller="Applications" asp-action="ApplyJob" asp-route-jobId="@job.JobId" class="btn btn-custom uniform-btn">Ứng tuyển</a>
-										}
 									</div>
 								</td>
 							</tr>

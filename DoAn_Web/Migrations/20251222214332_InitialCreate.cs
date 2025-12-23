@@ -79,6 +79,25 @@ namespace DoAn_Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LegalBases",
+                columns: table => new
+                {
+                    LegalID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReferenceCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IssuedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IssuedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DocumentUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LegalBases", x => x.LegalID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -246,8 +265,9 @@ namespace DoAn_Web.Migrations
                     CompanyId = table.Column<int>(type: "int", nullable: false),
                     SupervisorId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InternshipReportUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -355,9 +375,11 @@ namespace DoAn_Web.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InternshipID = table.Column<int>(type: "int", nullable: false),
                     EvaluationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CriteriaCompliance = table.Column<decimal>(type: "decimal(3,1)", nullable: false),
+                    CriteriaTaskPerformance = table.Column<decimal>(type: "decimal(3,1)", nullable: false),
+                    CriteriaRelationship = table.Column<decimal>(type: "decimal(3,1)", nullable: false),
                     Score = table.Column<int>(type: "int", nullable: false),
-                    Comments = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    InternshipId1 = table.Column<int>(type: "int", nullable: true)
+                    Comments = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -368,11 +390,6 @@ namespace DoAn_Web.Migrations
                         principalTable: "Internships",
                         principalColumn: "InternshipId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CompanyEvaluations_Internships_InternshipId1",
-                        column: x => x.InternshipId1,
-                        principalTable: "Internships",
-                        principalColumn: "InternshipId");
                 });
 
             migrationBuilder.CreateTable(
@@ -384,8 +401,7 @@ namespace DoAn_Web.Migrations
                     InternshipID = table.Column<int>(type: "int", nullable: false),
                     EvaluationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Score = table.Column<int>(type: "int", nullable: false),
-                    Comments = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    InternshipId1 = table.Column<int>(type: "int", nullable: true)
+                    Comments = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -396,11 +412,6 @@ namespace DoAn_Web.Migrations
                         principalTable: "Internships",
                         principalColumn: "InternshipId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SupervisorEvaluations_Internships_InternshipId1",
-                        column: x => x.InternshipId1,
-                        principalTable: "Internships",
-                        principalColumn: "InternshipId");
                 });
 
             migrationBuilder.CreateTable(
@@ -413,7 +424,9 @@ namespace DoAn_Web.Migrations
                     WeekNumber = table.Column<int>(type: "int", nullable: false),
                     ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    SupervisorComment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -499,14 +512,8 @@ namespace DoAn_Web.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_CompanyEvaluations_InternshipID",
                 table: "CompanyEvaluations",
-                column: "InternshipID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyEvaluations_InternshipId1",
-                table: "CompanyEvaluations",
-                column: "InternshipId1",
-                unique: true,
-                filter: "[InternshipId1] IS NOT NULL");
+                column: "InternshipID",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "UQ__Experien__737584F69D146EA7",
@@ -601,14 +608,8 @@ namespace DoAn_Web.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_SupervisorEvaluations_InternshipID",
                 table: "SupervisorEvaluations",
-                column: "InternshipID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SupervisorEvaluations_InternshipId1",
-                table: "SupervisorEvaluations",
-                column: "InternshipId1",
-                unique: true,
-                filter: "[InternshipId1] IS NOT NULL");
+                column: "InternshipID",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Supervisors_Email",
@@ -639,6 +640,9 @@ namespace DoAn_Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "JobSkills");
+
+            migrationBuilder.DropTable(
+                name: "LegalBases");
 
             migrationBuilder.DropTable(
                 name: "Notifications");

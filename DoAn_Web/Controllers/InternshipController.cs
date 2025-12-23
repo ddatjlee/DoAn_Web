@@ -10,10 +10,12 @@ namespace DoAn_Web.Controllers
     public class InternshipController : Controller
     {
         private readonly RecruitmentSystemContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public InternshipController(RecruitmentSystemContext context)
+        public InternshipController(RecruitmentSystemContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<IActionResult> StudentReports()
@@ -481,6 +483,74 @@ namespace DoAn_Web.Controllers
             return Json(new { success = true });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UploadInternshipReport(int internshipId, IFormFile reportFile)
+        {
+            var studentId = HttpContext.Session.GetInt32("StudentId");
+            if (!studentId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập để gửi báo cáo.";
+                return RedirectToAction("LoginStudent", "Home");
+            }
+
+            var internship = await _context.Internships
+                .FirstOrDefaultAsync(i => i.InternshipId == internshipId && i.StudentId == studentId.Value);
+
+            if (internship == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy thông tin thực tập.";
+                return RedirectToAction("WeeklyReportTable");
+            }
+
+            if (reportFile == null || reportFile.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn file báo cáo.";
+                return RedirectToAction("WeeklyReportTable");
+            }
+
+            // Kiểm tra định dạng file
+            var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+            var fileExtension = Path.GetExtension(reportFile.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                TempData["ErrorMessage"] = "Chỉ chấp nhận các file: PDF, Word (.doc, .docx)";
+                return RedirectToAction("WeeklyReportTable");
+            }
+
+            // Kiểm tra kích thước file (max 10MB)
+            if (reportFile.Length > 10 * 1024 * 1024)
+            {
+                TempData["ErrorMessage"] = "Kích thước file không được vượt quá 10MB.";
+                return RedirectToAction("WeeklyReportTable");
+            }
+
+            try
+            {
+                var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "internship-reports");
+                Directory.CreateDirectory(uploadsFolder);
+                
+                var fileName = $"internship_{internshipId}_{DateTime.Now:yyyyMMdd_HHmmss}{fileExtension}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await reportFile.CopyToAsync(stream);
+                }
+
+                internship.InternshipReportUrl = $"/internship-reports/{fileName}";
+                _context.Internships.Update(internship);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Báo cáo thực tập đã được gửi thành công!";
+                return RedirectToAction("WeeklyReportTable");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Có lỗi xảy ra khi gửi báo cáo: {ex.Message}";
+                return RedirectToAction("WeeklyReportTable");
+            }
+        }
+
         // Company xem báo cáo của sinh viên thực tập
         public async Task<IActionResult> ViewStudentReports(int internshipId)
         {
@@ -505,6 +575,7 @@ namespace DoAn_Web.Controllers
             ViewBag.StudentName = internship.Student.FullName;
             ViewBag.StudentCode = internship.Student.StudentCode;
             ViewBag.InternshipId = internshipId;
+            ViewBag.InternshipReportUrl = internship.InternshipReportUrl;
 
             var reports = internship.WeeklyReports.OrderByDescending(r => r.WeekNumber).ToList();
 

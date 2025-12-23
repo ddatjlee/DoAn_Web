@@ -18,6 +18,39 @@
     </div>
 
     <div class="card">
+        <div class="card-header">
+            <h4>Đưa Báo cáo Thực Tập</h4>
+        </div>
+        <div class="card-body">
+            <div style="margin-bottom: 20px;">
+                @if (!string.IsNullOrEmpty(Model.InternshipReportUrl))
+                {
+                    <div style="padding: 12px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; margin-bottom: 16px;">
+                        <p style="margin: 0; color: #155724;">
+                            <i class="fas fa-check-circle"></i> Báo cáo thực tập đã được gửi
+                        </p>
+                        <p style="margin: 8px 0 0 0;">
+                            <a href="@Model.InternshipReportUrl" target="_blank" class="btn btn-sm btn-outline-primary">Tậi xuống Báo cáo</a>
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="internshipReportForm" enctype="multipart/form-data" method="post" asp-action="UploadInternshipReport" asp-controller="Internship">
+                        <input type="hidden" name="internshipId" value="@Model.InternshipId" />
+                        <div style="margin-bottom: 16px;">
+                            <label for="reportFile" style="display: block; margin-bottom: 8px; font-weight: 500;">Chọn file báo cáo (.pdf, .docx, .doc):</label>
+                            <input type="file" id="reportFile" name="reportFile" accept=".pdf,.doc,.docx" required style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; width: 100%;" />
+                            <small style="color: #6c757d; display: block; margin-top: 6px;">Chỉ chấp nhận các tệp: PDF, Word (.doc, .docx)</small>
+                        </div>
+                        <button type="submit" class="uniform-btn btn-primary">Gửi Báo cáo</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4>Bảng báo cáo công việc</h4>
             <button type="button" class="uniform-btn btn-primary" id="btnSaveAll">Lưu tất cả</button>

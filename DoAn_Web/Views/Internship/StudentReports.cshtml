@@ -44,6 +44,29 @@
         </div>
     </div>
 
+    <!-- Internship overall report -->
+    <div class="overall-report-box">
+        @if (!string.IsNullOrEmpty(Model.InternshipReportUrl))
+        {
+            <div class="overall-report-row">
+                <div class="overall-report-text">
+                    <strong>Báo cáo thực tập (tổng)</strong>
+                    <span>File đã được sinh viên nộp.</span>
+                </div>
+                <a href="@Model.InternshipReportUrl" target="_blank" class="btn btn-success overall-report-btn">Tải báo cáo</a>
+            </div>
+        }
+        else
+        {
+            <div class="overall-report-row empty">
+                <div class="overall-report-text">
+                    <strong>Báo cáo thực tập (tổng)</strong>
+                    <span>Chưa có file được nộp.</span>
+                </div>
+            </div>
+        }
+    </div>
+
     <!-- Weekly Reports Section -->
     <div style="margin-top: 30px;">
         <h3 class="section-title">
@@ -197,6 +220,42 @@
     .section-title i {
         margin-right: 8px;
         color: #20c997;
+    }
+
+    .overall-report-box {
+        margin: 20px 0 30px;
+        padding: 16px 18px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: #fdfefc;
+    }
+
+    .overall-report-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .overall-report-row.empty {
+        color: #6c757d;
+    }
+
+    .overall-report-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .overall-report-text strong {
+        color: #28a745;
+    }
+
+    .overall-report-btn {
+        min-width: 140px;
+        font-weight: 600;
+        border-radius: 8px;
     }
 
     .reports-list {

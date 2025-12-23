@@ -3,6 +3,28 @@
 <div class="account-management-container">
     <h2 class="account-management-title">Báo cáo thực tập: @ViewBag.StudentName (@ViewBag.StudentCode)</h2>
 
+    <div class="overall-report-box">
+        @if (!string.IsNullOrEmpty(ViewBag.InternshipReportUrl as string))
+        {
+            <div class="overall-report-row">
+                <div class="overall-report-text">
+                    <strong>Báo cáo thực tập (tổng)</strong>
+                    <span>File đã được sinh viên nộp.</span>
+                </div>
+                <a href="@ViewBag.InternshipReportUrl" target="_blank" class="btn btn-success uniform-btn overall-report-btn">Tải báo cáo</a>
+            </div>
+        }
+        else
+        {
+            <div class="overall-report-row empty">
+                <div class="overall-report-text">
+                    <strong>Báo cáo thực tập (tổng)</strong>
+                    <span>Chưa có file được nộp.</span>
+                </div>
+            </div>
+        }
+    </div>
+
     @if (Model != null && Model.Any())
     {
         <div class="table-responsive">
@@ -117,5 +139,39 @@
 
     .status-text.rejected {
         color: #dc3545;
+    }
+
+    .overall-report-box {
+        margin: 15px 0 25px;
+        padding: 14px 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: #fdfefc;
+    }
+
+    .overall-report-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .overall-report-row.empty {
+        color: #6c757d;
+    }
+
+    .overall-report-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .overall-report-text strong {
+        color: #28a745;
+    }
+
+    .overall-report-btn {
+        min-width: 140px;
     }
 </style>

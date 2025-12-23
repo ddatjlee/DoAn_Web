@@ -12,6 +12,7 @@ namespace DoAn_Web.Models
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string Status { get; set; } = "Đang thực tập";
+        public string? InternshipReportUrl { get; set; } // Đường dẫn file báo cáo thực tập
 
         // Navigation properties
         public virtual Student Student { get; set; }

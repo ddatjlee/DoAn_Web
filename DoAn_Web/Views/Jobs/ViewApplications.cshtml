@@ -80,10 +80,16 @@
                                         }
                                         @if (app.Status == "interviewed")
                                         {
-                                            <form asp-action="AcceptApplication" method="post" style="display: inline;">
-                                                <input type="hidden" name="applicationId" value="@app.ApplicationId" />
-                                                <button type="submit" class="btn btn-success uniform-btn">Chấp nhận</button>
-                                            </form>
+                                            <div style="display: flex; gap: 8px;">
+                                                <form asp-action="AcceptApplication" method="post" style="display: inline;">
+                                                    <input type="hidden" name="applicationId" value="@app.ApplicationId" />
+                                                    <button type="submit" class="btn btn-success uniform-btn">Chấp nhận</button>
+                                                </form>
+                                                <form asp-action="RejectApplication" method="post" style="display: inline;">
+                                                    <input type="hidden" name="applicationId" value="@app.ApplicationId" />
+                                                    <button type="submit" class="btn btn-danger uniform-btn" onclick="return confirm('Bạn có chắc chắn muốn từ chối ứng viên này không?');">Từ chối</button>
+                                                </form>
+                                            </div>
                                         }
                                         @if (app.Status == "rejected")
                                         {

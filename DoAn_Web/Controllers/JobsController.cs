@@ -433,5 +433,54 @@ namespace DoAn_Web.Controllers
             TempData["SuccessMessage"] = "Đã chấp nhận đơn ứng tuyển thành công.";
             return RedirectToAction(nameof(ViewApplications), new { jobId = application.JobId });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectApplication(int applicationId)
+        {
+            // Kiểm tra đăng nhập của công ty
+            var companyId = HttpContext.Session.GetInt32("CompanyId");
+            if (companyId == null)
+            {
+                return RedirectToAction("LoginCompany", "Home");
+            }
+
+            // Lấy thông tin đơn ứng tuyển
+            var application = await _context.Applications
+                .Include(a => a.Job)
+                .Include(a => a.Student)
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId && a.Job.CompanyId == companyId);
+
+            if (application == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền thực hiện thao tác này.";
+                return RedirectToAction(nameof(ViewApplications), new { jobId = 0 });
+            }
+
+            if (application.Status != "interviewed")
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể từ chối đơn ứng tuyển sau khi đã phỏng vấn.";
+                return RedirectToAction(nameof(ViewApplications), new { jobId = application.JobId });
+            }
+
+            // Cập nhật trạng thái đơn
+            application.Status = "rejected";
+            await _context.SaveChangesAsync();
+
+            // Tạo thông báo cho sinh viên
+            var notification = new Notification
+            {
+                UserId = application.StudentId,
+                UserType = "student",
+                Message = $"Rất tiếc! Đơn ứng tuyển của bạn cho vị trí {application.Job.Title} đã bị từ chối.",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            };
+            _context.Notifications.Add(notification);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã từ chối đơn ứng tuyển.";
+            return RedirectToAction(nameof(ViewApplications), new { jobId = application.JobId });
+        }
     }
 }
